@@ -11,7 +11,7 @@ client.add_cog(music_cog(client))
 @client.event
 async def on_ready():
 	print('Logged in as {0.user}.'.format(client))
-	await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name=config.LISTENING_TO))
+	await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.watching, name="time go by"))
 
 #============================= COMMANDS =============================#
 

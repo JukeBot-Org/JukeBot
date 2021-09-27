@@ -1,18 +1,19 @@
 import nextcord
 from nextcord.ext import commands
 from youtube_dl import YoutubeDL
+import json
 
 import config
 
 class music_cog(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, client):
+        self.client = client
 
         # Determines whether or not the bot is currently playing.
         # If music is already playing and a new play request is received, it will instead be queued.
         self.is_playing = False
 
-        self.music_queue = [] # [song, channel]
+        self.music_queue = [] # [song, title]
         self.YDL_OPTIONS = {
             "format"     : "bestaudio",
             "noplaylist" : "True"
@@ -52,13 +53,14 @@ class music_cog(commands.Cog):
     async def play_music(self):
         if len(self.music_queue) > 0:
             self.is_playing = True
+            print(json.dumps(self.music_queue[0][0], indent=4))
             m_url = self.music_queue[0][0]['source']
 
             # Try to connect to the VC if not connected
             if self.vc == "" or not self.vc.is_connected():
                 self.vc = await self.music_queue[0][1].connect()
             else:
-                self.vc = await self.bot.move_to(self.music_queue[0][1])
+                self.vc = await self.client.move_to(self.music_queue[0][1])
 
             print(self.music_queue)
             self.music_queue.pop(0)
@@ -67,6 +69,7 @@ class music_cog(commands.Cog):
 
         else:
             self.is_playing = False # Stop playing music.
+
 
 
     @commands.command()
@@ -104,3 +107,9 @@ class music_cog(commands.Cog):
         if self.vc != "":
             self.vc.stop()
             await self.play_music()
+
+    @commands.command()
+    async def dc(self, ctx):
+        if self.vc != "":
+            self.vc.stop()
+            await self.vc.disconnect()
