@@ -12,6 +12,7 @@ client.add_cog(music_cog(client))
 async def on_ready():
 	print('Logged in as {0.user}.'.format(client))
 	await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.watching, name="time go by"))
+    discord.opus.load_opus()
 
 #============================= COMMANDS =============================#
 
