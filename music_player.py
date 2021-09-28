@@ -33,8 +33,12 @@ class music_cog(commands.Cog):
             except Exception:
                 return False
 
-        return { "source" : info["formats"][0]["url"],
-                 "title"  : info["title"]}
+        return { "source"   : info["formats"][0]["url"],
+                 "title"    : info["title"],
+                 "thumb"    : info["thumbnail"],
+                 "duration" : info["duration"],
+                 "uploader" : info["uploader"]
+               }
 
     def play_next(self):
         if len(self.music_queue) > 0: # If there's music waiting in the queue...
@@ -45,6 +49,7 @@ class music_cog(commands.Cog):
             # ...then play the music in the current VC!
             # Once the music is finished playing, repeat from the start.
             # Loop until the queue is empty, at which point...
+
             self.vc.play(nextcord.FFmpegPCMAudio(m_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next())
 
         else:
@@ -62,7 +67,7 @@ class music_cog(commands.Cog):
             else:
                 self.vc = await self.client.move_to(self.music_queue[0][1])
 
-            print(self.music_queue)
+            # print(self.music_queue)
             self.music_queue.pop(0)
 
             self.vc.play(nextcord.FFmpegPCMAudio(m_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next())

@@ -2,6 +2,7 @@
 config.py
 ytdl_example.json
 bin/
+local_audio/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
