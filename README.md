@@ -1,6 +1,8 @@
 ### Disclaimer
 **This code is provided for educational purposes only and is not to be used for any purpose that would infringe on the policies or terms of service of any party.**
 
+------------------------
+
 # JukeBot
 A self-hosted audio streaming bot for Discord. Currently supports YouTube, with plans to support local file streaming eventually.
 
