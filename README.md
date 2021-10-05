@@ -31,3 +31,4 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * Set up GitHub Pages website for JukeBot.
 * Re-implement `!skip`.
 * Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.
+* Function-ify redundant embed/dialog code in `!play`.

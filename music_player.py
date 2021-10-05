@@ -86,11 +86,6 @@ class Music_Player(commands.Cog):
 
 # ====================== COMMANDS ====================== #
     @commands.command()
-    async def isplaying(self, ctx, *args):
-        """Debug command"""
-        await ctx.send(embed=DialogBox("Debug", "Debug", "self.is_playing = `{}`".format(self.is_playing)))
-
-    @commands.command()
     async def play(self, ctx, *args):
         """Plays a song in the voice channel that you're currently in.
         Takes YouTube links, search terms, and Spotify links (TODO)
@@ -133,6 +128,7 @@ class Music_Player(commands.Cog):
 
     @commands.command()
     async def about(self, ctx):
+        await ctx.message.delete()
         repo      = git.Repo(search_parent_directories=True)
         reply = DialogBox("Version", "Thank you for using JukeBot!",
         """**JukeBot** is a self-hostable music streaming bot that runs on spite, a love for freedom, and Python 3.\n
