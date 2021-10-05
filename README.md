@@ -22,3 +22,10 @@ Rename `config.EXAMPLES.py` to `config.py` and update the FFmpeg path and your D
 
 ## 4. Set up a Discord application and bot
 I'm not gonna go into too much detail on this, but create a bot, add it to your server, then put the bot's token in `DISCORD_BOT_TOKEN` in `config.py`.
+
+# To do
+* Add a pretty `!queue` command.
+* Implement Spotify link recognition and translation.
+* Set up GitHub Pages website for JukeBot.
+* Re-implement `!skip`.
+* Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.

@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from colorama import Fore, Style
 from embed_dialogs import DialogBox
+import git
 
 import config
 
@@ -44,19 +45,17 @@ class Music_Player(commands.Cog):
                 print("====================================\n" + Style.RESET_ALL)
                 return False
         print("====================================\n" + Style.RESET_ALL)
+        print(json.dumps(info, indent=4))
         return { "source"   : info["formats"][0]["url"],
                  "title"    : info["title"],
-                 "thumb"    : info["thumbnail"]
+                 "thumb"    : info["thumbnail"],
+                 "duration" : info["duration"]
                }
 
     async def play_music(self, ctx):
         if len(self.music_queue) > 0: # If there are tracks in the queue...
             self.is_playing = True
             media_url = self.music_queue[0]["song_data"]["source"]
-
-            # Try to connect to the VC if not connected
-            #await ctx.send("**{}** will be played right now!".format(self.music_queue[0]["song_data"]["title"])) #EMBEDDIALOGSSSSS
-            print(dbug(self.vc))
 
             if self.vc == "": # If not in a voice channel currently...
                 print(dbug("Joining VC..."))
@@ -66,11 +65,11 @@ class Music_Player(commands.Cog):
 
             self.music_queue.pop(0)
             self.vc.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS),
-                         after=lambda e: self.play_next())
+                         after=lambda e: self.play_next(ctx))
         else:
             self.is_playing = False
 
-    def play_next(self):
+    def play_next(self, ctx):
         if len(self.music_queue) > 0: # If there's music waiting in the queue...
             self.is_playing = True
             media_url = self.music_queue[0]["song_data"]["source"] # ...get the first URL...
@@ -80,16 +79,16 @@ class Music_Player(commands.Cog):
             # Once the music is finished playing, repeat from the start.
             # Loop until the queue is empty, at which point...
             self.vc.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS),
-                         after=lambda e: self.play_next())
+                         after=lambda e: self.play_next(ctx))
         else:
             self.is_playing = False # Stop playing music.
 
+
 # ====================== COMMANDS ====================== #
     @commands.command()
-    async def debug_yt(self, ctx, *args):
+    async def isplaying(self, ctx, *args):
         """Debug command"""
-        query = self.search_yt(" ".join(args))
-        await ctx.send(embed=DialogBox("Debug", "Debug", "`{}`".format(query))) #EMBEDDIALOGSSSSS
+        await ctx.send(embed=DialogBox("Debug", "Debug", "self.is_playing = `{}`".format(self.is_playing)))
 
     @commands.command()
     async def play(self, ctx, *args):
@@ -106,7 +105,7 @@ class Music_Player(commands.Cog):
 
         song_data = self.search_yt(query)
         if song_data == False:
-            await ctx.send(".") #EMBEDDIALOGSSSSS
+            await ctx.send(".")
             await ctx.send(embed=DialogBox("Error", "Unable to play song",
                                            "Incorrect video format or link type."))
             return
@@ -117,19 +116,28 @@ class Music_Player(commands.Cog):
         })
 
         if self.is_playing == False:
+            await ctx.message.delete()
+            reply = DialogBox("Playing", "Now playing: {}".format(song_data['title']))
+            reply.set_image(url=song_data['thumb'])
+            reply.add_field(name='Duration' , value=song_data["duration"], inline=True)
+            await ctx.send(embed=reply)
+
             await self.play_music(ctx)
+
         else:
-            await ctx.send(embed=DialogBox("Queued", "Adding to queue...",
-                                           "LOREM MY FAT IPSUM YOU DUMB BITCH."))
+            await ctx.message.delete()
+            reply = DialogBox("Queued", "Adding to queue: {}".format(song_data['title']))
+            reply.set_image(url=song_data['thumb'])
+            reply.add_field(name='Duration' , value=song_data["duration"], inline=True)
+            await ctx.send(embed=reply)
 
     @commands.command()
-    async def queue(self, ctx):
-        """Shows the queue of songs waiting to be played."""
-        queue = []
-        for i in range(0, len(self.music_queue)):
-            queue.append(self.music_queue[i]["song_data"])
-
-        if queue != []:
-            print(json.dumps(queue, indent=4))
-        else:
-            print("Nothing queued up at the moment!")
+    async def about(self, ctx):
+        repo      = git.Repo(search_parent_directories=True)
+        reply = DialogBox("Version", "Thank you for using JukeBot!",
+        """**JukeBot** is a self-hostable music streaming bot that runs on spite, a love for freedom, and Python 3.\n
+        You can find more information on the project, as well as the source code to host your own instance of JukeBot, at **https://squigjess.github.io/JukeBot**""")
+        reply.set_image(url="https://media.discordapp.net/attachments/891977633275969537/894946455721218068/jukebot.png")
+        reply.set_footer(text="JukeBot v.{version} ({branch} branch)".format(version=repo.head.object.hexsha[0:7],
+                                                                             branch=repo.head.ref))
+        await ctx.send(embed=reply)
