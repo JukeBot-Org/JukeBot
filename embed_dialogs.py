@@ -11,6 +11,7 @@ uiEmoji = {
     "Queued"  : [":speech_balloon:",     JukeBot_Bluegreen],
     "Version" : [":green_heart:",        JukeBot_Bluegreen],
     "Help"    : [":woman_technologist:", JukeBot_Bluegreen],
+    "Skip"    : [":track_next:",         JukeBot_Bluegreen],
     "Debug"   : [":gear:",               Colour.lighter_grey()]
 }
 

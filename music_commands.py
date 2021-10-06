@@ -80,7 +80,6 @@ class Music(commands.Cog):
         else:
             self.is_playing = False # Stop playing music.
 
-
 # ====================== COMMANDS ====================== #
 
     @commands.command()
@@ -101,17 +100,15 @@ class Music(commands.Cog):
 
         if ctx.author.voice is None:
             await ctx.message.delete()
-            await ctx.send(embed=DialogBox("Warn", "Hang on!",
-                                           "Connect to a voice channel first, _then_ issue the command."))
+            await ctx.send(embed=DialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command."))
             return
 
-        voice_channel = ctx.author.voice.channel
+        voice_channel = ctx.author.voice.channel # Set which voice channel to join later on in the command
 
         song_data = self.search_yt(query)
         if song_data == False:
             await ctx.message.delete()
-            await ctx.send(embed=DialogBox("Error", "Unable to play song",
-                                           "Incorrect video format or link type."))
+            await ctx.send(embed=DialogBox("Error", "Unable to play song", "Incorrect video format or link type."))
             return
 
         self.music_queue.append({
@@ -121,12 +118,12 @@ class Music(commands.Cog):
 
         # Start preparing the dialog to be posted.
         if self.is_playing == False:
-            reply = DialogBox("Playing", "Now playing: {}".format(song_data['title']))
+            reply = DialogBox("Playing", "Now playing: {}".format(song_data["title"]))
         else:
-            reply = DialogBox("Queued", "Adding to queue: {}".format(song_data['title']))
+            reply = DialogBox("Queued", "Adding to queue: {}".format(song_data["title"]))
 
-        reply.set_image(url=song_data['thumb'])
-        reply.add_field(name='Duration' , value=song_data["duration"], inline=True)
+        reply.set_image(url=song_data["thumb"])
+        reply.add_field(name="Duration" , value=song_data["duration"], inline=True)
 
         await ctx.message.delete()
         await ctx.send(embed=reply)
@@ -135,11 +132,35 @@ class Music(commands.Cog):
             await self.play_audio(ctx)
 
     @commands.command()
-    async def foo(self, ctx, *args):
-        """Test command, please ignore"""
-        return "foo"
+    async def queue(self, ctx):
+        """Displays the queue of music waiting to be played"""
+        queue = "".join([f"{track+1} — {self.music_queue[track]['song_data']['title']}\n" for track in range(0, len(self.music_queue))]) # God this sucks
+        if queue == "":
+            reply = embed=DialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command.")
+        else:
+            reply = embed=DialogBox("Queued", "Queued music", f"`{queue}`")
+
+        await ctx.send(embed=reply)
+        await ctx.message.delete()
 
     @commands.command()
-    async def bar(self, ctx, *args):
-        """Test command, please ignore"""
-        return "bar"
+    async def skip(self, ctx):
+        """Skips the song currently playing.
+        If there are still tracks in the queue, the next one will automatically play.
+        """
+        if self.vc == "":
+            reply = DialogBox("Warn", "Hang on!", "JukeBot is currently not playing; there's nothing to skip.")
+        else:
+            reply = DialogBox("Skip", "Skipped track")
+            self.vc.stop()
+            await self.play_audio(ctx)
+
+        await ctx.message.delete()
+        await ctx.send(embed=reply)
+
+    @commands.command()
+    async def dc(self, ctx):
+        """Disconnects the bot from the current voice channel"""
+        if self.vc != "":
+            self.vc.stop()
+            await self.vc.disconnect()
