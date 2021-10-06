@@ -49,7 +49,7 @@ class Music(commands.Cog):
                  "duration" : info["duration"]
                }
 
-    async def play_music(self, ctx):
+    async def play_audio(self, ctx):
         if len(self.music_queue) > 0: # If there are tracks in the queue...
             self.is_playing = True
             media_url = self.music_queue[0]["song_data"]["source"]
@@ -86,7 +86,16 @@ class Music(commands.Cog):
     @commands.command()
     async def play(self, ctx, *args):
         """Plays a song in the voice channel that you're currently in.
-        Takes YouTube links, search terms, and Spotify links (TODO)
+        If there's music currently playing, the song is instead added to the queue.
+        Accepts YouTube links, search terms, and Spotify links (SPOTIFY NOT YET WORKING, STILL IN TESTING).
+
+        **Examples**
+
+        `<prefix>play https://www.youtube.com/watch?v=dQw4w9WgXcQ`
+
+        `<prefix>play earth wind and fire september`
+
+        `<prefix>play https://open.spotify.com/track/3iVcZ5G6tvkXZkZKlMpIUs?si=e84140d21af44958` (SPOTIFY NOT YET WORKING, STILL IN TESTING)
         """
         query = " ".join(args)
 
@@ -123,12 +132,14 @@ class Music(commands.Cog):
         await ctx.send(embed=reply)
 
         if self.is_playing == False:
-            await self.play_music(ctx)
+            await self.play_audio(ctx)
 
     @commands.command()
     async def foo(self, ctx, *args):
+        """Test command, please ignore"""
         return "foo"
 
     @commands.command()
     async def bar(self, ctx, *args):
+        """Test command, please ignore"""
         return "bar"
