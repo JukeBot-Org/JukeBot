@@ -37,8 +37,8 @@ client.add_cog(Other(client))
 
 @client.event
 async def on_ready():
-    print(Fore.GREEN + 'Logged in ' + Style.RESET_ALL + 'as {0.user}.'.format(client) )
-    print(Fore.GREEN + 'Bot is ready! ' + Style.RESET_ALL + 'Command prefix is {}\n'.format(config.COMMAND_PREFIX))
+    print(Fore.GREEN + 'Logged in ' + Style.RESET_ALL + f'as {client.user}.')
+    print(Fore.GREEN + 'Bot is ready! ' + Style.RESET_ALL + f'Command prefix is {config.COMMAND_PREFIX}\n')
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=config.LISTENING_TO))
 
 if __name__ == '__main__':

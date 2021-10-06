@@ -26,11 +26,11 @@ Rename `config.EXAMPLES.py` to `config.py` and update the FFmpeg path and your D
 I'm not gonna go into too much detail on this, but create a bot, add it to your server, then put the bot's token in `DISCORD_BOT_TOKEN` in `config.py`.
 
 # To do
-* ~~Add a pretty `!queue` command.~~
 * Add a way to clear the queue.
-* Implement Spotify link recognition and translation.
-* ~~Set up GitHub Pages website for JukeBot.~~
 * Re-implement `!skip`.
 * Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.
 * ~~Function-ify redundant embed/dialog code in `!play`.~~
 * ~~Work on a nicer-looking `!help` command.~~
+* ~~Add a pretty `!queue` command.~~
+* ~~Set up GitHub Pages website for JukeBot.~~
+* Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)

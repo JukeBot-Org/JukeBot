@@ -16,7 +16,7 @@ uiEmoji = {
 }
 
 def DialogBox(messageEmoji, messageTitle, messageContent=False):
-    title = "{emoji}  {title}".format(emoji=uiEmoji[messageEmoji][0], title=messageTitle)
+    title = f"{uiEmoji[messageEmoji][0]}  {messageTitle}"
     colour = uiEmoji[messageEmoji][1]
 
     if not messageContent:

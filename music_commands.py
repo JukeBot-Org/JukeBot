@@ -55,14 +55,10 @@ class Music(commands.Cog):
             media_url = self.music_queue[0]["song_data"]["source"]
 
             if self.vc == "": # If not in a voice channel currently...
-                print(dbug("Joining VC..."))
                 self.vc = await self.music_queue[0]["voice_channel"].connect()
-            else:
-                print(dbug("Gotta move VCs..."))
 
             self.music_queue.pop(0)
-            self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS),
-                         after=lambda e: self.play_next(ctx))
+            self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
         else:
             self.is_playing = False
 
@@ -75,8 +71,7 @@ class Music(commands.Cog):
             # ...then play the music in the current VC!
             # Once the music is finished playing, repeat from the start.
             # Loop until the queue is empty, at which point...
-            self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS),
-                         after=lambda e: self.play_next(ctx))
+            self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
         else:
             self.is_playing = False # Stop playing music.
 
@@ -117,10 +112,11 @@ class Music(commands.Cog):
         })
 
         # Start preparing the dialog to be posted.
+
         if self.is_playing == False:
-            reply = DialogBox("Playing", "Now playing: {}".format(song_data["title"]))
+            reply = DialogBox("Playing", f"Now playing: {song_data['title']}")
         else:
-            reply = DialogBox("Queued", "Adding to queue: {}".format(song_data["title"]))
+            reply = DialogBox("Queued", f"Adding to queue: {song_data['title']}")
 
         reply.set_image(url=song_data["thumb"])
         reply.add_field(name="Duration" , value=song_data["duration"], inline=True)
@@ -157,10 +153,3 @@ class Music(commands.Cog):
 
         await ctx.message.delete()
         await ctx.send(embed=reply)
-
-    @commands.command()
-    async def dc(self, ctx):
-        """Disconnects the bot from the current voice channel"""
-        if self.vc != "":
-            self.vc.stop()
-            await self.vc.disconnect()

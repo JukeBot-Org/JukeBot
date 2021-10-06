@@ -17,15 +17,14 @@ class ImprovedHelp(commands.HelpCommand): # A much nicer-looking !help command
         super().__init__()
 
     async def send_bot_help(self, mapping): # !help
-        embed = DialogBox("Help", "How to use JukeBot",
-                          "Type `{}help commandname` for more help on a specific command.".format(config.COMMAND_PREFIX))
+        embed = DialogBox("Help", "How to use JukeBot", f"Type `{config.COMMAND_PREFIX}help commandname` for more help on a specific command.")
         for cog in mapping: # For each cog, we go through and add it to the embed dialog.
             if cog != None:
                 cog_name = cog.qualified_name
             else: # The help command's cog type is None. We check to avoid an exception.
                 cog_name = "System"
 
-            embed.add_field(name="Category: {}".format(cog_name),
+            embed.add_field(name=f"Category: {cog_name}",
                             value="".join([config.COMMAND_PREFIX+command.name+"\n" for command in mapping[cog]]),
                             inline=False)
 
@@ -34,10 +33,10 @@ class ImprovedHelp(commands.HelpCommand): # A much nicer-looking !help command
 
 
     async def send_cog_help(self, cog): # !help CategoryName
-        embed = DialogBox("Help", "How to use JukeBot: {} commands".format(cog.qualified_name))
+        embed = DialogBox("Help", f"How to use JukeBot: {cog.qualified_name} commands")
 
         for command in cog.get_commands():
-            embed.add_field(name="{prefix}{command}".format(prefix=config.COMMAND_PREFIX, command=command.name),
+            embed.add_field(name="{config.COMMAND_PREFIX}{command.name}",
                             value=docstring_scrubber(command.help),
                             inline=False)
 
@@ -46,11 +45,8 @@ class ImprovedHelp(commands.HelpCommand): # A much nicer-looking !help command
 
 
     async def send_command_help(self, command): # !help commandname
-        description = "**{prefix}{command}** — {help}".format(prefix=config.COMMAND_PREFIX,
-                                                              command=command.name,
-                                                              help=docstring_scrubber(command.help, KeepExamples=True))
-        embed = DialogBox("Help", "How to use JukeBot", description)
-
+        help_string = docstring_scrubber(command.help, KeepExamples=True)
+        embed = DialogBox("Help", "How to use JukeBot", "**{config.COMMAND_PREFIX}{command.name}** — {help_string}")
         await self.get_destination().send(embed=embed)
         return await super().send_command_help(command)
 
@@ -69,8 +65,9 @@ class Other(commands.Cog):
 
         try:
             repo = git.Repo(search_parent_directories=True)
-            reply.set_footer(text="JukeBot v.{v} ({b} branch)".format(v=repo.head.object.hexsha[0:7],
-                                                                      b=repo.head.ref))
+            version = repo.head.object.hexsha[0:7],
+            branch = repo.head.ref
+            reply.set_footer(text=f"JukeBot v.{version} ({branch} branch)")
         # If the code is just downloaded with no git data, stop the command from breaking.
         except git.exc.InvalidGitRepositoryError:
             reply.set_footer(text="JukeBot — https://github.com/squigjess/JukeBot")
