@@ -1,11 +1,11 @@
 import nextcord as discord
 from nextcord.ext import commands
 from youtube_dl import YoutubeDL
-import json
 from colorama import Fore, Style
-from embed_dialogs import DialogBox
+import datetime
 
 import config
+from embed_dialogs import DialogBox
 
 def dbug(foo):
     return "`{}`".format(foo)
@@ -42,11 +42,10 @@ class Music(commands.Cog):
                 print("====================================\n" + Style.RESET_ALL)
                 return False
         print("====================================\n" + Style.RESET_ALL)
-        # print(json.dumps(info, indent=4))
         return { "source"   : info["formats"][0]["url"],
                  "title"    : info["title"],
                  "thumb"    : info["thumbnail"],
-                 "duration" : info["duration"]
+                 "duration" : str(datetime.timedelta(seconds=info["duration"]))
                }
 
     async def play_audio(self, ctx):
@@ -131,7 +130,7 @@ class Music(commands.Cog):
     async def queue(self, ctx):
         """Displays the queue of music waiting to be played"""
         queue = "".join([f"{track+1} — {self.music_queue[track]['song_data']['title']}\n" for track in range(0, len(self.music_queue))]) # God this sucks
-        if queue == "":
+        if self.vc == "":
             reply = embed=DialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command.")
         else:
             reply = embed=DialogBox("Queued", "Queued music", f"`{queue}`")
@@ -150,6 +149,20 @@ class Music(commands.Cog):
             reply = DialogBox("Skip", "Skipped track")
             self.vc.stop()
             await self.play_audio(ctx)
+
+        await ctx.message.delete()
+        await ctx.send(embed=reply)
+
+    @commands.command()
+    async def clear(self, ctx):
+        """Removes all songs from the queue.
+        Does not affect the currently-playing song.
+        """
+        if self.music_queue == []:
+            reply = DialogBox("Warn", "Hang on!", "The queue is already empty.")
+        else:
+            self.music_queue = []
+            reply = DialogBox("Queued", "Cleared queue")
 
         await ctx.message.delete()
         await ctx.send(embed=reply)

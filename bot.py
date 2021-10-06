@@ -1,11 +1,10 @@
 import nextcord as discord
 from nextcord.ext import commands
-import json
-import config
 from sys import platform
 import colorama
 from colorama import Fore, Style
 
+import config
 from embed_dialogs import JukeBot_Bluegreen
 from music_commands import Music
 from misc_commands import Other, ImprovedHelp

@@ -1,8 +1,9 @@
 import nextcord as discord
 from nextcord.ext import commands
-from embed_dialogs import DialogBox
 import git
+
 import config
+from embed_dialogs import DialogBox
 
 def docstring_scrubber(original, KeepExamples=False):
     proper_prefix = original.replace("<prefix>", config.COMMAND_PREFIX)
@@ -21,7 +22,7 @@ class ImprovedHelp(commands.HelpCommand): # A much nicer-looking !help command
         for cog in mapping: # For each cog, we go through and add it to the embed dialog.
             if cog != None:
                 cog_name = cog.qualified_name
-            else: # The help command's cog type is None. We check to avoid an exception.
+            else: # The !help command's cog type is None. We check to avoid an exception.
                 cog_name = "System"
 
             embed.add_field(name=f"Category: {cog_name}",
