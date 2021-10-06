@@ -1,19 +1,16 @@
-import nextcord
+import nextcord as discord
 from nextcord.ext import commands
 from youtube_dl import YoutubeDL
-import json
-import os
-from pathlib import Path
 from colorama import Fore, Style
-from embed_dialogs import DialogBox
-import git
+import datetime
 
 import config
+from embed_dialogs import DialogBox
 
 def dbug(foo):
     return "`{}`".format(foo)
 
-class Music_Player(commands.Cog):
+class Music(commands.Cog):
     def __init__(self, client):
         self.client = client
 
@@ -45,27 +42,22 @@ class Music_Player(commands.Cog):
                 print("====================================\n" + Style.RESET_ALL)
                 return False
         print("====================================\n" + Style.RESET_ALL)
-        print(json.dumps(info, indent=4))
         return { "source"   : info["formats"][0]["url"],
                  "title"    : info["title"],
                  "thumb"    : info["thumbnail"],
-                 "duration" : info["duration"]
+                 "duration" : str(datetime.timedelta(seconds=info["duration"]))
                }
 
-    async def play_music(self, ctx):
+    async def play_audio(self, ctx):
         if len(self.music_queue) > 0: # If there are tracks in the queue...
             self.is_playing = True
             media_url = self.music_queue[0]["song_data"]["source"]
 
             if self.vc == "": # If not in a voice channel currently...
-                print(dbug("Joining VC..."))
                 self.vc = await self.music_queue[0]["voice_channel"].connect()
-            else:
-                print(dbug("Gotta move VCs..."))
 
             self.music_queue.pop(0)
-            self.vc.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS),
-                         after=lambda e: self.play_next(ctx))
+            self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
         else:
             self.is_playing = False
 
@@ -78,31 +70,39 @@ class Music_Player(commands.Cog):
             # ...then play the music in the current VC!
             # Once the music is finished playing, repeat from the start.
             # Loop until the queue is empty, at which point...
-            self.vc.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS),
-                         after=lambda e: self.play_next(ctx))
+            self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
         else:
             self.is_playing = False # Stop playing music.
 
-
 # ====================== COMMANDS ====================== #
+
     @commands.command()
     async def play(self, ctx, *args):
         """Plays a song in the voice channel that you're currently in.
-        Takes YouTube links, search terms, and Spotify links (TODO)
+        If there's music currently playing, the song is instead added to the queue.
+        Accepts YouTube links, search terms, and Spotify links (SPOTIFY NOT YET WORKING, STILL IN TESTING).
+
+        **Examples**
+
+        `<prefix>play https://www.youtube.com/watch?v=dQw4w9WgXcQ`
+
+        `<prefix>play earth wind and fire september`
+
+        `<prefix>play https://open.spotify.com/track/3iVcZ5G6tvkXZkZKlMpIUs?si=e84140d21af44958` (SPOTIFY NOT YET WORKING, STILL IN TESTING)
         """
         query = " ".join(args)
 
         if ctx.author.voice is None:
-            await ctx.send(embed=DialogBox("Warn", "Hang on!",
-                                           "Connect to a voice channel first, _then_ issue the command."))
+            await ctx.message.delete()
+            await ctx.send(embed=DialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command."))
             return
-        voice_channel = ctx.author.voice.channel
+
+        voice_channel = ctx.author.voice.channel # Set which voice channel to join later on in the command
 
         song_data = self.search_yt(query)
         if song_data == False:
-            await ctx.send(".")
-            await ctx.send(embed=DialogBox("Error", "Unable to play song",
-                                           "Incorrect video format or link type."))
+            await ctx.message.delete()
+            await ctx.send(embed=DialogBox("Error", "Unable to play song", "Incorrect video format or link type."))
             return
 
         self.music_queue.append({
@@ -110,30 +110,59 @@ class Music_Player(commands.Cog):
             "voice_channel" : voice_channel
         })
 
+        # Start preparing the dialog to be posted.
+
         if self.is_playing == False:
-            await ctx.message.delete()
-            reply = DialogBox("Playing", "Now playing: {}".format(song_data['title']))
-            reply.set_image(url=song_data['thumb'])
-            reply.add_field(name='Duration' , value=song_data["duration"], inline=True)
-            await ctx.send(embed=reply)
-
-            await self.play_music(ctx)
-
+            reply = DialogBox("Playing", f"Now playing: {song_data['title']}")
         else:
-            await ctx.message.delete()
-            reply = DialogBox("Queued", "Adding to queue: {}".format(song_data['title']))
-            reply.set_image(url=song_data['thumb'])
-            reply.add_field(name='Duration' , value=song_data["duration"], inline=True)
-            await ctx.send(embed=reply)
+            reply = DialogBox("Queued", f"Adding to queue: {song_data['title']}")
+
+        reply.set_image(url=song_data["thumb"])
+        reply.add_field(name="Duration" , value=song_data["duration"], inline=True)
+
+        await ctx.message.delete()
+        await ctx.send(embed=reply)
+
+        if self.is_playing == False:
+            await self.play_audio(ctx)
 
     @commands.command()
-    async def about(self, ctx):
+    async def queue(self, ctx):
+        """Displays the queue of music waiting to be played"""
+        queue = "".join([f"{track+1} — {self.music_queue[track]['song_data']['title']}\n" for track in range(0, len(self.music_queue))]) # God this sucks
+        if self.vc == "":
+            reply = embed=DialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command.")
+        else:
+            reply = embed=DialogBox("Queued", "Queued music", f"`{queue}`")
+
+        await ctx.send(embed=reply)
         await ctx.message.delete()
-        repo      = git.Repo(search_parent_directories=True)
-        reply = DialogBox("Version", "Thank you for using JukeBot!",
-        """**JukeBot** is a self-hostable music streaming bot that runs on spite, a love for freedom, and Python 3.\n
-        You can find more information on the project, as well as the source code to host your own instance of JukeBot, at **https://squigjess.github.io/JukeBot**""")
-        reply.set_image(url="https://media.discordapp.net/attachments/891977633275969537/894946455721218068/jukebot.png")
-        reply.set_footer(text="JukeBot v.{version} ({branch} branch)".format(version=repo.head.object.hexsha[0:7],
-                                                                             branch=repo.head.ref))
+
+    @commands.command()
+    async def skip(self, ctx):
+        """Skips the song currently playing.
+        If there are still tracks in the queue, the next one will automatically play.
+        """
+        if self.vc == "":
+            reply = DialogBox("Warn", "Hang on!", "JukeBot is currently not playing; there's nothing to skip.")
+        else:
+            reply = DialogBox("Skip", "Skipped track")
+            self.vc.stop()
+            await self.play_audio(ctx)
+
+        await ctx.message.delete()
+        await ctx.send(embed=reply)
+
+    @commands.command()
+    async def clear(self, ctx):
+        """Removes all songs from the queue.
+        Does not affect the currently-playing song.
+        """
+        if self.music_queue == []:
+            reply = DialogBox("Warn", "Hang on!", "The queue is already empty.")
+        else:
+            self.music_queue = []
+            reply = DialogBox("Queued", "Cleared queue")
+
+        await ctx.message.delete()
         await ctx.send(embed=reply)
