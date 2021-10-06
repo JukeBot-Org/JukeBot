@@ -1,19 +1,16 @@
-import nextcord
+import nextcord as discord
 from nextcord.ext import commands
 from youtube_dl import YoutubeDL
 import json
-import os
-from pathlib import Path
 from colorama import Fore, Style
 from embed_dialogs import DialogBox
-import git
 
 import config
 
 def dbug(foo):
     return "`{}`".format(foo)
 
-class Music_Player(commands.Cog):
+class Music(commands.Cog):
     def __init__(self, client):
         self.client = client
 
@@ -45,7 +42,7 @@ class Music_Player(commands.Cog):
                 print("====================================\n" + Style.RESET_ALL)
                 return False
         print("====================================\n" + Style.RESET_ALL)
-        print(json.dumps(info, indent=4))
+        # print(json.dumps(info, indent=4))
         return { "source"   : info["formats"][0]["url"],
                  "title"    : info["title"],
                  "thumb"    : info["thumbnail"],
@@ -64,7 +61,7 @@ class Music_Player(commands.Cog):
                 print(dbug("Gotta move VCs..."))
 
             self.music_queue.pop(0)
-            self.vc.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS),
+            self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS),
                          after=lambda e: self.play_next(ctx))
         else:
             self.is_playing = False
@@ -78,13 +75,14 @@ class Music_Player(commands.Cog):
             # ...then play the music in the current VC!
             # Once the music is finished playing, repeat from the start.
             # Loop until the queue is empty, at which point...
-            self.vc.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS),
+            self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS),
                          after=lambda e: self.play_next(ctx))
         else:
             self.is_playing = False # Stop playing music.
 
 
 # ====================== COMMANDS ====================== #
+
     @commands.command()
     async def play(self, ctx, *args):
         """Plays a song in the voice channel that you're currently in.
@@ -93,14 +91,16 @@ class Music_Player(commands.Cog):
         query = " ".join(args)
 
         if ctx.author.voice is None:
+            await ctx.message.delete()
             await ctx.send(embed=DialogBox("Warn", "Hang on!",
                                            "Connect to a voice channel first, _then_ issue the command."))
             return
+
         voice_channel = ctx.author.voice.channel
 
         song_data = self.search_yt(query)
         if song_data == False:
-            await ctx.send(".")
+            await ctx.message.delete()
             await ctx.send(embed=DialogBox("Error", "Unable to play song",
                                            "Incorrect video format or link type."))
             return
@@ -110,30 +110,25 @@ class Music_Player(commands.Cog):
             "voice_channel" : voice_channel
         })
 
+        # Start preparing the dialog to be posted.
         if self.is_playing == False:
-            await ctx.message.delete()
             reply = DialogBox("Playing", "Now playing: {}".format(song_data['title']))
-            reply.set_image(url=song_data['thumb'])
-            reply.add_field(name='Duration' , value=song_data["duration"], inline=True)
-            await ctx.send(embed=reply)
+        else:
+            reply = DialogBox("Queued", "Adding to queue: {}".format(song_data['title']))
 
+        reply.set_image(url=song_data['thumb'])
+        reply.add_field(name='Duration' , value=song_data["duration"], inline=True)
+
+        await ctx.message.delete()
+        await ctx.send(embed=reply)
+
+        if self.is_playing == False:
             await self.play_music(ctx)
 
-        else:
-            await ctx.message.delete()
-            reply = DialogBox("Queued", "Adding to queue: {}".format(song_data['title']))
-            reply.set_image(url=song_data['thumb'])
-            reply.add_field(name='Duration' , value=song_data["duration"], inline=True)
-            await ctx.send(embed=reply)
+    @commands.command()
+    async def foo(self, ctx, *args):
+        return "foo"
 
     @commands.command()
-    async def about(self, ctx):
-        await ctx.message.delete()
-        repo      = git.Repo(search_parent_directories=True)
-        reply = DialogBox("Version", "Thank you for using JukeBot!",
-        """**JukeBot** is a self-hostable music streaming bot that runs on spite, a love for freedom, and Python 3.\n
-        You can find more information on the project, as well as the source code to host your own instance of JukeBot, at **https://squigjess.github.io/JukeBot**""")
-        reply.set_image(url="https://media.discordapp.net/attachments/891977633275969537/894946455721218068/jukebot.png")
-        reply.set_footer(text="JukeBot v.{version} ({branch} branch)".format(version=repo.head.object.hexsha[0:7],
-                                                                             branch=repo.head.ref))
-        await ctx.send(embed=reply)
+    async def bar(self, ctx, *args):
+        return "bar"
