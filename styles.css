@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Righteous&family=Roboto+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Righteous&family=Roboto+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Turret+Road:wght@800&display=swap');
 
 html {
     background-color: rgb(30, 39, 46);
@@ -20,25 +20,21 @@ a{
     font-weight: bold;
 }
 h1, h2 {
-    font-family: 'Righteous', monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-family: 'Turret Road', monospace;
+    /* letter-spacing: 0.07em; */
+    font-weight: normal;
 
-    margin-bottom: 0px;
+    margin-bottom: 3px;
     margin-top: 30px;
-    border-bottom: 8px solid rgba(6, 227, 164, 0.3);
+    border-bottom: 4px solid rgba(6, 227, 164, 0.2);
     display: inline-block;
     line-height: 0.4;
-
 }
-h1 {font-size: 3em}
-h2 {font-size: 2em}
-li, p {
-    line-height: 1.75;
-}
-li {
-    margin: 25px 0 25px 0
-}
+/* .punctuation {color: rgba(6, 227, 164, 1)} */
+h1    {font-size: 3em}
+h2    {font-size: 2em}
+li, p {line-height: 1.75;}
+li    {margin: 25px 0 25px 0}
 
 .footer {
     position: fixed;
