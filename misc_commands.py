@@ -37,7 +37,7 @@ class ImprovedHelp(commands.HelpCommand): # A much nicer-looking !help command
         embed = DialogBox("Help", f"How to use JukeBot: {cog.qualified_name} commands")
 
         for command in cog.get_commands():
-            embed.add_field(name="{config.COMMAND_PREFIX}{command.name}",
+            embed.add_field(name=f"{config.COMMAND_PREFIX}{command.name}",
                             value=docstring_scrubber(command.help),
                             inline=False)
 
@@ -47,7 +47,7 @@ class ImprovedHelp(commands.HelpCommand): # A much nicer-looking !help command
 
     async def send_command_help(self, command): # !help commandname
         help_string = docstring_scrubber(command.help, KeepExamples=True)
-        embed = DialogBox("Help", "How to use JukeBot", "**{config.COMMAND_PREFIX}{command.name}** — {help_string}")
+        embed = DialogBox("Help", "How to use JukeBot", f"**{config.COMMAND_PREFIX}{command.name}** — {help_string}")
         await self.get_destination().send(embed=embed)
         return await super().send_command_help(command)
 
