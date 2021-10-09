@@ -61,7 +61,9 @@ class Other(commands.Cog):
         await ctx.message.delete()
         reply = DialogBox("Version", "Thank you for using JukeBot!",
         """**JukeBot** is a self-hostable music streaming bot that runs on spite, a love for freedom, and Python 3.\n
-        You can find more information on the project, as well as the source code to host your own instance of JukeBot, at **https://squigjess.github.io/JukeBot**""")
+        You can find more information on the project, as well as the source code to host your own instance of JukeBot, at **https://squigjess.github.io/JukeBot**
+
+        Please keep in mind that JukeBot is still a work-in-progress! I guess you'd say it's \"in alpha\". Expect there te be some hiccups and bugs - report them to  https://github.com/squigjess/JukeBot/issues if you see any!"""")
         reply.set_image(url="https://media.discordapp.net/attachments/887723918574645331/895242544223518740/discordjp.jpg")
 
         try:
