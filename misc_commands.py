@@ -58,7 +58,6 @@ class Other(commands.Cog):
     @commands.command()
     async def about(self, ctx):
         """Displays info about the bot, including version number and a link to the project website."""
-        await ctx.message.delete()
         reply = DialogBox("Version", "Thank you for using JukeBot!",
         """**JukeBot** is a self-hostable music streaming bot that runs on spite, a love for freedom, and Python 3.\n
         You can find more information on the project, as well as the source code to host your own instance of JukeBot, at **https://squigjess.github.io/JukeBot**
@@ -68,7 +67,7 @@ class Other(commands.Cog):
 
         try:
             repo = git.Repo(search_parent_directories=True)
-            version = repo.head.object.hexsha[1:8],
+            version = str(repo.head.object.hexsha[0:7]),
             branch = repo.head.ref
             reply.set_footer(text=f"JukeBot v.{version} ({branch} branch)")
         # If the code is just downloaded with no git data, stop the command from breaking.
