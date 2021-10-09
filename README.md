@@ -4,7 +4,10 @@
 ------------------------
 
 # JukeBot
-A self-hosted audio streaming bot for Discord. Currently supports YouTube, with plans to support local file streaming eventually.
+
+**http://squigjess.github.io/JukeBot/**
+
+A self-hosted audio streaming bot for Discord. Currently supports YouTube, with plans to support other services and local file streaming eventually.
 
 # Installation
 
@@ -26,6 +29,9 @@ Rename `config.EXAMPLES.py` to `config.py` and update the FFmpeg path and your D
 I'm not gonna go into too much detail on this, but create a bot, add it to your server, then put the bot's token in `DISCORD_BOT_TOKEN` in `config.py`.
 
 # To do
+* PySimpleGUI
+* Update docstrings
+* work on build script
 * Implement Invite Generator-style error handling.
 * Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.
 * Move config to .json in anticipation of exe distribution
