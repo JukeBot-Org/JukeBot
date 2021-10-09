@@ -93,7 +93,7 @@ class Music(commands.Cog):
         query = " ".join(args)
 
         if ctx.author.voice is None:
-            await ctx.message.delete()
+
             await ctx.send(embed=DialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command."))
             return
 
@@ -101,7 +101,7 @@ class Music(commands.Cog):
 
         song_data = self.search_yt(query)
         if song_data == False:
-            await ctx.message.delete()
+
             await ctx.send(embed=DialogBox("Error", "Unable to play song", "Incorrect video format or link type."))
             return
 
@@ -120,7 +120,6 @@ class Music(commands.Cog):
         reply.set_image(url=song_data["thumb"])
         reply.add_field(name="Duration" , value=song_data["duration"], inline=True)
 
-        await ctx.message.delete()
         await ctx.send(embed=reply)
 
         if self.is_playing == False:
@@ -136,7 +135,6 @@ class Music(commands.Cog):
             reply = embed=DialogBox("Queued", "Queued music", f"`{queue}`")
 
         await ctx.send(embed=reply)
-        await ctx.message.delete()
 
     @commands.command()
     async def skip(self, ctx):
@@ -150,7 +148,6 @@ class Music(commands.Cog):
             self.vc.stop()
             await self.play_audio(ctx)
 
-        await ctx.message.delete()
         await ctx.send(embed=reply)
 
     @commands.command()
@@ -164,5 +161,4 @@ class Music(commands.Cog):
             self.music_queue = []
             reply = DialogBox("Queued", "Cleared queue")
 
-        await ctx.message.delete()
         await ctx.send(embed=reply)
