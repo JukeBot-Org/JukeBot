@@ -26,6 +26,7 @@ Rename `config.EXAMPLES.py` to `config.py` and update the FFmpeg path and your D
 I'm not gonna go into too much detail on this, but create a bot, add it to your server, then put the bot's token in `DISCORD_BOT_TOKEN` in `config.py`.
 
 # To do
+* Implement Invite Generator-style error handling.
 * Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.
 * ~~Add a way to clear the queue.~~
 * ~~Function-ify redundant embed/dialog code in `!play`.~~
