@@ -29,6 +29,7 @@ Rename `config.EXAMPLES.py` to `config.py` and update the FFmpeg path and your D
 I'm not gonna go into too much detail on this, but create a bot, add it to your server, then put the bot's token in `DISCORD_BOT_TOKEN` in `config.py`.
 
 # To do
+* https://pyinstaller.readthedocs.io/en/stable/operating-mode.html#hiding-the-source-code
 * PySimpleGUI
 * Update docstrings
 * work on build script
