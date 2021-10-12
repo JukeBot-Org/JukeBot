@@ -9,6 +9,10 @@
 
 A self-hosted audio streaming bot for Discord. Currently supports YouTube, with plans to support other services and local file streaming eventually.
 
+While it currently works, JukeBot is still under development. A lot of the bugs are still being found and worked on. As a result, the current version you see here in the `live` branch is technically a testing version that happens to be deployed to a few private Discord servers for testing purposes.
+
+If you would like to run JukeBot and report on your bugs and issues, I would be forever grateful.
+
 # Installation
 
 ## 1. Install Python dependencies
@@ -31,12 +35,13 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 # To do
 * Update README once build process is sorted out
 * Logfile
-* ~~Find out why compiled version doesn't launch a terminal window on Linux.~~
 * https://pyinstaller.readthedocs.io/en/stable/operating-mode.html#hiding-the-source-code
 * https://pyinstaller.readthedocs.io/en/stable/usage.html#cmdoption-i
 * Update docstrings
 * work on build script
 * Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.
+* Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
+<!-- * ~~Find out why compiled version doesn't launch a terminal window on Linux.~~
 * ~~Move config to .json in anticipation of exe distribution~~
 * ~~Add a way to clear the queue.~~
 * ~~Function-ify redundant embed/dialog code in `!play`.~~
@@ -44,5 +49,4 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * ~~Add a pretty `!queue` command.~~
 * ~~Set up GitHub Pages website for JukeBot.~~
 * ~~Re-implement `!skip`.~~
-* Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
-* PySimpleGUI
+* ~~PySimpleGUI~~ -->
