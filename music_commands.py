@@ -124,6 +124,8 @@ class Music(commands.Cog):
 
         if self.is_playing == False:
             await self.play_audio(ctx)
+        else:
+            await ctx.send(ctx.author.voice.channel)
 
     @commands.command()
     async def queue(self, ctx):
