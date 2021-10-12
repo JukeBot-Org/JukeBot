@@ -1,6 +1,5 @@
 import nextcord as discord
 from nextcord.ext import commands
-import git
 
 import config
 from embed_dialogs import DialogBox
@@ -64,13 +63,10 @@ class Other(commands.Cog):
 
         Please keep in mind that JukeBot is still a work-in-progress! I guess you'd say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there te be some hiccups and bugs - report them to https://github.com/squigjess/JukeBot/issues if you see any!""")
         reply.set_image(url="https://media.discordapp.net/attachments/887723918574645331/895242544223518740/discordjp.jpg")
-        try:
-            repo = git.Repo(search_parent_directories=True)
-            version = str(repo.head.object.hexsha[0:7])
-            branch = repo.head.ref
-            reply.set_footer(text=f"JukeBot v.{version} ({branch} build)")
-        # If the code is just downloaded with no git data, stop the command from breaking.
-        except git.exc.InvalidGitRepositoryError:
-            reply.set_footer(text="JukeBot — https://github.com/squigjess/JukeBot")
+        if not GIT_VER: # If we're currently running the bot from source in testing...
+            reply.set_footer(text=f"JukeBot")
+        else: # If this is a live release version...
+            reply.set_footer(text=f"JukeBot — v.{GIT_VER} (FINAL LIVE build)")
 
         await ctx.send(embed=reply)
+GIT_VER=None

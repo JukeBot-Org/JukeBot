@@ -1,25 +1,26 @@
 import nextcord as discord
 from nextcord.ext import commands
-from sys import platform
+import sys
 import colorama
 from colorama import Fore as fg
 from colorama import Style as st
+import logging
 
 import config
 from embed_dialogs import JukeBot_Bluegreen
 from music_commands import Music
 from misc_commands import Other, ImprovedHelp
 
+logging.basicConfig(filename=config.LOG_FILE_PATH, level=logging.WARNING, format="%(asctime)s %(levelname)s:%(message)s")
 client = commands.Bot(command_prefix=config.COMMAND_PREFIX, help_command=ImprovedHelp())
 
 # Explicitly try loading the Opus library if not on Windows.
-if platform == "win32":
+if sys.platform == "win32":
     print(f"{fg.YELLOW}Manually loading Opus not necessary, skipping.{st.RESET_ALL}")
 else:
     print(f"{fg.YELLOW}Need to manually load Opus.{st.RESET_ALL}")
     import ctypes
     import ctypes.util
-
     print("Finding Opus library...")
     opus_loc = ctypes.util.find_library('opus')
     print("Loading Opus...")
@@ -38,9 +39,13 @@ async def on_ready():
     print(f"Press {fg.YELLOW}Ctrl+C{st.RESET_ALL} to safely shut down JukeBot.\n")
 
 if __name__ == '__main__':
-    colorama.init()
-    client.add_cog(Music(client))
-    client.add_cog(Other(client))
+    try:
+        colorama.init()
+        client.add_cog(Music(client))
+        client.add_cog(Other(client))
 
-    print(f"\n{fg.YELLOW}Logging in...{st.RESET_ALL}")
-    client.run(config.DISCORD_BOT_TOKEN)
+        print(f"\n{fg.YELLOW}Logging in...{st.RESET_ALL}")
+        client.run(config.DISCORD_BOT_TOKEN)
+    except:
+        logging.exception('ERROR, PLEASE REPORT TO https://github.com/squigjess/JukeBot/issues')
+        raise

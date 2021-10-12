@@ -29,13 +29,15 @@ Rename `config.EXAMPLES.py` to `config.py` and update the FFmpeg path and your D
 I'm not gonna go into too much detail on this, but create a bot, add it to your server, then put the bot's token in `DISCORD_BOT_TOKEN` in `config.py`.
 
 # To do
+* Update README once build process is sorted out
+* Logfile
+* ~~Find out why compiled version doesn't launch a terminal window on Linux.~~
 * https://pyinstaller.readthedocs.io/en/stable/operating-mode.html#hiding-the-source-code
-* PySimpleGUI
+* https://pyinstaller.readthedocs.io/en/stable/usage.html#cmdoption-i
 * Update docstrings
 * work on build script
-* Implement Invite Generator-style error handling.
 * Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.
-* Move config to .json in anticipation of exe distribution
+* ~~Move config to .json in anticipation of exe distribution~~
 * ~~Add a way to clear the queue.~~
 * ~~Function-ify redundant embed/dialog code in `!play`.~~
 * ~~Work on a nicer-looking `!help` command.~~
@@ -43,3 +45,4 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * ~~Set up GitHub Pages website for JukeBot.~~
 * ~~Re-implement `!skip`.~~
 * Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
+* PySimpleGUI

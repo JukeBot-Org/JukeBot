@@ -1,11 +1,56 @@
-from os import system
 import os
 import sys
+import git
+from shutil import copy
 
-in_virtualenv = sys.base_prefix != sys.prefix
-site_packages_dir = sys.prefix
-pyinstaller_build_command = f"pyinstaller -F --paths={site_packages_dir}  bot.py"
-print(f"In virtualenv? {in_virtualenv}")
-print(f"using \"{site_packages_dir}\" for site-packages ")
-print("Commencing build...")
-os.system(pyinstaller_build_command)
+import PyInstaller.__main__
+import colorama
+from colorama import Fore as fg
+from colorama import Style as st
+colorama.init()
+
+def build():
+    repo = git.Repo(search_parent_directories=True)
+    JukeBot_version = repo.head.object.hexsha[0:7]
+    misc_commands_py = "misc_commands.py"
+
+    print(f"{fg.YELLOW}Updating build version in {misc_commands_py}...{st.RESET_ALL}")
+    with open(misc_commands_py, "rb+") as filehandle:
+        filehandle.seek(-5, os.SEEK_END)
+        filehandle.truncate()
+    with open(misc_commands_py, "a") as filehandle:
+        filehandle.write(f"\"{JukeBot_version}\"\n")
+
+    in_virtualenv = sys.base_prefix != sys.prefix
+    site_packages_dir = sys.prefix
+    print(f"{fg.YELLOW}In virtualenv? {in_virtualenv}{st.RESET_ALL}")
+    print(f"{fg.YELLOW}Using \"{site_packages_dir}\" for site-packages{st.RESET_ALL}")
+
+    print(f"{fg.GREEN}Commencing build...{st.RESET_ALL}")
+    PyInstaller.__main__.run([
+        "bot.py",
+        "--onefile",
+        f"--paths={site_packages_dir}",
+        f"--name=JukeBot-v.{JukeBot_version}-{sys.platform}"
+    ])
+
+    print(f"{fg.YELLOW}Reverting build version in {misc_commands_py}...{st.RESET_ALL}")
+    with open(misc_commands_py, "rb+") as filehandle:
+        filehandle.seek(-10, os.SEEK_END)
+        filehandle.truncate()
+    with open(misc_commands_py, "a") as filehandle:
+        filehandle.write("None\n")
+
+    print(f"{fg.YELLOW}Copying default config file to dist dir...{st.RESET_ALL}")
+    copy(os.path.join("config.EXAMPLES.json"), os.path.join("dist", "config.json"))
+
+    print(f"{fg.GREEN}Build success!{st.RESET_ALL} Executable can be found in ")
+
+if __name__ == "__main__":
+    try:
+        build()
+    except Exception as e:
+        print(fg.RED)
+        print(f"{type(e)} : {e}")
+        print(st.RESET_ALL)
+        exit()
