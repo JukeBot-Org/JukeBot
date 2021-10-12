@@ -7,9 +7,6 @@ import datetime
 import config
 from embed_dialogs import DialogBox
 
-def dbug(foo):
-    return "`{}`".format(foo)
-
 class Music(commands.Cog):
     def __init__(self, client):
         self.client = client
@@ -93,7 +90,6 @@ class Music(commands.Cog):
         query = " ".join(args)
 
         if ctx.author.voice is None:
-
             await ctx.send(embed=DialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command."))
             return
 
@@ -101,7 +97,6 @@ class Music(commands.Cog):
 
         song_data = self.search_yt(query)
         if song_data == False:
-
             await ctx.send(embed=DialogBox("Error", "Unable to play song", "Incorrect video format or link type."))
             return
 

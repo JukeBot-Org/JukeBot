@@ -44,7 +44,7 @@ def build():
     print(f"{fg.YELLOW}Copying default config file to dist dir...{st.RESET_ALL}")
     copy(os.path.join("config.EXAMPLES.json"), os.path.join("dist", "config.json"))
 
-    print(f"{fg.GREEN}Build success!{st.RESET_ALL} Executable can be found in ")
+    print(f"{fg.GREEN}Build success!{st.RESET_ALL} Executable can be found in /dist")
 
 if __name__ == "__main__":
     try:

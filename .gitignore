@@ -4,6 +4,7 @@ ytdl_example.json
 bin/
 local_audio/
 dist/
+logs/
 testing_GUI.py
 
 # Byte-compiled / optimized / DLL files
