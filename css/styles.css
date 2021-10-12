@@ -272,7 +272,17 @@ pre code {
 
 code {
   font-size: 0.875em;
-  color: #d63384;
+  display: inline-block;
+  /* color: #d63384; */
+  color: rgb(var(--bs-primary-rgb));
+  background-color: #213634;
+
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 3px;
+  border-radius: 3px;
+
+
   word-wrap: break-word;
 }
 a > code {
@@ -3049,8 +3059,8 @@ textarea.form-control-lg {
 }
 .btn-primary:disabled, .btn-primary.disabled {
   color: #fff;
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: rgba(6, 227, 164, 0.5);
+  border-color: rgba(6, 227, 164, 1);
 }
 
 .btn-secondary {
@@ -11298,10 +11308,26 @@ html {
   min-height: 15rem;
 }
 
-h1, h2, .navbar-brand {
+h1, h2, h3, .navbar-brand {
     font-family: 'Bungee', cursive;
     font-weight: normal !important;
 }
 .padded-top {
     padding-top: 40px;
+}
+ul.qs > li {margin: 15px 0 15px 0}
+
+.footerfade {
+    color: rgba(255,255,255,0.3) !important
+}
+@media screen and (min-width: 800px) {
+    .indented {
+      text-indent: 80px;
+    }
+    .footerfade {
+        font-size: 0.7em;
+    }
+    .bigheader {
+        font-size:3.5em
+    }
 }
