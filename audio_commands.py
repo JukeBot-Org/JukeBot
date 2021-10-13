@@ -3,6 +3,8 @@ from nextcord.ext import commands
 from youtube_dl import YoutubeDL
 from colorama import Fore, Style
 import datetime
+import arrow
+import logging
 
 import json
 
@@ -53,6 +55,7 @@ class Audio(commands.Cog):
             # ...state that the bot is about to start playing...
             self.is_playing = True
             print(self.queue[0])
+            logging.info(f"Playing {self.queue[0]}")
             # ...get the first URL...
             media_url = self.queue[0].source
 
@@ -60,6 +63,8 @@ class Audio(commands.Cog):
             if self.vc == "":
                 self.vc = await self.queue[0].voice_channel.connect()
 
+            # ...record when the track started playing...
+            self.queue[0].time_started = arrow.utcnow()
             # ...then play the track in the current VC!
             # Once the track is finished playing, repeat from the start.
             # Loop until the queue is empty, at which point...
@@ -115,14 +120,14 @@ class Audio(commands.Cog):
         loading_msg = await ctx.send(f"`Loading track \"{search_query}\"...`")
 
         if ctx.author.voice is None:
-            await ctx.send(embed=dialogBox("Warn", "Hang on!", "Connect to a voice channel before issuing the command."))
+            await ctx.send(embed=dialogBox("Warn", "Hang on!", "Connect to a voice channel before issuing the command."), delete_after=10)
             return
 
         voice_channel = ctx.author.voice.channel # Set which voice channel to join later on in the command
 
         track_data = await self.search_yt(search_query, ctx) # Search YouTube for the video/query that the user requested.
         if track_data == False: # Comes back if the video is unable to be played due to uploader permissions, or if we got a malformed link.
-            await ctx.send(embed=dialogBox("Error", "Unable to play track", "Incorrect video format or link type."))
+            await ctx.send(embed=dialogBox("Error", "Unable to play track", "Incorrect video format or link type."), delete_after=10)
             return
         track_data.voice_channel = voice_channel
 
@@ -133,7 +138,7 @@ class Audio(commands.Cog):
         await loading_msg.delete()
         reply = dialogBox("Queued", f"Adding to queue: {track_data.title}", url=track_data.web_url)
         reply.set_thumbnail(url=track_data.thumb)
-        reply.add_field(name="Duration" , value=track_data.duration, inline=True)
+        reply.add_field(name="Duration" , value=track_data.human_duration, inline=True)
         reply.add_field(name="Requested by" , value=track_data.requestor, inline=True)
 
         await ctx.send(embed=reply)
@@ -154,10 +159,11 @@ class Audio(commands.Cog):
         queue = "".join([f"{track+1} — {self.queue[track].title}\n" for track in range(0, len(self.queue))]) # God this sucks
         if self.vc == "":
             reply = embed=dialogBox("Warn", "Hang on!", "Connect to a voice channel before issuing the command.")
+            await ctx.send(embed=reply, delete_after=10)
         else:
             reply = embed=dialogBox("Queued", "Queued tracks", f"`{queue}`")
+            await ctx.send(embed=reply)
 
-        await ctx.send(embed=reply)
 
     @commands.command()
     async def skip(self, ctx):
@@ -176,12 +182,14 @@ class Audio(commands.Cog):
             reply = dialogBox("Skip", "Skipped track")
             self.vc.stop() # Next track should automatically play (worked in testing, lets see how it goes...)
 
-        await ctx.send(embed=reply)
+        await ctx.send(embed=reply, delete_after=10)
 
     @commands.command()
     async def clear(self, ctx, *args):
         """**Removes all tracks from the queue.**
-        Does not affect the currently-playing track.
+        Does not affect the currently-playing track. `<prefix>clear` can be
+        followed by the number of an item in the queue to remove only that
+        track rather then all of them.
 
         **Examples**
         `<prefix>clear` takes either one or zero parameters. If a number is
@@ -193,7 +201,7 @@ class Audio(commands.Cog):
         """
         if self.queue == []:
             reply = dialogBox("Warn", "Hang on!", "The queue is already empty.")
-            await ctx.send(embed=reply)
+            await ctx.send(embed=reply, delete_after=10)
             return
 
         if args:
@@ -204,18 +212,31 @@ class Audio(commands.Cog):
                 self.queue.pop(track_to_remove - 1)
                 reply = dialogBox("Queued", f"Removed track no. {track_to_remove} from queue", track_title)
                 reply.set_thumbnail(url=track_thumb)
-                await ctx.send(embed=reply)
+                await ctx.send(embed=reply, delete_after=10)
                 return
 
         else:
             self.queue = []
             reply = dialogBox("Queued", "Cleared queue")
-            await ctx.send(embed=reply)
+            await ctx.send(embed=reply, delete_after=10)
 
     @commands.command(aliases=["np", "playing"])
     async def nowplaying(self, ctx):
-        """te4st"""
+        """**Displays the currently-playing track.**
+        Includes the amount of time left in the track as well..
+
+        **Examples**
+        `<prefix>nowplaying` takes no parameters.
+
+        `<prefix>nowplaying`
+
+        **Aliases** — **<prefix>nowplaying** can also be invoked with:
+        `<prefix>np`
+        `<prefix>playing`
+        """
         currently_playing = self.queue[0]
-        reply = dialogBox("Playing", "Currently playing", currently_playing.title)
+        reply = dialogBox("Playing", "Currently playing", currently_playing.title, url=currently_playing.web_url)
         reply.set_thumbnail(url=currently_playing.thumb)
-        msg = await ctx.send(embed=reply)
+        reply.add_field(name="Duration", value=currently_playing.human_duration, inline=True)
+        reply.add_field(name="Time remaining", value=currently_playing.time_left(arrow.utcnow()), inline=True)
+        msg = await ctx.send(embed=reply, delete_after=10)

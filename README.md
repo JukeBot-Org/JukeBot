@@ -33,8 +33,12 @@ Rename `config.EXAMPLES.py` to `config.py` and update the FFmpeg path and your D
 I'm not gonna go into too much detail on this, but create a bot, add it to your server, then put the bot's token in `DISCORD_BOT_TOKEN` in `config.py`.
 
 # To do
+* Bugs
+  * Fix exception when invoking `!nowplaying` with an empty queue
 * Features
   * Add `!resume`, `!pause`, and !stop commands
+  * stopwatch (under `!nowplaying`)
+  * playing local files
 * Behind the scenes stuff
   * Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.
   * [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)
