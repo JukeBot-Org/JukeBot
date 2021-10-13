@@ -38,17 +38,16 @@ class Music(commands.Cog):
         print(Fore.YELLOW + "======== YouTube Downloader ========")
         with YoutubeDL(self.YDL_OPTIONS) as ydl:
             try:
-                info = ydl.extract_info("ytsearch:%s" % item, download=False)["entries"][0]
+                info = ydl.extract_info(f"ytsearch:{item}", download=False)["entries"][0]
             except Exception as e:
                 raise e
                 print("====================================\n" + Style.RESET_ALL)
                 return False
         print("====================================\n" + Style.RESET_ALL)
-        return { "source"   : info["formats"][0]["url"],
-                 "title"    : info["title"],
-                 "thumb"    : info["thumbnails"][2],
-                 "duration" : str(datetime.timedelta(seconds=info["duration"]))
-               }
+        return {"source"   : info["formats"][0]["url"],
+                "title"    : info["title"],
+                "thumb"    : info["thumbnails"][2]["url"],
+                "duration" : str(datetime.timedelta(seconds=info["duration"]))}
 
     async def play_audio(self, ctx, from_skip=False):
         """If the bot is not playing at all, this will play the first track in
