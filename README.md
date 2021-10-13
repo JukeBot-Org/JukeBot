@@ -33,15 +33,22 @@ Rename `config.EXAMPLES.py` to `config.py` and update the FFmpeg path and your D
 I'm not gonna go into too much detail on this, but create a bot, add it to your server, then put the bot's token in `DISCORD_BOT_TOKEN` in `config.py`.
 
 # To do
-* Implement the ability to remove a single track from the queue in !clear
-* [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)
-* [Implement proper error handling](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#error-handling)
-* Update README and Quickstart once build process is sorted out
-* https://pyinstaller.readthedocs.io/en/stable/operating-mode.html#hiding-the-source-code
-* https://pyinstaller.readthedocs.io/en/stable/usage.html#cmdoption-i
-* Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.
-* Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
+* Track/queue data refactor
+  * Include who queued up a track in song data
+  * Class-ify song/queue objects to store now-playing data in them
+  * Make "queued" msg titles link to the OG video
+* Behind the scenes stuff
+  * Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.
+  * [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)
+  * [Implement proper error handling](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#error-handling)
+  * https://pyinstaller.readthedocs.io/en/stable/operating-mode.html#hiding-the-source-code
+  * https://pyinstaller.readthedocs.io/en/stable/usage.html#cmdoption-i
+* Documentation
+  * Update README and Quickstart once build process is sorted out
+* Maybes
+  * Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
 <!-- * ~~Find out why compiled version doesn't launch a terminal window on Linux.~~
+~~* Implement the ability to remove a single track from the queue in !clear~~
 * ~~Logfile~~
 * ~~Update docstrings~~
 * ~~work on build script~~

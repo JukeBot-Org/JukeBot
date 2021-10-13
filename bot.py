@@ -58,9 +58,9 @@ async def on_ready():
 
 @client.event # Handles errors in discord.py commands
 async def on_command_error(ctx, error):
-    logging.error("===================================================================")
-    logging.error("ERROR, PLEASE REPORT TO https://github.com/squigjess/JukeBot/issues", exc_info=error)
-    logging.error("===================================================================")
+    logging.error("=====================================================================================")
+    logging.error("UNHANDLED COMMAND ERROR, PLEASE REPORT TO https://github.com/squigjess/JukeBot/issues", exc_info=error)
+    logging.error("=====================================================================================")
     raise error
 
 if __name__ == "__main__":
@@ -70,7 +70,7 @@ if __name__ == "__main__":
         client.run(config.DISCORD_BOT_TOKEN) # Hello, world!
 
     except Exception as error: # Handles non-command errors
-        logging.error("===================================================================")
-        logging.exception("ERROR, PLEASE REPORT TO https://github.com/squigjess/JukeBot/issues")
-        logging.error("===================================================================")
+        logging.error("=====================================================================================")
+        logging.exception("UNHANDLED GENERIC ERROR, PLEASE REPORT TO https://github.com/squigjess/JukeBot/issues")
+        logging.error("=====================================================================================")
         raise error

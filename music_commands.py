@@ -30,7 +30,7 @@ class Music(commands.Cog):
         }
         self.vc = "" # Stores the current channel
 
-# ===================== FUNCTIONS ====================== #
+# ================================== FUNCTIONS =================================== #
     def search_yt(self, item):
         """ Searches YouTube for the requested search term or URL, returns a
         URL and other info for the first result only."""
@@ -76,19 +76,23 @@ class Music(commands.Cog):
         it does not attempt to join a VC. Doing so would make this async, which
         won't work with discord.py/nextcord's ability to invoke a lambda once
         audio is finished playing. It's tricky. Maybe TODO?"""
-        self.music_queue.pop(0) # Remove the previously-played song from the queue to move to the next one.
-        if len(self.music_queue) > 0: # If there are any more tracks waiting in the queue...
+
+        # Remove the previously-played song from the queue to move to the next one.
+        if self.music_queue != []:  # This'll throw an exception if we try to pop from an empty list...
+            self.music_queue.pop(0) # ...so we do this otherwise-useless check to avoid clogging up logs.
+
+        # If there are any more tracks waiting in the queue...
+        if len(self.music_queue) > 0:
             self.is_playing = True
             media_url = self.music_queue[0]["song_data"]["source"]
-
             self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
 
         else:
             self.is_playing = False
 
-# ====================== COMMANDS ====================== #
+# =================================== COMMANDS =================================== #
 
-    @commands.command()
+    @commands.command(aliases=["p"])
     async def play(self, ctx, *args):
         """**Plays a song in the voice channel that you're currently in.**
         `<prefix>play` is the bread and butter of your JukeBot experience.
@@ -106,6 +110,9 @@ class Music(commands.Cog):
         `<prefix>play `
         `<prefix>play https://www.youtube.com/watch?v=dQw4w9WgXcQ`
         `<prefix>play earth wind and fire september`
+
+        **Aliases** — **<prefix>play** can also be invoked with:
+        `<prefix>p`
         """
         search_query = " ".join(args)
 
@@ -206,8 +213,18 @@ class Music(commands.Cog):
             reply = dialogBox("Queued", "Cleared queue")
             await ctx.send(embed=reply)
 
+    @commands.command(aliases=["np", "playing"])
+    async def nowplaying(self, ctx):
+        """te4st"""
+        currently_playing = self.music_queue[0]["song_data"]
+        reply = dialogBox("Playing", "Currently playing", currently_playing["title"])
+        reply.set_thumbnail(url=currently_playing["thumb"])
+        msg = await ctx.send(embed=reply)
+
+
     @commands.command()
     async def tq(self, ctx):
+        """**Loads a dummy queue for testing queue-related operations.**"""
         await ctx.send(embed=dialogBox("Debug", "Loading test queue..."))
         await ctx.invoke(self.client.get_command('play'), 'one')
         time.sleep(0.5)
