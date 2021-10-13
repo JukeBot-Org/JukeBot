@@ -11,7 +11,7 @@ class Track:
         self.web_url       = ytdl_data["webpage_url"]
         self.requestor     = f"{ctx.author.name}#{ctx.author.discriminator}"
         self.reqr_uid      = ctx.author.id
-        self.voice_channel = None # Will be set later on in music_commands.search_yt()
-        
+        self.voice_channel = None # Will be set later on in audio_commands.search_yt()
+
     def __str__(self):
         return f"{self.title} ({self.duration}), requested by {self.requestor}"

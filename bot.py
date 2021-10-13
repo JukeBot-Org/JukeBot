@@ -12,7 +12,7 @@ from colorama import Style as st
 import logging
 
 import config
-from music_commands import Audio
+from audio_commands import Audio
 from misc_commands import Other, ImprovedHelp
 
 client = commands.Bot(command_prefix=config.COMMAND_PREFIX, help_command=ImprovedHelp())
