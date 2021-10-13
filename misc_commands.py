@@ -5,7 +5,7 @@ import nextcord as discord
 from nextcord.ext import commands
 
 import config
-from embed_dialogs import DialogBox
+from embed_dialogs import dialogBox
 
 def docstring_scrubber(original, KeepExamples=False):
     """Takes a docstring and splits out the examples section from the command
@@ -55,7 +55,7 @@ class ImprovedHelp(commands.HelpCommand):
 
     async def send_bot_help(self, mapping): # !help
         """Triggers on !help, provides command names for all commands in this bot."""
-        embed = DialogBox("Help", f"How to use {self.app_name}", f"Type `{config.COMMAND_PREFIX}help commandname` for more help on a specific command.")
+        embed = dialogBox("Help", f"How to use {self.app_name}", f"Type `{config.COMMAND_PREFIX}help commandname` for more help on a specific command.")
 
         # For each cog, we go through and add it as a field to the embed dialog.
         # The !help commands does not belong to a cog and therefore has no type.
@@ -75,7 +75,7 @@ class ImprovedHelp(commands.HelpCommand):
 
     async def send_cog_help(self, cog):
         """Triggers on !help CogName, provides truncated instructions for all commands in a specified cog."""
-        embed = DialogBox("Help", f"How to use {self.app_name}: {cog.qualified_name} commands")
+        embed = dialogBox("Help", f"How to use {self.app_name}: {cog.qualified_name} commands")
 
         for command in cog.get_commands():
             embed.add_field(name=f"{config.COMMAND_PREFIX}{command.name}",
@@ -88,7 +88,7 @@ class ImprovedHelp(commands.HelpCommand):
     async def send_command_help(self, command):
         """Triggers on !help commandname, provides full instructions for the specified command."""
         help_string = docstring_scrubber(command.help, KeepExamples=True)
-        embed = DialogBox("Help", f"How to use {self.app_name}", f"**{config.COMMAND_PREFIX}{command.name}** — {help_string}")
+        embed = dialogBox("Help", f"How to use {self.app_name}", f"**{config.COMMAND_PREFIX}{command.name}** — {help_string}")
         await self.get_destination().send(embed=embed)
         return await super().send_command_help(command)
 
@@ -111,7 +111,7 @@ class Other(commands.Cog):
         **Examples**
         `<prefix>about`
         """
-        reply = DialogBox("Version", "Thank you for using JukeBot!",
+        reply = dialogBox("Version", "Thank you for using JukeBot!",
         """**JukeBot** is a self-hostable music streaming bot that runs on spite, a love for freedom, and Python 3.\n
         You can find more information on the project, as well as download the program to host your own instance of JukeBot, at **https://squigjess.github.io/JukeBot**
 

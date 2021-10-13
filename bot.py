@@ -12,7 +12,6 @@ from colorama import Style as st
 import logging
 
 import config
-from embed_dialogs import JukeBot_Bluegreen
 from music_commands import Music
 from misc_commands import Other, ImprovedHelp
 

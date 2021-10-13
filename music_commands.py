@@ -5,7 +5,7 @@ from colorama import Fore, Style
 import datetime
 
 import config
-from embed_dialogs import DialogBox
+from embed_dialogs import dialogBox
 
 class Music(commands.Cog):
     """The cog that handles all of the music commands and audio-playing operations."""
@@ -109,14 +109,14 @@ class Music(commands.Cog):
         search_query = " ".join(args)
 
         if ctx.author.voice is None:
-            await ctx.send(embed=DialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command."))
+            await ctx.send(embed=dialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command."))
             return
 
         voice_channel = ctx.author.voice.channel # Set which voice channel to join later on in the command
 
         song_data = self.search_yt(search_query) # Search YouTube for the video/query that the user requested.
         if song_data == False: # Comes back if the video is unable to be played due to uploader permissions, or if we got a malformed link.
-            await ctx.send(embed=DialogBox("Error", "Unable to play song", "Incorrect video format or link type."))
+            await ctx.send(embed=dialogBox("Error", "Unable to play song", "Incorrect video format or link type."))
             return
 
         # Add the song data to JukeBot's queue.
@@ -127,9 +127,9 @@ class Music(commands.Cog):
 
         # Start preparing the dialog to be posted.
         if self.is_playing == False:
-            reply = DialogBox("Playing", f"Now playing: {song_data['title']}")
+            reply = dialogBox("Playing", f"Now playing: {song_data['title']}")
         else:
-            reply = DialogBox("Queued", f"Adding to queue: {song_data['title']}")
+            reply = dialogBox("Queued", f"Adding to queue: {song_data['title']}")
         reply.set_image(url=song_data["thumb"])
         reply.add_field(name="Duration" , value=song_data["duration"], inline=True)
 
@@ -150,9 +150,9 @@ class Music(commands.Cog):
         """
         queue = "".join([f"{track+1} — {self.music_queue[track]['song_data']['title']}\n" for track in range(0, len(self.music_queue))]) # God this sucks
         if self.vc == "":
-            reply = embed=DialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command.")
+            reply = embed=dialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command.")
         else:
-            reply = embed=DialogBox("Queued", "Queued music", f"`{queue}`")
+            reply = embed=dialogBox("Queued", "Queued music", f"`{queue}`")
 
         await ctx.send(embed=reply)
 
@@ -168,9 +168,9 @@ class Music(commands.Cog):
         `<prefix>skip`
         """
         if self.vc == "":
-            reply = DialogBox("Warn", "Hang on!", "JukeBot is currently not playing; there's nothing to skip.")
+            reply = dialogBox("Warn", "Hang on!", "JukeBot is currently not playing; there's nothing to skip.")
         else:
-            reply = DialogBox("Skip", "Skipped track")
+            reply = dialogBox("Skip", "Skipped track")
             self.vc.stop()
             await self.play_audio(ctx)
 
@@ -191,13 +191,13 @@ class Music(commands.Cog):
         """
         track_to_remove = args[0]
         if track_to_remove:
-            reply = DialogBox("Debug", "Oops!", "This command is still currently in testing and currently does not do anything yet.")
+            reply = dialogBox("Debug", "Oops!", "This command is still currently in testing and currently does not do anything yet.")
             await ctx.send(embed=reply)
-            
+
         if self.music_queue == []:
-            reply = DialogBox("Warn", "Hang on!", "The queue is already empty.")
+            reply = dialogBox("Warn", "Hang on!", "The queue is already empty.")
         else:
             self.music_queue = []
-            reply = DialogBox("Queued", "Cleared queue")
+            reply = dialogBox("Queued", "Cleared queue")
 
         await ctx.send(embed=reply)

@@ -33,7 +33,6 @@ Rename `config.EXAMPLES.py` to `config.py` and update the FFmpeg path and your D
 I'm not gonna go into too much detail on this, but create a bot, add it to your server, then put the bot's token in `DISCORD_BOT_TOKEN` in `config.py`.
 
 # To do
-* Change embed_dialogs.DialogBox() to a class
 * Implement the ability to remove a single track from the queue in !clear
 * [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)
 * [Implement proper error handling](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#error-handling)
