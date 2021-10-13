@@ -4,6 +4,8 @@ from youtube_dl import YoutubeDL
 from colorama import Fore, Style
 import datetime
 
+import time
+
 import config
 from embed_dialogs import dialogBox
 
@@ -44,11 +46,11 @@ class Music(commands.Cog):
         print("====================================\n" + Style.RESET_ALL)
         return { "source"   : info["formats"][0]["url"],
                  "title"    : info["title"],
-                 "thumb"    : info["thumbnail"],
+                 "thumb"    : info["thumbnails"][2],
                  "duration" : str(datetime.timedelta(seconds=info["duration"]))
                }
 
-    async def play_audio(self, ctx):
+    async def play_audio(self, ctx, from_skip=False):
         """If the bot is not playing at all, this will play the first track in
         the queue, then immediately invoke play_next() afterwards."""
         if len(self.music_queue) > 0: # If there are tracks in the queue...
@@ -74,7 +76,7 @@ class Music(commands.Cog):
         """Plays the next track in the queue. Different to play_audio() in that
         it does not attempt to join a VC. Doing so would make this async, which
         won't work with discord.py/nextcord's ability to invoke a lambda once
-        audio is finished playing. It's tricky. Maybe todo?"""
+        audio is finished playing. It's tricky. Maybe TODO?"""
         self.music_queue.pop(0) # Remove the previously-played song from the queue to move to the next one.
         if len(self.music_queue) > 0: # If there are any more tracks waiting in the queue...
             self.is_playing = True
@@ -126,11 +128,8 @@ class Music(commands.Cog):
         })
 
         # Start preparing the dialog to be posted.
-        if self.is_playing == False:
-            reply = dialogBox("Playing", f"Now playing: {song_data['title']}")
-        else:
-            reply = dialogBox("Queued", f"Adding to queue: {song_data['title']}")
-        reply.set_image(url=song_data["thumb"])
+        reply = dialogBox("Queued", f"Adding to queue: {song_data['title']}")
+        reply.set_thumbnail(url=song_data["thumb"])
         reply.add_field(name="Duration" , value=song_data["duration"], inline=True)
 
         await ctx.send(embed=reply)
@@ -171,8 +170,7 @@ class Music(commands.Cog):
             reply = dialogBox("Warn", "Hang on!", "JukeBot is currently not playing; there's nothing to skip.")
         else:
             reply = dialogBox("Skip", "Skipped track")
-            self.vc.stop()
-            await self.play_audio(ctx)
+            self.vc.stop() # Next track should automatically play (worked in testing, lets see how it goes...)
 
         await ctx.send(embed=reply)
 
@@ -189,15 +187,40 @@ class Music(commands.Cog):
         `<prefix>clear`
         `<prefix>clear 3`
         """
-        track_to_remove = args[0]
-        if track_to_remove:
-            reply = dialogBox("Debug", "Oops!", "This command is still currently in testing and currently does not do anything yet.")
-            await ctx.send(embed=reply)
-
         if self.music_queue == []:
             reply = dialogBox("Warn", "Hang on!", "The queue is already empty.")
+            await ctx.send(embed=reply)
+            return
+
+        if args:
+            track_to_remove = int(args[0])
+            if track_to_remove:
+                just_deleted_track = self.music_queue[track_to_remove - 1]["song_data"]
+                self.music_queue.pop(track_to_remove - 1)
+                reply = dialogBox("Queued", f"Removed track no. {track_to_remove} from queue", just_deleted_track["title"])
+                reply.set_thumbnail(url=just_deleted_track["thumb"])
+                await ctx.send(embed=reply)
+                return
+
         else:
             self.music_queue = []
             reply = dialogBox("Queued", "Cleared queue")
+            await ctx.send(embed=reply)
 
-        await ctx.send(embed=reply)
+    @commands.command()
+    async def tq(self, ctx):
+        await ctx.send(embed=dialogBox("Debug", "Loading test queue..."))
+        await ctx.invoke(self.client.get_command('play'), 'one')
+        time.sleep(0.5)
+        await ctx.invoke(self.client.get_command('play'), 'two')
+        time.sleep(0.5)
+        await ctx.invoke(self.client.get_command('play'), 'three')
+        time.sleep(0.5)
+        await ctx.invoke(self.client.get_command('play'), 'four')
+        time.sleep(0.5)
+        await ctx.invoke(self.client.get_command('play'), 'five')
+        time.sleep(0.5)
+        await ctx.invoke(self.client.get_command('play'), 'six')
+        time.sleep(0.5)
+        await ctx.invoke(self.client.get_command('queue'))
+        await ctx.send(embed=dialogBox("Debug", "Test queue finished loading."))
