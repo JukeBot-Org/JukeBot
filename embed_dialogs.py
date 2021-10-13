@@ -9,7 +9,7 @@ styles = {#Reason      Which emoji to use      The colour of the accent on the l
           "Warn"    : [":warning:",            Colour.yellow()],
           "Error"   : [":no_entry_sign:",      Colour.red()],
           "Playing" : [":arrow_forward:",      JukeBot_Bluegreen],
-          "Queued"  : [":speech_balloon:",     JukeBot_Bluegreen],
+          "Queued"  : [":eject:",              JukeBot_Bluegreen],
           "Version" : [":green_heart:",        JukeBot_Bluegreen],
           "Help"    : [":woman_technologist:", JukeBot_Bluegreen],
           "Skip"    : [":track_next:",         JukeBot_Bluegreen],

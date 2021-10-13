@@ -34,10 +34,7 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 
 # To do
 * Features
-  * Add `!play` and `!pause` commands
-* Track/queue data refactor
-  * Include who queued up a track in track data
-  * Class-ify track/queue objects to store now-playing data in them
+  * Add `!resume`, `!pause`, and !stop commands
 * Behind the scenes stuff
   * Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.
   * [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)
@@ -48,17 +45,20 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
   * Update README and Quickstart once build process is sorted out
 * Maybes
   * Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
-<!-- * ~~Find out why compiled version doesn't launch a terminal window on Linux.~~
-~~* Implement the ability to remove a single track from the queue in !clear~~
-* ~~Make "queued" msg titles link to the OG video~~
-* ~~Logfile~~
-* ~~Update docstrings~~
-* ~~work on build script~~
-* ~~Move config to .json in anticipation of exe distribution~~
-* ~~Add a way to clear the queue.~~
-* ~~Function-ify redundant embed/dialog code in `!play`.~~
-* ~~Work on a nicer-looking `!help` command.~~
-* ~~Add a pretty `!queue` command.~~
-* ~~Set up GitHub Pages website for JukeBot.~~
-* ~~Re-implement `!skip`.~~
-* ~~PySimpleGUI~~ -->
+<!--
+* Find out why compiled version doesn't launch a terminal window on Linux.
+* Implement the ability to remove a single track from the queue in !clear
+* Track/queue data refactor
+* Make "queued" msg titles link to the OG video
+* Logfile
+* Update docstrings
+* work on build script
+* Move config to .json in anticipation of exe distribution
+* Add a way to clear the queue.
+* Function-ify redundant embed/dialog code in `!play`.
+* Work on a nicer-looking `!help` command.
+* Add a pretty `!queue` command.
+* Set up GitHub Pages website for JukeBot.
+* Re-implement `!skip`.
+* PySimpleGUI
+-->
