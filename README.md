@@ -36,8 +36,8 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * Features
   * Add `!play` and `!pause` commands
 * Track/queue data refactor
-  * Include who queued up a track in song data
-  * Class-ify song/queue objects to store now-playing data in them
+  * Include who queued up a track in track data
+  * Class-ify track/queue objects to store now-playing data in them
 * Behind the scenes stuff
   * Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.
   * [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)

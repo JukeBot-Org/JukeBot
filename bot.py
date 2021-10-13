@@ -12,7 +12,7 @@ from colorama import Style as st
 import logging
 
 import config
-from music_commands import Music
+from music_commands import Audio
 from misc_commands import Other, ImprovedHelp
 
 client = commands.Bot(command_prefix=config.COMMAND_PREFIX, help_command=ImprovedHelp())
@@ -22,7 +22,7 @@ def initialise():
     this session, and the command cogs for discord.py/nextcord.
     """
     colorama.init()
-    client.add_cog(Music(client))
+    client.add_cog(Audio(client))
     client.add_cog(Other(client))
 
     if not os.path.exists(config.LOG_FILE_DIR):

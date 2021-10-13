@@ -94,7 +94,7 @@ class ImprovedHelp(commands.HelpCommand):
         return await super().send_command_help(command)
 
 class Other(commands.Cog):
-    """Commands that do not fit into the Music cog, i.e. those that handle
+    """Commands that do not fit into the Audio cog, i.e. those that handle
     settings, application info, etc.
     """
     def __init__(self, client):
@@ -113,7 +113,7 @@ class Other(commands.Cog):
         `<prefix>about`
         """
         reply = dialogBox("Version", "Thank you for using JukeBot!",
-        """**JukeBot** is a self-hostable music streaming bot that runs on spite, a love for freedom, and Python 3.\n
+        """**JukeBot** is a self-hostable audio streaming bot that runs on spite, a love for freedom, and Python 3.\n
         You can find more information on the project, as well as download the program to host your own instance of JukeBot, at **https://squigjess.github.io/JukeBot**
 
         Please keep in mind that JukeBot is still a work-in-progress! I guess you'd say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there te be some hiccups and bugs - report them to https://github.com/squigjess/JukeBot/issues if you see any!""")
