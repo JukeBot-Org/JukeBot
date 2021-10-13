@@ -97,7 +97,6 @@ class Audio(commands.Cog):
     @commands.command(aliases=["p"])
     async def play(self, ctx, *args):
         """**Plays a track in the voice channel that you're currently in.**
-        `<prefix>play` is the bread and butter of your JukeBot experience.
         Once you're in a voice channel, put the name of the track, or a YouTube
         link to the track, that you would like to play after the `<prefix>play`
         command, and it will begin playing in your voice channel.
@@ -239,4 +238,4 @@ class Audio(commands.Cog):
         reply.set_thumbnail(url=currently_playing.thumb)
         reply.add_field(name="Duration", value=currently_playing.human_duration, inline=True)
         reply.add_field(name="Time remaining", value=currently_playing.time_left(arrow.utcnow()), inline=True)
-        msg = await ctx.send(embed=reply, delete_after=10)
+        msg = await ctx.send(embed=reply)

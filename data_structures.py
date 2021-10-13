@@ -1,5 +1,5 @@
+"""Defines how track and queue data is stored."""
 import datetime
-import arrow
 
 def humanize_duration(total_seconds):
     hours, remainder = divmod(int(total_seconds),60*60)
@@ -10,13 +10,15 @@ def humanize_duration(total_seconds):
 class Track:
     """Represents a track in the queue."""
     def __init__(self, ytdl_data, ctx):
-        # Track data
+        # Track data from YouTube
         self.source         = ytdl_data["formats"][0]["url"]
         self.title          = ytdl_data["title"]
         self.thumb          = ytdl_data["thumbnails"][2]["url"]
         self.duration       = datetime.timedelta(seconds=ytdl_data["duration"])
-        self.human_duration = humanize_duration(self.duration.total_seconds())
         self.web_url        = ytdl_data["webpage_url"]
+
+        # Additional data for track
+        self.human_duration = humanize_duration(self.duration.total_seconds())
         self.requestor      = f"{ctx.author.name}#{ctx.author.discriminator}"
         self.requestor_uid  = ctx.author.id
         self.voice_channel  = None # Will be set later on in audio_commands.search_yt()

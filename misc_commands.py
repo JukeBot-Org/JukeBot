@@ -8,16 +8,14 @@ import time
 import config
 from embed_dialogs import dialogBox
 
-def docstring_scrubber(original, KeepExamples=False):
+def docstring_scrubber(original):
     """Takes a docstring and splits out the examples section from the command
     help details. Really only used by ImprovedHelp().
     """
-    proper_prefix = original.replace("<prefix>", config.COMMAND_PREFIX)
-    if KeepExamples:
-        final = proper_prefix
-    else:
-        final = proper_prefix.split("**Examples**")[0]
-    return final
+    full = original.replace("<prefix>", config.COMMAND_PREFIX)
+    synopsis = full.split("\n",1)[0]
+    truncated = full.split("\n",1)[1].split("**Examples**")[0]
+    return [synopsis, full, truncated]
 
 class ImprovedHelp(commands.HelpCommand):
     """A much nicer !help command that uses Discord embeds to generate a more
@@ -39,8 +37,8 @@ class ImprovedHelp(commands.HelpCommand):
 
     `<prefix>commandname`
     `<prefix>commandname arg1`
-    `<prefix>commandname arg1 arg2` (it's fine to clarify differences in
-                                    function in parentheses here)
+    `<prefix>commandname arg1 arg2` (it's fine to clarify functional differences
+                                    in parentheses here)
 
     **Aliases** — **<prefix>commandname** can also be invoked with:
     `<prefix>commandalias1`
@@ -79,8 +77,9 @@ class ImprovedHelp(commands.HelpCommand):
         embed = dialogBox("Help", f"How to use {self.app_name}: {cog.qualified_name} commands")
 
         for command in cog.get_commands():
-            embed.add_field(name=f"{config.COMMAND_PREFIX}{command.name}",
-                            value=docstring_scrubber(command.help),
+            synopsis,full,truncated = docstring_scrubber(command.help)
+            embed.add_field(name=f"{config.COMMAND_PREFIX}{command.name} — {synopsis}",
+                            value=truncated,
                             inline=False)
         await self.get_destination().send(embed=embed)
         return await super().send_cog_help(cog)
@@ -88,8 +87,8 @@ class ImprovedHelp(commands.HelpCommand):
 
     async def send_command_help(self, command):
         """Triggers on !help commandname, provides full instructions for the specified command."""
-        help_string = docstring_scrubber(command.help, KeepExamples=True)
-        embed = dialogBox("Help", f"How to use {self.app_name}", f"**{config.COMMAND_PREFIX}{command.name}** — {help_string}")
+        synopsis,full,truncated = docstring_scrubber(command.help)
+        embed = dialogBox("Help", f"How to use {self.app_name}", f"**{config.COMMAND_PREFIX}{command.name}** — {full}")
         await self.get_destination().send(embed=embed)
         return await super().send_command_help(command)
 
@@ -102,7 +101,6 @@ class Other(commands.Cog):
 
     @commands.command()
     async def about(self, ctx):
-        """"""
         """**Displays info about the bot, including version number and a link
         to the project website.**
         `<prefix>about` simply displays gratitude from the developer(s) to
@@ -121,7 +119,7 @@ class Other(commands.Cog):
         if not GIT_VER: # If we're currently running the bot from source in testing...
             reply.set_footer(text=f"JukeBot — Running from source, unknown version")
         else: # If this is a live release version...
-            reply.set_footer(text=f"JukeBot — v.{GIT_VER} (FINAL LIVE build)")
+            reply.set_footer(text=f"JukeBot — v.{GIT_VER}")
 
         await ctx.send(embed=reply)
 
