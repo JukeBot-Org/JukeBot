@@ -3,6 +3,7 @@
 """
 import nextcord as discord
 from nextcord.ext import commands
+import time
 
 import config
 from embed_dialogs import dialogBox
@@ -123,6 +124,36 @@ class Other(commands.Cog):
             reply.set_footer(text=f"JukeBot — v.{GIT_VER} (FINAL LIVE build)")
 
         await ctx.send(embed=reply)
-# This var must be left as `None`, otherwise the build will fail.
+
+    @commands.command()
+    async def tq(self, ctx):
+        """**Loads a dummy queue for testing queue-related operations.**"""
+        await ctx.send(embed=dialogBox("Debug", "Loading test queue..."))
+        await ctx.invoke(self.client.get_command('play'), 'one')
+        time.sleep(0.5)
+        await ctx.invoke(self.client.get_command('play'), 'two')
+        time.sleep(0.5)
+        await ctx.invoke(self.client.get_command('play'), 'three')
+        time.sleep(0.5)
+        await ctx.invoke(self.client.get_command('play'), 'four')
+        time.sleep(0.5)
+        await ctx.invoke(self.client.get_command('play'), 'five')
+        time.sleep(0.5)
+        await ctx.invoke(self.client.get_command('play'), 'six')
+        time.sleep(0.5)
+        await ctx.invoke(self.client.get_command('queue'))
+        await ctx.send(embed=dialogBox("Debug", "Test queue finished loading."))
+
+    @commands.command()
+    async def dbb(self, ctx):
+        """**bar**"""
+        reply = dialogBox_beta("Debug", "foo", "lorem ipsum dolor sit amet")
+        await ctx.send(embed=reply)
+        reply = dialogBox_beta("Debug", "link", "consectetur adipiscing elit", url="http://icanhazip.com/")
+        await ctx.send(embed=reply)
+        reply = dialogBox_beta("Debug", "no desc")
+        await ctx.send(embed=reply)
+
+# This line must be left intact, otherwise the build will fail.
 # lmfao
 GIT_VER=None

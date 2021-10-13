@@ -4,7 +4,7 @@ from youtube_dl import YoutubeDL
 from colorama import Fore, Style
 import datetime
 
-import time
+import json
 
 import config
 from embed_dialogs import dialogBox
@@ -47,7 +47,8 @@ class Music(commands.Cog):
         return {"source"   : info["formats"][0]["url"],
                 "title"    : info["title"],
                 "thumb"    : info["thumbnails"][2]["url"],
-                "duration" : str(datetime.timedelta(seconds=info["duration"]))}
+                "duration" : str(datetime.timedelta(seconds=info["duration"])),
+                "web_url"  : info["webpage_url"]}
 
     async def play_audio(self, ctx, from_skip=False):
         """If the bot is not playing at all, this will play the first track in
@@ -134,7 +135,7 @@ class Music(commands.Cog):
         })
 
         # Start preparing the dialog to be posted.
-        reply = dialogBox("Queued", f"Adding to queue: {song_data['title']}")
+        reply = dialogBox("Queued", f"Adding to queue: {song_data['title']}", url=song_data["web_url"])
         reply.set_thumbnail(url=song_data["thumb"])
         reply.add_field(name="Duration" , value=song_data["duration"], inline=True)
 
@@ -220,23 +221,3 @@ class Music(commands.Cog):
         reply = dialogBox("Playing", "Currently playing", currently_playing["title"])
         reply.set_thumbnail(url=currently_playing["thumb"])
         msg = await ctx.send(embed=reply)
-
-
-    @commands.command()
-    async def tq(self, ctx):
-        """**Loads a dummy queue for testing queue-related operations.**"""
-        await ctx.send(embed=dialogBox("Debug", "Loading test queue..."))
-        await ctx.invoke(self.client.get_command('play'), 'one')
-        time.sleep(0.5)
-        await ctx.invoke(self.client.get_command('play'), 'two')
-        time.sleep(0.5)
-        await ctx.invoke(self.client.get_command('play'), 'three')
-        time.sleep(0.5)
-        await ctx.invoke(self.client.get_command('play'), 'four')
-        time.sleep(0.5)
-        await ctx.invoke(self.client.get_command('play'), 'five')
-        time.sleep(0.5)
-        await ctx.invoke(self.client.get_command('play'), 'six')
-        time.sleep(0.5)
-        await ctx.invoke(self.client.get_command('queue'))
-        await ctx.send(embed=dialogBox("Debug", "Test queue finished loading."))

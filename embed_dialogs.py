@@ -15,16 +15,11 @@ styles = {#Reason      Which emoji to use      The colour of the accent on the l
           "Skip"    : [":track_next:",         JukeBot_Bluegreen],
           "Debug"   : [":gear:",               Colour.lighter_grey()]}
 
-def dialogBox(message_emoji, message_title, message_content=False):
+def dialogBox(theme, message_title, message_content="", url=None):
     """Creates a nice-looking dialog box using Discord's native embeds."""
-    title = f"{styles[message_emoji][0]}  {message_title}"
-    colour = styles[message_emoji][1]
-
-    if not message_content: # If the dialog box was called without any message content, just a title and an emoji...
-        embed = Embed(title = title,
-                      colour = colour)
-    else: # If we got an emoji, a title, _and_ message text.
-        embed = Embed(title = title,
-                      description = message_content,
-                      colour = colour)
-    return embed
+    embed_kwargs = {"title"       : f"{styles[theme][0]}  {message_title}",
+                    "colour"      : styles[theme][1],
+                    "description" : message_content}
+    if url:
+        embed_kwargs["url"] = url
+    return Embed(**embed_kwargs)
