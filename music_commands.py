@@ -8,6 +8,7 @@ import json
 
 import config
 from embed_dialogs import dialogBox
+# import JB
 
 class Music(commands.Cog):
     """The cog that handles all of the music commands and audio-playing operations."""
@@ -31,7 +32,7 @@ class Music(commands.Cog):
         self.vc = "" # Stores the current channel
 
 # ================================== FUNCTIONS =================================== #
-    def search_yt(self, item):
+    async def search_yt(self, item, ctx):
         """ Searches YouTube for the requested search term or URL, returns a
         URL and other info for the first result only."""
 
@@ -44,11 +45,15 @@ class Music(commands.Cog):
                 print("====================================\n" + Style.RESET_ALL)
                 return False
         print("====================================\n" + Style.RESET_ALL)
-        return {"source"   : info["formats"][0]["url"],
-                "title"    : info["title"],
-                "thumb"    : info["thumbnails"][2]["url"],
-                "duration" : str(datetime.timedelta(seconds=info["duration"])),
-                "web_url"  : info["webpage_url"]}
+        member_obj = await ctx.guild.fetch_member(ctx.author.id)
+        uname = f"{member_obj.name}#{member_obj.discriminator}"
+        nick = member_obj.nick
+        return {"source"    : info["formats"][0]["url"],
+                "title"     : info["title"],
+                "thumb"     : info["thumbnails"][2]["url"],
+                "duration"  : str(datetime.timedelta(seconds=info["duration"])),
+                "web_url"   : info["webpage_url"],
+                "requestor" : f"{nick} ({uname})"}
 
     async def play_audio(self, ctx, from_skip=False):
         """If the bot is not playing at all, this will play the first track in
@@ -123,7 +128,7 @@ class Music(commands.Cog):
 
         voice_channel = ctx.author.voice.channel # Set which voice channel to join later on in the command
 
-        song_data = self.search_yt(search_query) # Search YouTube for the video/query that the user requested.
+        song_data = await self.search_yt(search_query, ctx) # Search YouTube for the video/query that the user requested.
         if song_data == False: # Comes back if the video is unable to be played due to uploader permissions, or if we got a malformed link.
             await ctx.send(embed=dialogBox("Error", "Unable to play song", "Incorrect video format or link type."))
             return
@@ -138,6 +143,7 @@ class Music(commands.Cog):
         reply = dialogBox("Queued", f"Adding to queue: {song_data['title']}", url=song_data["web_url"])
         reply.set_thumbnail(url=song_data["thumb"])
         reply.add_field(name="Duration" , value=song_data["duration"], inline=True)
+        reply.add_field(name="Requested by" , value=song_data["requestor"], inline=True)
 
         await ctx.send(embed=reply)
 
