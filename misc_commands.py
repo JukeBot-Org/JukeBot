@@ -32,8 +32,8 @@ class ImprovedHelp(commands.HelpCommand):
     adequate detail what the command does and any quirks it may have.
 
     **Examples**
-    `<prefix>usercheck` takes X arguments. Explain each argument in detail in a
-    layman-ised fashion. If the command takes no arguments, omit this section.
+    `<prefix>usercheck` takes X parameters. Explain each parameter in detail in a
+    layman-ised fashion. If the command takes no parameters, omit this section.
     Three examples of a command are good. It's preferable to include examples
     that demonstrate any quirks mentioned above.
 

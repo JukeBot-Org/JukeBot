@@ -20,15 +20,11 @@ class Music(commands.Cog):
         self.is_playing = False
 
         self.music_queue = [] # [song data, voice channel to join when played]
-        self.YDL_OPTIONS = {
-            "format"     : "bestaudio",
-            "noplaylist" : "True"
-        }
-        self.FFMPEG_OPTIONS = {
-            "before_options" : "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
-            "options"        : "-vn",
-            "executable"     : config.FFMPEG_PATH
-        }
+        self.YDL_OPTIONS    = {"format"         : "bestaudio",
+                               "noplaylist"     : "True"}
+        self.FFMPEG_OPTIONS = {"before_options" : "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
+                               "options"        : "-vn",
+                               "executable"     : config.FFMPEG_PATH}
         self.vc = "" # Stores the current channel
 
 # ================================== FUNCTIONS =================================== #
@@ -45,6 +41,7 @@ class Music(commands.Cog):
                 print("====================================\n" + Style.RESET_ALL)
                 return False
         print("====================================\n" + Style.RESET_ALL)
+        
         member_obj = await ctx.guild.fetch_member(ctx.author.id)
         uname = f"{member_obj.name}#{member_obj.discriminator}"
         nick = member_obj.nick
@@ -109,7 +106,7 @@ class Music(commands.Cog):
         queue.
 
         **Examples**
-        `<prefix>play` takes 1 argument. This can either be the URL to a
+        `<prefix>play` takes 1 parameter. This can either be the URL to a
         YouTube video, or a seqrch query that you would type into Youtube to
         find that video (see examples).
 
@@ -156,7 +153,7 @@ class Music(commands.Cog):
         The first track will be the one currently playing.
 
         **Examples**
-        `<prefix>queue` takes no arguments.
+        `<prefix>queue` takes no parameters.
 
         `<prefix>queue`
         """
@@ -175,7 +172,7 @@ class Music(commands.Cog):
         play, otherwisethe bot will stop playing.
 
         **Examples**
-        `<prefix>skip` takes no arguments.
+        `<prefix>skip` takes no parameters.
 
         `<prefix>skip`
         """
@@ -193,9 +190,9 @@ class Music(commands.Cog):
         Does not affect the currently-playing song.
 
         **Examples**
-        `<prefix>clear` takes either one or zero arguments. If a number is
+        `<prefix>clear` takes either one or zero parameters. If a number is
         provided, the track in that position in the queue will be removed. If
-        no arguments are provided, the entire queue will be cleared.
+        no parameters are provided, the entire queue will be cleared.
 
         `<prefix>clear`
         `<prefix>clear 3`
