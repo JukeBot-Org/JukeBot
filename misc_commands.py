@@ -114,7 +114,7 @@ class Other(commands.Cog):
         """**JukeBot** is a self-hostable audio streaming bot that runs on spite, a love for freedom, and Python 3.\n
         You can find more information on the project, as well as download the program to host your own instance of JukeBot, at **https://squigjess.github.io/JukeBot**
 
-        Please keep in mind that JukeBot is still a work-in-progress! I guess you'd say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to https://github.com/squigjess/JukeBot/issues if you see any!""")
+        Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to https://github.com/squigjess/JukeBot/issues if you see any!""")
         reply.set_image(url="https://media.discordapp.net/attachments/887723918574645331/895242544223518740/discordjp.jpg")
         if not GIT_VER: # If we're currently running the bot from source in testing...
             reply.set_footer(text=f"JukeBot — Running from source, unknown version")
@@ -123,33 +123,20 @@ class Other(commands.Cog):
 
         await ctx.send(embed=reply)
 
-    @commands.command()
-    async def tq(self, ctx):
-        """**Loads a dummy queue for testing queue-related operations.**"""
-        await ctx.send(embed=dialogBox("Debug", "Loading test queue..."))
-        await ctx.invoke(self.client.get_command('play'), 'one')
-        time.sleep(0.5)
-        await ctx.invoke(self.client.get_command('play'), 'two')
-        time.sleep(0.5)
-        await ctx.invoke(self.client.get_command('play'), 'three')
-        time.sleep(0.5)
-        await ctx.invoke(self.client.get_command('play'), 'four')
-        time.sleep(0.5)
-        await ctx.invoke(self.client.get_command('play'), 'five')
-        time.sleep(0.5)
-        await ctx.invoke(self.client.get_command('play'), 'six')
-        time.sleep(0.5)
-        await ctx.invoke(self.client.get_command('queue'))
-        await ctx.send(embed=dialogBox("Debug", "Test queue finished loading."))
+    def is_developer():
+        async def predicate(ctx):
+            return ctx.author.id in [83333350588157952]
+        return commands.check(predicate)
 
     @commands.command()
-    async def dbb(self, ctx):
-        """**bar**"""
-        reply = dialogBox_beta("Debug", "foo", "lorem ipsum dolor sit amet")
-        await ctx.send(embed=reply)
-        reply = dialogBox_beta("Debug", "link", "consectetur adipiscing elit", url="http://icanhazip.com/")
-        await ctx.send(embed=reply)
-        reply = dialogBox_beta("Debug", "no desc")
+    @is_developer()
+    async def update(self, ctx):
+        reply = dialogBox("Version", "JukeBot has been updated!",
+        """**Thank you for helping test out JukeBot while I still work on it!**\n
+        **I've fixed a few bugs, added some new commands (`!nowplaying`, `!clear`), and have made the experience hopefully work a lot smoother for y'all.**
+
+        _(Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to me on Discord at squig#1312, or via the ticket system at https://github.com/squigjess/JukeBot/issues if you see any!)_""")
+        reply.set_image(url="https://media.discordapp.net/attachments/887723918574645331/895242544223518740/discordjp.jpg")
         await ctx.send(embed=reply)
 
 # This line must be left intact, otherwise the build will fail.

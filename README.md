@@ -34,10 +34,8 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 
 # To do
 * Bugs
-  * Fix exception when invoking `!nowplaying` with an empty queue
 * Features
   * Add `!resume`, `!pause`, and !stop commands
-  * stopwatch (under `!nowplaying`)
   * playing local files
 * Behind the scenes stuff
   * Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.
@@ -50,6 +48,8 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * Maybes
   * Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
 <!--
+* Fix exception when invoking `!nowplaying` with an empty queue
+* stopwatch (under `!nowplaying`)
 * Find out why compiled version doesn't launch a terminal window on Linux.
 * Implement the ability to remove a single track from the queue in !clear
 * Track/queue data refactor
