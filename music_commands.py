@@ -8,7 +8,7 @@ import json
 
 import config
 from embed_dialogs import dialogBox
-# import JB
+import data_structures as JukeBot
 
 class Music(commands.Cog):
     """The cog that handles all of the music commands and audio-playing operations."""
@@ -36,21 +36,25 @@ class Music(commands.Cog):
         with YoutubeDL(self.YDL_OPTIONS) as ydl:
             try:
                 info = ydl.extract_info(f"ytsearch:{item}", download=False)["entries"][0]
+                ytdl_data = info
             except Exception as e:
                 raise e
                 print("====================================\n" + Style.RESET_ALL)
                 return False
         print("====================================\n" + Style.RESET_ALL)
-        
+
         member_obj = await ctx.guild.fetch_member(ctx.author.id)
         uname = f"{member_obj.name}#{member_obj.discriminator}"
         nick = member_obj.nick
-        return {"source"    : info["formats"][0]["url"],
-                "title"     : info["title"],
-                "thumb"     : info["thumbnails"][2]["url"],
-                "duration"  : str(datetime.timedelta(seconds=info["duration"])),
-                "web_url"   : info["webpage_url"],
-                "requestor" : f"{nick} ({uname})"}
+        song_object = JukeBot.Track(ytdl_data, ctx)
+        return song_object
+
+        # return {"source"    : info["formats"][0]["url"],
+        #         "title"     : info["title"],
+        #         "thumb"     : info["thumbnails"][2]["url"],
+        #         "duration"  : str(datetime.timedelta(seconds=info["duration"])),
+        #         "web_url"   : info["webpage_url"],
+        #         "requestor" : f"{nick} ({uname})"}
 
     async def play_audio(self, ctx, from_skip=False):
         """If the bot is not playing at all, this will play the first track in
@@ -60,11 +64,11 @@ class Music(commands.Cog):
             self.is_playing = True
 
             # ...get the first URL...
-            media_url = self.music_queue[0]["song_data"]["source"]
+            media_url = self.music_queue[0].source
 
             # ...join a VC if not already in one...
             if self.vc == "":
-                self.vc = await self.music_queue[0]["voice_channel"].connect()
+                self.vc = await self.music_queue[0].voice_channel.connect()
 
             # ...then play the music in the current VC!
             # Once the music is finished playing, repeat from the start.
@@ -87,7 +91,7 @@ class Music(commands.Cog):
         # If there are any more tracks waiting in the queue...
         if len(self.music_queue) > 0:
             self.is_playing = True
-            media_url = self.music_queue[0]["song_data"]["source"]
+            media_url = self.music_queue[0].source
             self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
 
         else:
@@ -118,6 +122,7 @@ class Music(commands.Cog):
         `<prefix>p`
         """
         search_query = " ".join(args)
+        loading_msg = await ctx.send(f"`Loading track \"{search_query}\"...`")
 
         if ctx.author.voice is None:
             await ctx.send(embed=dialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command."))
@@ -129,18 +134,21 @@ class Music(commands.Cog):
         if song_data == False: # Comes back if the video is unable to be played due to uploader permissions, or if we got a malformed link.
             await ctx.send(embed=dialogBox("Error", "Unable to play song", "Incorrect video format or link type."))
             return
+        song_data.voice_channel = voice_channel
 
         # Add the song data to JukeBot's queue.
-        self.music_queue.append({
-            "song_data"     : song_data,
-            "voice_channel" : voice_channel
-        })
+        self.music_queue.append(song_data)
+        # self.music_queue.append({
+        #     "song_data"     : song_data,
+        #     "voice_channel" : voice_channel
+        # })
 
+        await loading_msg.delete()
         # Start preparing the dialog to be posted.
-        reply = dialogBox("Queued", f"Adding to queue: {song_data['title']}", url=song_data["web_url"])
-        reply.set_thumbnail(url=song_data["thumb"])
-        reply.add_field(name="Duration" , value=song_data["duration"], inline=True)
-        reply.add_field(name="Requested by" , value=song_data["requestor"], inline=True)
+        reply = dialogBox("Queued", f"Adding to queue: {song_data.title}", url=song_data.web_url)
+        reply.set_thumbnail(url=song_data.thumb)
+        reply.add_field(name="Duration" , value=song_data.duration, inline=True)
+        reply.add_field(name="Requested by" , value=song_data.requestor, inline=True)
 
         await ctx.send(embed=reply)
 
@@ -157,7 +165,7 @@ class Music(commands.Cog):
 
         `<prefix>queue`
         """
-        queue = "".join([f"{track+1} — {self.music_queue[track]['song_data']['title']}\n" for track in range(0, len(self.music_queue))]) # God this sucks
+        queue = "".join([f"{track+1} — {self.music_queue[track].title}\n" for track in range(0, len(self.music_queue))]) # God this sucks
         if self.vc == "":
             reply = embed=dialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command.")
         else:
@@ -205,10 +213,11 @@ class Music(commands.Cog):
         if args:
             track_to_remove = int(args[0])
             if track_to_remove:
-                just_deleted_track = self.music_queue[track_to_remove - 1]["song_data"]
+                track_title = self.music_queue[track_to_remove - 1].title
+                track_thumb = self.music_queue[track_to_remove - 1].thumb
                 self.music_queue.pop(track_to_remove - 1)
-                reply = dialogBox("Queued", f"Removed track no. {track_to_remove} from queue", just_deleted_track["title"])
-                reply.set_thumbnail(url=just_deleted_track["thumb"])
+                reply = dialogBox("Queued", f"Removed track no. {track_to_remove} from queue", track_title)
+                reply.set_thumbnail(url=track_thumb)
                 await ctx.send(embed=reply)
                 return
 
@@ -220,7 +229,7 @@ class Music(commands.Cog):
     @commands.command(aliases=["np", "playing"])
     async def nowplaying(self, ctx):
         """te4st"""
-        currently_playing = self.music_queue[0]["song_data"]
-        reply = dialogBox("Playing", "Currently playing", currently_playing["title"])
-        reply.set_thumbnail(url=currently_playing["thumb"])
+        currently_playing = self.music_queue[0]
+        reply = dialogBox("Playing", "Currently playing", currently_playing.title)
+        reply.set_thumbnail(url=currently_playing.thumb)
         msg = await ctx.send(embed=reply)
