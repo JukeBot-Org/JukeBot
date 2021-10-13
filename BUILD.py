@@ -34,12 +34,10 @@ def build():
     print(f"{fg.YELLOW}Using \"{site_packages_dir}\" for site-packages{st.RESET_ALL}")
 
     print(f"{fg.GREEN}Commencing build...{st.RESET_ALL}")
-    PyInstaller.__main__.run([
-        "bot.py",
-        "--onefile",
-        f"--paths={site_packages_dir}",
-        f"--name=JukeBot-v.{JukeBot_version}-{sys.platform}"
-    ])
+    PyInstaller.__main__.run(["bot.py",
+                              "--onefile",
+                              f"--paths={site_packages_dir}",
+                              f"--name=JukeBot-v.{JukeBot_version}-{sys.platform}"])
 
     print(f"{fg.YELLOW}Reverting build version in {misc_commands_py}...{st.RESET_ALL}")
     with open(misc_commands_py, "rb+") as filehandle:
@@ -48,8 +46,14 @@ def build():
     with open(misc_commands_py, "a") as filehandle:
         filehandle.write("None\n")
 
-    print(f"{fg.YELLOW}Copying default config file to dist dir...{st.RESET_ALL}")
-    copy(os.path.join("config.EXAMPLES.json"), os.path.join("dist", "config.json"))
+    config_json = os.path.join(os.getcwd(), "config.json")
+    if os.path.exists(config_json):
+        print(f"{fg.YELLOW}congif.json exists in working dir. Copying already-existing config file to dist dir...{st.RESET_ALL}")
+        copy(os.path.join("config.json"), os.path.join("dist", "config.json"))
+    else:
+        print(f"{fg.YELLOW}Copying default config file to dist dir...{st.RESET_ALL}")
+        copy(os.path.join("config.EXAMPLES.json"), os.path.join("dist", "config.json"))
+
 
     print(f"{fg.GREEN}Build success!{st.RESET_ALL} Executable can be found in /dist")
 
