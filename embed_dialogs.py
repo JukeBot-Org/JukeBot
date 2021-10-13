@@ -1,4 +1,6 @@
-"A wrapper to create nice-looking embed-style messages"
+"""A wrapper for discord.Embed to aid in creating nice-looking messages using
+link-less embeds.
+"""
 from nextcord import Embed, Colour
 
 JukeBot_Bluegreen = Colour.from_rgb(6, 227, 164)
@@ -16,13 +18,15 @@ uiEmoji = {
 }
 
 def DialogBox(messageEmoji, messageTitle, messageContent=False):
+    """Creates a nice-looking dialog box using Discord's native embeds.
+    TODO: Change to a class?"""
     title = f"{uiEmoji[messageEmoji][0]}  {messageTitle}"
     colour = uiEmoji[messageEmoji][1]
 
-    if not messageContent:
+    if not messageContent: # If the dialog box was called without any message content, just a title and an emoji...
         embed = Embed(title = title,
                       colour = colour)
-    else:
+    else: # If we got an emoji, a title, _and_ message text.
         embed = Embed(title = title,
                       description = messageContent,
                       colour = colour)

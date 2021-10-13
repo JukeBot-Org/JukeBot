@@ -8,6 +8,7 @@ import config
 from embed_dialogs import DialogBox
 
 class Music(commands.Cog):
+    """The cog that handles all of the music commands and audio-playing operations."""
     def __init__(self, client):
         self.client = client
 
@@ -29,13 +30,15 @@ class Music(commands.Cog):
 
 # ===================== FUNCTIONS ====================== #
     def search_yt(self, item):
-        """ Searches YouTube for the requested search term, returns the first result only."""
+        """ Searches YouTube for the requested search term or URL, returns a
+        URL and other info for the first result only."""
 
         print(Fore.YELLOW + "======== YouTube Downloader ========")
         with YoutubeDL(self.YDL_OPTIONS) as ydl:
             try:
                 info = ydl.extract_info("ytsearch:%s" % item, download=False)["entries"][0]
-            except Exception:
+            except Exception as e:
+                raise e
                 print("====================================\n" + Style.RESET_ALL)
                 return False
         print("====================================\n" + Style.RESET_ALL)
@@ -46,48 +49,64 @@ class Music(commands.Cog):
                }
 
     async def play_audio(self, ctx):
+        """If the bot is not playing at all, this will play the first track in
+        the queue, then immediately invoke play_next() afterwards."""
         if len(self.music_queue) > 0: # If there are tracks in the queue...
+            # ...state that the bot is about to start playing...
             self.is_playing = True
+
+            # ...get the first URL...
             media_url = self.music_queue[0]["song_data"]["source"]
 
-            if self.vc == "": # If not in a voice channel currently...
+            # ...join a VC if not already in one...
+            if self.vc == "":
                 self.vc = await self.music_queue[0]["voice_channel"].connect()
-
-            self.music_queue.pop(0)
-            self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
-        else:
-            self.is_playing = False
-
-    def play_next(self, ctx):
-        if len(self.music_queue) > 0: # If there's music waiting in the queue...
-            self.is_playing = True
-            media_url = self.music_queue[0]["song_data"]["source"] # ...get the first URL...
-            self.music_queue.pop(0)                                # ...remove the first element from the queue...
 
             # ...then play the music in the current VC!
             # Once the music is finished playing, repeat from the start.
             # Loop until the queue is empty, at which point...
             self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
         else:
-            self.is_playing = False # Stop playing music.
+            # ...state that the bot is no longer playing, stopping the play loop.
+            self.is_playing = False
+
+    def play_next(self, ctx):
+        """Plays the next track in the queue. Different to play_audio() in that
+        it does not attempt to join a VC. Doing so would make this async, which
+        won't work with discord.py/nextcord's ability to invoke a lambda once
+        audio is finished playing. It's tricky. Maybe todo?"""
+        self.music_queue.pop(0) # Remove the previously-played song from the queue to move to the next one.
+        if len(self.music_queue) > 0: # If there are any more tracks waiting in the queue...
+            self.is_playing = True
+            media_url = self.music_queue[0]["song_data"]["source"]
+
+            self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
+
+        else:
+            self.is_playing = False
 
 # ====================== COMMANDS ====================== #
 
     @commands.command()
     async def play(self, ctx, *args):
-        """Plays a song in the voice channel that you're currently in.
-        If there's music currently playing, the song is instead added to the queue.
-        Accepts YouTube links, search terms, and Spotify links (SPOTIFY NOT YET WORKING, STILL IN TESTING).
+        """**Plays a song in the voice channel that you're currently in.**
+        `<prefix>play` is the bread and butter of your JukeBot experience.
+        Once you're in a voice channel, put the name of the song, or a YouTube
+        link to the song, that you would like to play after the `<prefix>play`
+        command, and it will begin playing in your voice channel.
+        If there's music currently playing, the song is instead added to the
+        queue.
 
         **Examples**
+        `<prefix>play` takes 1 argument. This can either be the URL to a
+        YouTube video, or a seqrch query that you would type into Youtube to
+        find that video (see examples).
 
+        `<prefix>play `
         `<prefix>play https://www.youtube.com/watch?v=dQw4w9WgXcQ`
-
         `<prefix>play earth wind and fire september`
-
-        `<prefix>play https://open.spotify.com/track/3iVcZ5G6tvkXZkZKlMpIUs?si=e84140d21af44958` (SPOTIFY NOT YET WORKING, STILL IN TESTING)
         """
-        query = " ".join(args)
+        search_query = " ".join(args)
 
         if ctx.author.voice is None:
             await ctx.send(embed=DialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command."))
@@ -95,23 +114,22 @@ class Music(commands.Cog):
 
         voice_channel = ctx.author.voice.channel # Set which voice channel to join later on in the command
 
-        song_data = self.search_yt(query)
-        if song_data == False:
+        song_data = self.search_yt(search_query) # Search YouTube for the video/query that the user requested.
+        if song_data == False: # Comes back if the video is unable to be played due to uploader permissions, or if we got a malformed link.
             await ctx.send(embed=DialogBox("Error", "Unable to play song", "Incorrect video format or link type."))
             return
 
+        # Add the song data to JukeBot's queue.
         self.music_queue.append({
             "song_data"     : song_data,
             "voice_channel" : voice_channel
         })
 
         # Start preparing the dialog to be posted.
-
         if self.is_playing == False:
             reply = DialogBox("Playing", f"Now playing: {song_data['title']}")
         else:
             reply = DialogBox("Queued", f"Adding to queue: {song_data['title']}")
-
         reply.set_image(url=song_data["thumb"])
         reply.add_field(name="Duration" , value=song_data["duration"], inline=True)
 
@@ -119,12 +137,17 @@ class Music(commands.Cog):
 
         if self.is_playing == False:
             await self.play_audio(ctx)
-        else:
-            await ctx.send(ctx.author.voice.channel)
 
     @commands.command()
     async def queue(self, ctx):
-        """Displays the queue of music waiting to be played"""
+        """**Displays the queue of music waiting to be played.**
+        The first track will be the one currently playing.
+
+        **Examples**
+        `<prefix>queue` takes no arguments.
+
+        `<prefix>queue`
+        """
         queue = "".join([f"{track+1} — {self.music_queue[track]['song_data']['title']}\n" for track in range(0, len(self.music_queue))]) # God this sucks
         if self.vc == "":
             reply = embed=DialogBox("Warn", "Hang on!", "Connect to a voice channel first, _then_ issue the command.")
@@ -135,8 +158,14 @@ class Music(commands.Cog):
 
     @commands.command()
     async def skip(self, ctx):
-        """Skips the song currently playing.
-        If there are still tracks in the queue, the next one will automatically play.
+        """**Skips the song currently playing.**
+        If there are still tracks in the queue, the next one will automatically
+        play, otherwisethe bot will stop playing.
+
+        **Examples**
+        `<prefix>skip` takes no arguments.
+
+        `<prefix>skip`
         """
         if self.vc == "":
             reply = DialogBox("Warn", "Hang on!", "JukeBot is currently not playing; there's nothing to skip.")
@@ -148,10 +177,23 @@ class Music(commands.Cog):
         await ctx.send(embed=reply)
 
     @commands.command()
-    async def clear(self, ctx):
-        """Removes all songs from the queue.
+    async def clear(self, ctx, *args):
+        """**Removes all songs from the queue.**
         Does not affect the currently-playing song.
+
+        **Examples**
+        `<prefix>clear` takes either one or zero arguments. If a number is
+        provided, the track in that position in the queue will be removed. If
+        no arguments are provided, the entire queue will be cleared.
+
+        `<prefix>clear`
+        `<prefix>clear 3`
         """
+        track_to_remove = args[0]
+        if track_to_remove:
+            reply = DialogBox("Debug", "Oops!", "This command is still currently in testing and currently does not do anything yet.")
+            await ctx.send(embed=reply)
+            
         if self.music_queue == []:
             reply = DialogBox("Warn", "Hang on!", "The queue is already empty.")
         else:

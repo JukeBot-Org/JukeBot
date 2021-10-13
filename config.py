@@ -1,3 +1,6 @@
+"""Reads config.json and uses the values within it to define global
+variables
+"""
 import json
 import os
 from datetime import datetime

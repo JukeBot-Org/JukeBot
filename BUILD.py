@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+"""Uses PyInstaller to bundle a single executable file for release. Also
+copies over a blank config.json from config.EXAMPLES.json.
+When run on Windows this will generate a Windows .EXE file, On Linux a Linux
+binary, and on macOS a macOS package (still to be tested, contributions
+welcome!)
+"""
 import os
 import sys
 import git
