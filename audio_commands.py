@@ -6,11 +6,20 @@ import datetime
 import arrow
 import logging
 
+import time
 import json
 
 import config
 from embed_dialogs import dialogBox
 import data_structures as JukeBot
+
+def trim(name):
+    trimmed = ""
+    if len(name) > 52: trimmed = name[:50]+'...'
+    else:              trimmed = name
+    padding_amt = 55-len(trimmed)
+    padding = " "*padding_amt
+    return f"{trimmed}{padding}"
 
 class Audio(commands.Cog):
     """The cog that handles all of the audio-playing commands and operations."""
@@ -54,7 +63,6 @@ class Audio(commands.Cog):
         if len(self.queue) > 0: # If there are tracks in the queue...
             # ...state that the bot is about to start playing...
             self.is_playing = True
-            print(self.queue[0])
             logging.info(f"Playing {self.queue[0]}")
             # ...get the first URL...
             media_url = self.queue[0].source
@@ -155,13 +163,21 @@ class Audio(commands.Cog):
 
         `<prefix>queue`
         """
-        queue = "".join([f"{track+1} — {self.queue[track].title}\n" for track in range(0, len(self.queue))]) # God this sucks
         if self.vc == "":
             reply = embed=dialogBox("Warn", "Hang on!", "Connect to a voice channel before issuing the command.")
             await ctx.send(embed=reply, delete_after=10)
-        else:
-            reply = embed=dialogBox("Queued", "Queued tracks", f"`{queue}`")
-            await ctx.send(embed=reply)
+            return
+
+        tracks = []
+        for track in range(0, len(self.queue)):
+            queue_pos = track+1
+            trimmed_title = trim(self.queue[track].title)
+            duration = self.queue[track].duration
+            tracks.append(f"{queue_pos}  {trimmed_title}{duration}  \n")
+
+        header = "#  Track title                                            Duration "
+        reply = embed=dialogBox("Queued", "Queued tracks", f"`{header}\n{''.join(tracks)}`") # 58 chars long
+        await ctx.send(embed=reply)
 
 
     @commands.command()
@@ -239,3 +255,16 @@ class Audio(commands.Cog):
         reply.add_field(name="Duration", value=currently_playing.human_duration, inline=True)
         reply.add_field(name="Time remaining", value=currently_playing.time_left(arrow.utcnow()), inline=True)
         msg = await ctx.send(embed=reply)
+
+    @commands.command()
+    async def tq(self, ctx):
+        """**Loads some example tracks for testing queue-related operations.**"""
+        await ctx.send(embed=dialogBox("Debug", "Loading test queue..."))
+        await ctx.invoke(self.client.get_command('play'), 'one')
+        await ctx.invoke(self.client.get_command('play'), 'two')
+        await ctx.invoke(self.client.get_command('play'), 'three')
+        await ctx.invoke(self.client.get_command('play'), 'four')
+        await ctx.invoke(self.client.get_command('play'), 'five')
+        await ctx.invoke(self.client.get_command('play'), 'six')
+        await ctx.invoke(self.client.get_command('queue'))
+        await ctx.send(embed=dialogBox("Debug", "Test queue finished loading."))
