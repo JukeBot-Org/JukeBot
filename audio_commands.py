@@ -39,6 +39,7 @@ class Audio(commands.Cog):
                                "executable"     : config.FFMPEG_PATH}
         self.vc = None # Stores the current channel
         self.idled_time = 0
+        self.time_to_idle_for = 120 # seconds, TODO: move this to config.json
         self.last_text_channel = None
 
 # ================================== FUNCTIONS =================================== #
@@ -49,13 +50,9 @@ class Audio(commands.Cog):
         exhausted), it will begin counting down. Once time timer hits zero,
         JukeBot will disconnect from its current voice channel.
         """
-        time_to_idle_for = 5 # seconds
-
-        print(f"Playing? {self.is_playing}")
         if not self.is_playing:
             self.idled_time+=1
-            print(f"Idled for {self.idled_time} seconds")
-            if self.idled_time > time_to_idle_for:
+            if self.idled_time > self.time_to_idle_for:
                 await self.vc.disconnect()
         if self.is_playing:
             self.idled_time = 0

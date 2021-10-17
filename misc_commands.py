@@ -134,7 +134,8 @@ class Other(commands.Cog):
         await ctx.message.delete()
         reply = dialogBox("Version", "JukeBot has been updated!",
         """**Thank you for helping test out JukeBot while I still work on it!**\n
-        **I've fixed a few bugs, added some new commands (`!nowplaying`, `!clear`), and have made the experience hopefully work a lot smoother for y'all.**
+        **JukeBot will no longer linger in the voice channel forever! After XXXX seconds of no audio playing, it will disconnect, ready for you to !play again.**
+        I've also made the `!queue` look a lot nicer and fixed a few more bugs.
 
         _(Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to me on Discord at squig#1312, or via the ticket system at https://github.com/squigjess/JukeBot/issues if you see any!)_""")
         reply.set_image(url="https://media.discordapp.net/attachments/887723918574645331/895242544223518740/discordjp.jpg")

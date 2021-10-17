@@ -38,6 +38,7 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * Features
   * Add `!resume`, `!pause`, and `!stop` commands
   * playing local files
+  * Send a message to the last text channel when JukeBot disconnects.
 * Behind the scenes stuff
   * Move queue from a list to a JukeBot.Queue object.
   * [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)
