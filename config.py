@@ -1,5 +1,5 @@
 """Reads config.json and uses the values within it to define global
-variables
+variables.
 """
 import json
 import os
@@ -22,3 +22,4 @@ LISTENING_TO      = "{}help".format(COMMAND_PREFIX)
 LOG_FILE_DIR      = os.path.join(os.getcwd(), "logs")
 LOG_FILE_NAME     = f"jukebot_{exec_time}.log"
 LOG_FILE_PATH     = os.path.join(LOG_FILE_DIR, LOG_FILE_NAME)
+conf_file.close()
