@@ -1,16 +1,26 @@
 import nextcord as discord
-from nextcord.ext import commands
+from nextcord.ext import commands, tasks
 from youtube_dl import YoutubeDL
 from colorama import Fore, Style
 import datetime
 import arrow
 import logging
+from asyncio import sleep
 
+import time
 import json
 
 import config
 from embed_dialogs import dialogBox
 import data_structures as JukeBot
+
+def trim(name):
+    trimmed = ""
+    if len(name) > 52: trimmed = name[:50]+'...'
+    else:              trimmed = name
+    padding_amt = 55-len(trimmed)
+    padding = " "*padding_amt
+    return f"{trimmed}{padding}"
 
 class Audio(commands.Cog):
     """The cog that handles all of the audio-playing commands and operations."""
@@ -27,9 +37,42 @@ class Audio(commands.Cog):
         self.FFMPEG_OPTIONS = {"before_options" : "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
                                "options"        : "-vn",
                                "executable"     : config.FFMPEG_PATH}
-        self.vc = "" # Stores the current channel
+        self.vc = None # Stores the current channel
+        self.idled_time = 0
+        self.time_to_idle_for = 120 # seconds, TODO: move this to config.json
+        self.last_text_channel = None
 
 # ================================== FUNCTIONS =================================== #
+
+    @tasks.loop(seconds=1.0, count=None)
+    async def idle_timer(self):
+        """When this task is started (most often when JukeBot's queue is
+        exhausted), it will begin counting down. Once time timer hits zero,
+        JukeBot will disconnect from its current voice channel.
+        """
+        if not self.is_playing:
+            self.idled_time+=1
+            if self.idled_time > self.time_to_idle_for:
+                await self.vc.disconnect()
+        if self.is_playing:
+            self.idled_time = 0
+
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        """Fires when JukeBot changes voice channels. If disconnecting from a
+        voice channel, reset the queue and start the idle timer, after which
+        the bot will disconnect.
+        TODO: implement a total play-time tracker.
+        """
+        if before.channel is None and after.channel is not None:
+            logging.info(f"Connected to voice channel \"{after.channel}\"")
+        if before.channel is not None and after.channel is None:
+            logging.info(f"Disconnected from voice channel \"{before.channel}\"")
+            self.vc = ""
+            self.queue = []
+            self.is_playing = False
+            self.idle_timer.stop()
+
     async def search_yt(self, item, ctx):
         """Searches YouTube for the requested search term or URL, returns a
         JukeBot.Track object for the first result only."""
@@ -54,14 +97,16 @@ class Audio(commands.Cog):
         if len(self.queue) > 0: # If there are tracks in the queue...
             # ...state that the bot is about to start playing...
             self.is_playing = True
-            print(self.queue[0])
+
             logging.info(f"Playing {self.queue[0]}")
+
             # ...get the first URL...
             media_url = self.queue[0].source
 
             # ...join a VC if not already in one...
-            if self.vc == "":
+            if self.vc == None:
                 self.vc = await self.queue[0].voice_channel.connect()
+                self.idle_timer.start()
 
             # ...record when the track started playing...
             self.queue[0].time_started = arrow.utcnow()
@@ -72,6 +117,8 @@ class Audio(commands.Cog):
         else:
             # ...state that the bot is no longer playing, stopping the play loop.
             self.is_playing = False
+
+            # Begin the disconnect timer. TODO
 
     def play_next(self, ctx):
         """Plays the next track in the queue. Different to play_audio() in that
@@ -86,11 +133,15 @@ class Audio(commands.Cog):
         # If there are any more tracks waiting in the queue...
         if len(self.queue) > 0:
             self.is_playing = True
+
+
             media_url = self.queue[0].source
             self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
 
         else:
             self.is_playing = False
+
+            # Begin the disconnect timer. TODO
 
 # =================================== COMMANDS =================================== #
 
@@ -155,14 +206,27 @@ class Audio(commands.Cog):
 
         `<prefix>queue`
         """
-        queue = "".join([f"{track+1} — {self.queue[track].title}\n" for track in range(0, len(self.queue))]) # God this sucks
-        if self.vc == "":
-            reply = embed=dialogBox("Warn", "Hang on!", "Connect to a voice channel before issuing the command.")
+        if self.vc == None:
+            reply = dialogBox("Warn", "Hang on!", "JukeBot is currently not playing; there's nothing in the queue.")
             await ctx.send(embed=reply, delete_after=10)
-        else:
-            reply = embed=dialogBox("Queued", "Queued tracks", f"`{queue}`")
-            await ctx.send(embed=reply)
+            return
 
+        tracks = []
+        if len(self.queue) == 0:
+            queue_details = "Empty queue!"
+
+        else:
+            header = "#  Track title                                            Duration "
+            for track in range(0, len(self.queue)):
+                queue_pos = track+1
+                trimmed_title = trim(self.queue[track].title)
+                duration = self.queue[track].duration
+                tracks.append(f"{queue_pos}  {trimmed_title}{duration}  \n")
+
+            queue_details = f"`{header}\n{''.join(tracks)}`"
+
+        reply = embed=dialogBox("Queued", "Queued tracks", queue_details)
+        await ctx.send(embed=reply)
 
     @commands.command()
     async def skip(self, ctx):
@@ -175,7 +239,7 @@ class Audio(commands.Cog):
 
         `<prefix>skip`
         """
-        if self.vc == "":
+        if self.vc == None:
             reply = dialogBox("Warn", "Hang on!", "JukeBot is currently not playing; there's nothing to skip.")
         else:
             reply = dialogBox("Skip", "Skipped track")
@@ -239,3 +303,16 @@ class Audio(commands.Cog):
         reply.add_field(name="Duration", value=currently_playing.human_duration, inline=True)
         reply.add_field(name="Time remaining", value=currently_playing.time_left(arrow.utcnow()), inline=True)
         msg = await ctx.send(embed=reply)
+
+    @commands.command()
+    async def tq(self, ctx):
+        """**Loads some example tracks for testing queue-related operations.**"""
+        await ctx.send(embed=dialogBox("Debug", "Loading test queue..."))
+        await ctx.invoke(self.client.get_command('play'), 'one')
+        await ctx.invoke(self.client.get_command('play'), 'two')
+        await ctx.invoke(self.client.get_command('play'), 'three')
+        await ctx.invoke(self.client.get_command('play'), 'four')
+        await ctx.invoke(self.client.get_command('play'), 'five')
+        await ctx.invoke(self.client.get_command('play'), 'six')
+        await ctx.invoke(self.client.get_command('queue'))
+        await ctx.send(embed=dialogBox("Debug", "Test queue finished loading."))

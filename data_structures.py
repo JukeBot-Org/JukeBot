@@ -31,3 +31,20 @@ class Track:
         diff = time_now - self.time_started
         time_left = humanize_duration(self.duration.total_seconds() - diff.total_seconds())
         return time_left
+
+class Queue:
+    """Represents the queue that JukeBot.Track objects are stored in.
+    Currently doesn't do much more than consolidate a list and list.pop() into
+    a single list, but leaves room for expansion.
+    """
+    def __init__(self):
+        self.tracks = []
+
+    def clear(self):
+        self.tracks = []
+
+    def remove_track(self, track_index_to_remove):
+        self.tracks.pop(track_index_to_remove)
+
+    def total_time():
+        return None # Will eventually add up the total duration of all tracks in the queue.

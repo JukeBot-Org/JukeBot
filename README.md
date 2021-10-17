@@ -34,13 +34,14 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 
 # To do
 * Bugs
+  * N/A
 * Features
-  * Add `!resume`, `!pause`, and !stop commands
+  * Add `!resume`, `!pause`, and `!stop` commands
   * playing local files
+  * Send a message to the last text channel when JukeBot disconnects.
 * Behind the scenes stuff
-  * Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.
+  * Move queue from a list to a JukeBot.Queue object.
   * [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)
-  * [Implement proper error handling](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#error-handling)
   * https://pyinstaller.readthedocs.io/en/stable/operating-mode.html#hiding-the-source-code
   * https://pyinstaller.readthedocs.io/en/stable/usage.html#cmdoption-i
 * Documentation
@@ -48,6 +49,8 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * Maybes
   * Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
 <!--
+* [Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.](https://www.py4u.net/discuss/262449)
+* [Implement proper error handling](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#error-handling)
 * Fix exception when invoking `!nowplaying` with an empty queue
 * stopwatch (under `!nowplaying`)
 * Find out why compiled version doesn't launch a terminal window on Linux.
