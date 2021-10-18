@@ -79,7 +79,7 @@ class Audio(commands.Cog):
             logging.info(f"Connected to voice channel \"{after.channel}\"")
         if before.channel is not None and after.channel is None:
             logging.info(f"Disconnected from voice channel \"{before.channel}\"")
-            self.vc = None
+            self.vc = ""
             self.queue = []
             self.is_playing = False
             self.idle_timer.stop()
