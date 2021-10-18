@@ -39,6 +39,7 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
   * Add `!resume`, `!pause`, and ~~`!stop`~~ commands
   * playing local files
 * Behind the scenes stuff
+  * Test multi-server capabilities
   * Move queue from a list to a JukeBot.Queue object.
   * [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)
   * https://pyinstaller.readthedocs.io/en/stable/operating-mode.html#hiding-the-source-code

@@ -39,7 +39,7 @@ class Audio(commands.Cog):
         self.FFMPEG_OPTIONS = {"before_options" : "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
                                "options"        : "-vn",
                                "executable"     : config.FFMPEG_PATH}
-        self.vc = None # Stores the current channel
+        self.voice_channel = None # Stores the current channel
         self.idled_time = 0
         self.time_to_idle_for = 3 # seconds, TODO: move this to config.json
         self.last_text_channel = None #nextcord.TextChannel object
@@ -57,8 +57,10 @@ class Audio(commands.Cog):
         """
         if not self.is_playing:
             self.idled_time+=1
+            print(f"Idled for {self.idled_time} seconds")
             if self.idled_time >= self.time_to_idle_for:
-                await self.vc.disconnect()
+                logging.info(f"Idled for {self.idled_time} seconds")
+                await self.voice_channel.disconnect()
                 reply = dialogBox("DC'd", "JukeBot has auto-DC'd from the voice channel.",
                                   f"In order to save bandwidth and keep things tidy, JukeBot automatically disconnects after {humanize_duration(self.time_to_idle_for)} of inactivity.\nHit `{config.COMMAND_PREFIX}play` to start JukeBot again.")
                 reply.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
@@ -66,7 +68,6 @@ class Audio(commands.Cog):
                 await self.last_text_channel.send(embed=reply, delete_after=120)
         if self.is_playing:
             self.idled_time = 0
-        print(f"Idled for {self.idled_time} seconds")
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -78,11 +79,21 @@ class Audio(commands.Cog):
         if before.channel is None and after.channel is not None:
             logging.info(f"Connected to voice channel \"{after.channel}\"")
         if before.channel is not None and after.channel is None:
-            logging.info(f"Disconnected from voice channel \"{before.channel}\"")
-            self.vc = None
+            logging.info(f"Disconnecting from voice channel \"{before.channel}\"")
+            # If the bot was manually disconnected, we need to clean up the broken voice client connection.
+            voice_client = discord.utils.get(self.client.voice_clients, guild=self.last_text_channel.guild)
+            if voice_client:
+                await voice_client.disconnect()
+                voice_client.cleanup()
+
+            # Reset a few vars
+            self.voice_channel = None
             self.queue = []
             self.is_playing = False
+
+            # Stop the idle timer if it's running.
             self.idle_timer.stop()
+            logging.info(f"Successfully disconnected from voice channel \"{before.channel}\"")
 
     async def search_yt(self, item, ctx):
         """Searches YouTube for the requested search term or URL, returns a
@@ -115,8 +126,8 @@ class Audio(commands.Cog):
             media_url = self.queue[0].source
 
             # ...join a VC if not already in one...
-            if self.vc == None:
-                self.vc = await self.queue[0].voice_channel.connect()
+            if self.voice_channel == None:
+                self.voice_channel = await self.queue[0].voice_channel.connect()
                 self.idle_timer.start()
 
             # ...record when the track started playing...
@@ -124,7 +135,7 @@ class Audio(commands.Cog):
             # ...then play the track in the current VC!
             # Once the track is finished playing, repeat from the start.
             # Loop until the queue is empty, at which point...
-            self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
+            self.voice_channel.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
         else:
             # ...state that the bot is no longer playing, stopping the play loop.
             self.is_playing = False
@@ -145,15 +156,17 @@ class Audio(commands.Cog):
         if len(self.queue) > 0:
             self.is_playing = True
 
-
             media_url = self.queue[0].source
-            self.vc.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
+            self.voice_channel.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
 
         else:
             self.is_playing = False
 
             # Begin the disconnect timer. TODO
 
+    def active_voice_client(self, guild_id):
+        for voice_client in self.client.voice_clients:
+            None
 # =================================== COMMANDS =================================== #
 
     @commands.command(aliases=["p"])
@@ -187,15 +200,13 @@ class Audio(commands.Cog):
             await ctx.send(embed=reply, delete_after=10)
             return
 
-        voice_channel = ctx.author.voice.channel # Set which voice channel to join later on in the command
-
         track_data = await self.search_yt(search_query, ctx) # Search YouTube for the video/query that the user requested.
         if track_data == False: # Comes back if the video is unable to be played due to uploader permissions, or if we got a malformed link.
             reply = dialogBox("Error", "Unable to play track", "Incorrect video format or link type.")
             reply.set_footer(text="This message will automatically disappear shortly.")
             await ctx.send(embed=reply, delete_after=10)
             return
-        track_data.voice_channel = voice_channel
+        track_data.voice_channel = ctx.author.voice.channel
 
         # Add the track data to JukeBot's queue.
         self.queue.append(track_data)
@@ -222,7 +233,7 @@ class Audio(commands.Cog):
 
         `<prefix>queue`
         """
-        if self.vc == None:
+        if self.voice_channel == None:
             reply = dialogBox("Warn", "Hang on!", "JukeBot is currently not playing; there's nothing in the queue.")
             reply.set_footer(text="This message will automatically disappear shortly.")
             await ctx.send(embed=reply, delete_after=10)
@@ -256,11 +267,11 @@ class Audio(commands.Cog):
 
         `<prefix>skip`
         """
-        if self.vc == None:
+        if self.voice_channel == None:
             reply = dialogBox("Warn", "Hang on!", "JukeBot is currently not playing; there's nothing to skip.")
         else:
             reply = dialogBox("Skip", "Skipped track")
-            self.vc.stop() # Next track should automatically play (worked in testing, lets see how it goes...)
+            self.voice_channel.stop() # Next track should automatically play (worked in testing, lets see how it goes...)
 
         reply.set_footer(text="This message will automatically disappear shortly.")
         await ctx.send(embed=reply, delete_after=10)
@@ -344,7 +355,7 @@ class Audio(commands.Cog):
         `<prefix>leave`
         `<prefix>disconnect`
         """
-        self.vc.stop()
+        self.voice_channel.stop()
         self.queue = []
 
     @commands.command()
@@ -367,8 +378,21 @@ class Audio(commands.Cog):
     @commands.command()
     @is_developer()
     @commands.is_owner()
-    async def chan(self, ctx):
+    async def vclient(self, ctx):
         """**Internal command.**
         foo.
         """
-        await ctx.send(embed=dialogBox("Debug", "Debug", f"`self.vc = {self.vc}`"))
+        voice_client = discord.utils.get(self.client.voice_clients, guild=ctx.guild)
+        await ctx.send(embed=dialogBox("Debug", "Debug", f"`{voice_client}`"))
+
+    @commands.command()
+    @is_developer()
+    @commands.is_owner()
+    async def dcv(self, ctx):
+        """**Internal command.**
+        foo.
+        """
+        voice_client = discord.utils.get(self.client.voice_clients, guild=ctx.guild)
+        await ctx.send("Before disconnect...",embed=dialogBox("Debug", "Debug", f"`{voice_client}`"))
+        voice_client.cleanup()
+        await ctx.send("After disconnect...", embed=dialogBox("Debug", "Debug", f"`{voice_client}`"))
