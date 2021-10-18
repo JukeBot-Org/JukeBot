@@ -10,11 +10,11 @@ from asyncio import sleep
 import time
 import json
 
-import config
-from embed_dialogs import dialogBox
-import data_structures as JukeBot
-from data_structures import humanize_duration
-from misc_commands import is_developer
+import JukeBot.config as config
+from JukeBot.embed_dialogs import dialogBox
+import JukeBot.data
+from JukeBot.data import humanize_duration
+from JukeBot.misc_commands import is_developer
 
 def trim(name):
     trimmed = ""
@@ -99,7 +99,7 @@ class Audio(commands.Cog):
                 return False
         print("====================================\n" + Style.RESET_ALL)
 
-        track_obj = JukeBot.Track(ytdl_data, ctx)
+        track_obj = JukeBot.data.Track(ytdl_data, ctx)
         return track_obj
 
     async def play_audio(self, ctx, from_skip=False):
@@ -369,6 +369,6 @@ class Audio(commands.Cog):
     @commands.is_owner()
     async def chan(self, ctx):
         """**Internal command.**
-        Displays the channel that the most recent JukeBot command was issued in.
+        foo.
         """
-        await ctx.send(embed=dialogBox("Debug", "Debug", f"Last command was issued in **{self.last_text_channel}**"))
+        await ctx.send(embed=dialogBox("Debug", "Debug", f"`self.vc = {self.vc}`"))

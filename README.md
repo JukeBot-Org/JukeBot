@@ -36,9 +36,8 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * Bugs
   * N/A
 * Features
-  * Add `!resume`, `!pause`, and `!stop` commands
+  * Add `!resume`, `!pause`, and ~~`!stop`~~ commands
   * playing local files
-  * Send a message to the last text channel when JukeBot disconnects.
 * Behind the scenes stuff
   * Move queue from a list to a JukeBot.Queue object.
   * [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)
@@ -49,6 +48,7 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * Maybes
   * Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
 <!--
+* Send a message to the last text channel when JukeBot disconnects.
 * [Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.](https://www.py4u.net/discuss/262449)
 * [Implement proper error handling](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#error-handling)
 * Fix exception when invoking `!nowplaying` with an empty queue

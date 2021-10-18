@@ -11,9 +11,9 @@ from colorama import Fore as fg
 from colorama import Style as st
 import logging
 
-import config
-from audio_commands import Audio
-from misc_commands import Other, ImprovedHelp
+import JukeBot.config as config
+from JukeBot.audio_commands import Audio
+from JukeBot.misc_commands import Other, ImprovedHelp
 
 client = commands.Bot(command_prefix=config.COMMAND_PREFIX, help_command=ImprovedHelp())
 

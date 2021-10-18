@@ -5,8 +5,8 @@ import nextcord as discord
 from nextcord.ext import commands
 import time
 
-import config
-from embed_dialogs import dialogBox
+import JukeBot.config as config
+from JukeBot.embed_dialogs import dialogBox
 
 def is_developer():
     async def predicate(ctx):
