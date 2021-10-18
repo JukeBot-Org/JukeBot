@@ -45,6 +45,7 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
   * https://pyinstaller.readthedocs.io/en/stable/usage.html#cmdoption-i
 * Documentation
   * Update README and Quickstart once build process is sorted out
+    * [include this warning](https://gist.github.com/vbe0201/ade9b80f2d3b64643d854938d40a0a2d#gistcomment-3311754)
 * Maybes
   * Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
 <!--
