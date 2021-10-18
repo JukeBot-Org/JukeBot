@@ -13,6 +13,8 @@ import json
 import config
 from embed_dialogs import dialogBox
 import data_structures as JukeBot
+from data_structures import humanize_duration
+from misc_commands import is_developer
 
 def trim(name):
     trimmed = ""
@@ -39,23 +41,32 @@ class Audio(commands.Cog):
                                "executable"     : config.FFMPEG_PATH}
         self.vc = None # Stores the current channel
         self.idled_time = 0
-        self.time_to_idle_for = 120 # seconds, TODO: move this to config.json
-        self.last_text_channel = None
+        self.time_to_idle_for = 3 # seconds, TODO: move this to config.json
+        self.last_text_channel = None #nextcord.TextChannel object
 
 # ================================== FUNCTIONS =================================== #
 
     @tasks.loop(seconds=1.0, count=None)
     async def idle_timer(self):
-        """When this task is started (most often when JukeBot's queue is
-        exhausted), it will begin counting down. Once time timer hits zero,
-        JukeBot will disconnect from its current voice channel.
+        """This task is started when JukeBot begins playing audio, triggering
+        every second. When the queue is exhausted and is_playing == False, the
+        idled_time counter will increment every second. Once the idlet_time
+        counter == the amount in self.time_to_idle_for, JukeBot will disconnect
+        from its current voice channel and senbd a message to the channel in
+        which the most recent command was issued to JukeBot.
         """
         if not self.is_playing:
             self.idled_time+=1
-            if self.idled_time > self.time_to_idle_for:
+            if self.idled_time >= self.time_to_idle_for:
                 await self.vc.disconnect()
+                reply = dialogBox("DC'd", "JukeBot has auto-DC'd from the voice channel.",
+                                  f"In order to save bandwidth and keep things tidy, JukeBot automatically disconnects after {humanize_duration(self.time_to_idle_for)} of inactivity.\nHit `{config.COMMAND_PREFIX}play` to start JukeBot again.")
+                reply.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
+                reply.set_footer(text="This message will automatically disappear shortly.")
+                await self.last_text_channel.send(embed=reply, delete_after=120)
         if self.is_playing:
             self.idled_time = 0
+        print(f"Idled for {self.idled_time} seconds")
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -146,7 +157,7 @@ class Audio(commands.Cog):
 # =================================== COMMANDS =================================== #
 
     @commands.command(aliases=["p"])
-    async def play(self, ctx, *args):
+    async def play(self, ctx, *params):
         """**Plays a track in the voice channel that you're currently in.**
         Once you're in a voice channel, put the name of the track, or a YouTube
         link to the track, that you would like to play after the `<prefix>play`
@@ -163,21 +174,26 @@ class Audio(commands.Cog):
         `<prefix>play https://www.youtube.com/watch?v=dQw4w9WgXcQ`
         `<prefix>play earth wind and fire september`
 
-        **Aliases** — **<prefix>play** can also be invoked with:
+        **Aliases** — Instead of **<prefix>play**, you can also use:
         `<prefix>p`
         """
-        search_query = " ".join(args)
+        search_query = " ".join(params)
+        self.last_text_channel = ctx.channel
         loading_msg = await ctx.send(f"`Loading track \"{search_query}\"...`")
 
         if ctx.author.voice is None:
-            await ctx.send(embed=dialogBox("Warn", "Hang on!", "Connect to a voice channel before issuing the command."), delete_after=10)
+            reply = dialogBox("Warn", "Hang on!", "Connect to a voice channel before issuing the command.")
+            reply.set_footer(text="This message will automatically disappear shortly.")
+            await ctx.send(embed=reply, delete_after=10)
             return
 
         voice_channel = ctx.author.voice.channel # Set which voice channel to join later on in the command
 
         track_data = await self.search_yt(search_query, ctx) # Search YouTube for the video/query that the user requested.
         if track_data == False: # Comes back if the video is unable to be played due to uploader permissions, or if we got a malformed link.
-            await ctx.send(embed=dialogBox("Error", "Unable to play track", "Incorrect video format or link type."), delete_after=10)
+            reply = dialogBox("Error", "Unable to play track", "Incorrect video format or link type.")
+            reply.set_footer(text="This message will automatically disappear shortly.")
+            await ctx.send(embed=reply, delete_after=10)
             return
         track_data.voice_channel = voice_channel
 
@@ -208,6 +224,7 @@ class Audio(commands.Cog):
         """
         if self.vc == None:
             reply = dialogBox("Warn", "Hang on!", "JukeBot is currently not playing; there's nothing in the queue.")
+            reply.set_footer(text="This message will automatically disappear shortly.")
             await ctx.send(embed=reply, delete_after=10)
             return
 
@@ -245,14 +262,18 @@ class Audio(commands.Cog):
             reply = dialogBox("Skip", "Skipped track")
             self.vc.stop() # Next track should automatically play (worked in testing, lets see how it goes...)
 
+        reply.set_footer(text="This message will automatically disappear shortly.")
         await ctx.send(embed=reply, delete_after=10)
 
     @commands.command()
-    async def clear(self, ctx, *args):
+    async def clear(self, ctx, *params):
         """**Removes all tracks from the queue.**
         Does not affect the currently-playing track. `<prefix>clear` can be
         followed by the number of an item in the queue to remove only that
         track rather then all of them.
+        This is useful when you want JukeBot to stop, but once the current
+        track is finished (or when someone fills the queue with nonsense and
+        you want to start from scratch while not interrupting the music).
 
         **Examples**
         `<prefix>clear` takes either one or zero parameters. If a number is
@@ -264,23 +285,26 @@ class Audio(commands.Cog):
         """
         if self.queue == []:
             reply = dialogBox("Warn", "Hang on!", "The queue is already empty.")
+            reply.set_footer(text="This message will automatically disappear shortly.")
             await ctx.send(embed=reply, delete_after=10)
             return
 
-        if args:
-            track_to_remove = int(args[0])
+        if params:
+            track_to_remove = int(params[0])
             if track_to_remove:
                 track_title = self.queue[track_to_remove - 1].title
                 track_thumb = self.queue[track_to_remove - 1].thumb
                 self.queue.pop(track_to_remove - 1)
                 reply = dialogBox("Queued", f"Removed track no. {track_to_remove} from queue", track_title)
                 reply.set_thumbnail(url=track_thumb)
+                reply.set_footer(text="This message will automatically disappear shortly.")
                 await ctx.send(embed=reply, delete_after=10)
                 return
 
         else:
             self.queue = []
             reply = dialogBox("Queued", "Cleared queue")
+            reply.set_footer(text="This message will automatically disappear shortly.")
             await ctx.send(embed=reply, delete_after=10)
 
     @commands.command(aliases=["np", "playing"])
@@ -293,7 +317,7 @@ class Audio(commands.Cog):
 
         `<prefix>nowplaying`
 
-        **Aliases** — **<prefix>nowplaying** can also be invoked with:
+        **Aliases** — Instead of **<prefix>nowplaying**, you can also use:
         `<prefix>np`
         `<prefix>playing`
         """
@@ -304,9 +328,32 @@ class Audio(commands.Cog):
         reply.add_field(name="Time remaining", value=currently_playing.time_left(arrow.utcnow()), inline=True)
         msg = await ctx.send(embed=reply)
 
+    @commands.command(aliases=["leave", "disconnect"])
+    async def stop(self, ctx):
+        """**Halts JukeBox entirely.***
+        Stops JukeBot playing audio, clears the queue, and disconnects it
+        from the current voice channel. JukeBot will remain disconnected until
+        a user starts it again with `<prefix>play`.
+
+        **Examples**
+        `<prefix>stop` takes no parameters.
+
+        `<prefix>stop`
+
+        **Aliases** — Instead of **<prefix>stop**, you can also use:
+        `<prefix>leave`
+        `<prefix>disconnect`
+        """
+        self.vc.stop()
+        self.queue = []
+
     @commands.command()
+    @is_developer()
+    @commands.is_owner()
     async def tq(self, ctx):
-        """**Loads some example tracks for testing queue-related operations.**"""
+        """**Internal command.**
+        Loads some example tracks for testing queue-related operations.
+        """
         await ctx.send(embed=dialogBox("Debug", "Loading test queue..."))
         await ctx.invoke(self.client.get_command('play'), 'one')
         await ctx.invoke(self.client.get_command('play'), 'two')
@@ -316,3 +363,12 @@ class Audio(commands.Cog):
         await ctx.invoke(self.client.get_command('play'), 'six')
         await ctx.invoke(self.client.get_command('queue'))
         await ctx.send(embed=dialogBox("Debug", "Test queue finished loading."))
+
+    @commands.command()
+    @is_developer()
+    @commands.is_owner()
+    async def chan(self, ctx):
+        """**Internal command.**
+        Displays the channel that the most recent JukeBot command was issued in.
+        """
+        await ctx.send(embed=dialogBox("Debug", "Debug", f"Last command was issued in **{self.last_text_channel}**"))

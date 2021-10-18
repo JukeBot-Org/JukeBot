@@ -8,6 +8,11 @@ import time
 import config
 from embed_dialogs import dialogBox
 
+def is_developer():
+    async def predicate(ctx):
+        return ctx.author.id in [83333350588157952]
+    return commands.check(predicate)
+
 def docstring_scrubber(original):
     """Takes a docstring and splits out the examples section from the command
     help details. Really only used by ImprovedHelp().
@@ -68,6 +73,7 @@ class ImprovedHelp(commands.HelpCommand):
             embed.add_field(name=f"Category: {cog_name}",
                             value="".join([config.COMMAND_PREFIX+command.name+"\n" for command in mapping[cog]]),
                             inline=False)
+        embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
         await self.get_destination().send(embed=embed)
         return await super().send_bot_help(mapping)
 
@@ -81,6 +87,7 @@ class ImprovedHelp(commands.HelpCommand):
             embed.add_field(name=f"{config.COMMAND_PREFIX}{command.name} — {synopsis}",
                             value=truncated,
                             inline=False)
+        embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
         await self.get_destination().send(embed=embed)
         return await super().send_cog_help(cog)
 
@@ -89,6 +96,7 @@ class ImprovedHelp(commands.HelpCommand):
         """Triggers on !help commandname, provides full instructions for the specified command."""
         synopsis,full,truncated = docstring_scrubber(command.help)
         embed = dialogBox("Help", f"How to use {self.app_name}", f"**{config.COMMAND_PREFIX}{command.name}** — {full}")
+        embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
         await self.get_destination().send(embed=embed)
         return await super().send_command_help(command)
 
@@ -123,22 +131,21 @@ class Other(commands.Cog):
 
         await ctx.send(embed=reply)
 
-    def is_developer():
-        async def predicate(ctx):
-            return ctx.author.id in [83333350588157952]
-        return commands.check(predicate)
-
     @commands.command()
     @is_developer()
     async def update(self, ctx):
         await ctx.message.delete()
+        """**Internal command.**
+        Provides update messages and changelogs to alpha testers' servers.
+        """
         reply = dialogBox("Version", "JukeBot has been updated!",
         """**Thank you for helping test out JukeBot while I still work on it!**\n
-        **JukeBot will no longer linger in the voice channel forever! After XXXX seconds of no audio playing, it will disconnect, ready for you to !play again.**
+        **JukeBot will no longer linger in the voice channel forever! After two minutes of no audio playing, it will disconnect, ready for you to hit `!play` again.**
         I've also made the `!queue` look a lot nicer and fixed a few more bugs.
 
-        _(Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to me on Discord at squig#1312, or via the ticket system at https://github.com/squigjess/JukeBot/issues if you see any!)_""")
+        _Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to me on Discord at squig#1312, or via the ticket system at https://github.com/squigjess/JukeBot/issues if you see any!_""")
         reply.set_image(url="https://media.discordapp.net/attachments/887723918574645331/895242544223518740/discordjp.jpg")
+        reply.set_footer(text="This update message will automatically disappear after 24 hrs.")
         await ctx.send(embed=reply, delete_after=86400)
 
 # This line must be left intact, otherwise the build will fail.

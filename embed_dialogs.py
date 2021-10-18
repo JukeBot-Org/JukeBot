@@ -8,12 +8,14 @@ JukeBot_Bluegreen = Colour.from_rgb(6, 227, 164)
 styles = {#Reason      Which emoji to use      The colour of the accent on the left
           "Warn"    : [":warning:",            Colour.yellow()],
           "Error"   : [":no_entry_sign:",      Colour.red()],
-          "Playing" : [":arrow_forward:",      JukeBot_Bluegreen],
-          "Queued"  : [":eject:",              JukeBot_Bluegreen],
-          "Version" : [":green_heart:",        JukeBot_Bluegreen],
+          "Debug"   : [":gear:",               Colour.lighter_grey()],
+          # JukeBot-specific styles
           "Help"    : [":woman_technologist:", JukeBot_Bluegreen],
-          "Skip"    : [":track_next:",         JukeBot_Bluegreen],
-          "Debug"   : [":gear:",               Colour.lighter_grey()]}
+          "Playing" : [":arrow_forward:",      JukeBot_Bluegreen],
+          "Queued"  : [":arrow_heading_down:", JukeBot_Bluegreen],
+          "DC'd"    : [":eject:",              JukeBot_Bluegreen],
+          "Version" : [":green_heart:",        JukeBot_Bluegreen],
+          "Skip"    : [":track_next:",         JukeBot_Bluegreen]}
 
 def dialogBox(theme, message_title, message_content="", url=None):
     """Creates a nice-looking dialog box using Discord's native embeds."""
