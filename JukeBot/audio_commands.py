@@ -30,7 +30,7 @@ class Audio(commands.Cog):
         self.client = client
 
         # Determines whether or not the bot is currently playing.
-        # If audio is already playing and a new play request is received, it will instead be queued.
+        # If audio is already playing and a new play request is received, it will instead be queued..
         self.is_playing = False
 
         self.queue = []
