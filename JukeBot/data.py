@@ -22,27 +22,23 @@ class Track:
         self.requestor      = f"{ctx.author.name}#{ctx.author.discriminator}"
         self.requestor_uid  = ctx.author.id
         self.voice_channel  = None # Will be set later on in audio_commands.search_yt()
-        self.time_started   = None # Will eventually be set via arrow.utcnow()
+        self.time_started   = None # Will eventually be set via arrow.utcnow() when track begins playing
+        self.time_paused    = None # Will eventually be set via arrow.utcnow() when player is paused
+        self.total_pause_time = 0 # Stores how long the track has been paused for.
 
     def __str__(self):
         return f"\"{self.title}\" ({self.duration}), requested by {self.requestor} [{self.web_url}]"
 
     def time_left(self, time_now):
-        if self.time_started == None:
-            diff = 0
-        else:
-            diff = time_now - self.time_started
+        diff = (time_now - self.time_started) - self.total_pause_time
 
         time_left = humanize_duration(self.duration.total_seconds() - diff.total_seconds())
         return time_left
 
 class Queue:
-    """Represents the queue that JukeBot.Track objects are stored in.
-    Currently doesn't do much more than consolidate a list and list.pop() into
-    a single list, but leaves room for expansion.
-    """
     def __init__(self):
         self.tracks = []
+        self.is_empty = lambda: not bool(self.tracks) #lmfao
 
     def clear(self):
         self.tracks = []
@@ -50,5 +46,11 @@ class Queue:
     def remove_track(self, track_index_to_remove):
         self.tracks.pop(track_index_to_remove)
 
-    def total_time():
+    def total_time(self):
         return None # Will eventually add up the total duration of all tracks in the queue.
+
+    def add_track(self, track_data):
+        self.tracks.append(track_data)
+
+    def track(self, track_number):
+        return None
