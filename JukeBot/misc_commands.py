@@ -123,10 +123,10 @@ class Other(commands.Cog):
 
         Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to https://github.com/squigjess/JukeBot/issues if you see any!""")
         reply.set_image(url="https://media.discordapp.net/attachments/887723918574645331/895242544223518740/discordjp.jpg")
-        if not GIT_VER: # If we're currently running the bot from source in testing...
+        if not JukeBot.config.RELEASE_VER: # If we're currently running the bot from source in testing...
             reply.set_footer(text=f"JukeBot — Running from source, unknown version")
         else: # If this is a live release version...
-            reply.set_footer(text=f"JukeBot — v.{GIT_VER}")
+            reply.set_footer(text=f"JukeBot — v.{JukeBot.config.RELEASE_VER}")
 
         await ctx.send(embed=reply)
 
@@ -145,8 +145,4 @@ class Other(commands.Cog):
         _Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to me on Discord at squig#1312, or via the ticket system at https://github.com/squigjess/JukeBot/issues if you see any!_""")
         reply.set_image(url="https://media.discordapp.net/attachments/887723918574645331/895242544223518740/discordjp.jpg")
         reply.set_footer(text="This update message will automatically disappear after 24 hrs.")
-        await ctx.send(embed=reply, delete_after=86400)
-
-# This line must be left intact, otherwise the build will fail.
-# lmfao
-GIT_VER=None
+        await ctx.send(embed=reply, delete_after=86400) # 24 hrs

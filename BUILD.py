@@ -21,13 +21,6 @@ def build():
     JukeBot_version = repo.head.object.hexsha[0:7]
     misc_commands_py = "misc_commands.py"
 
-    print(f"{fg.YELLOW}Updating build version in {misc_commands_py}...{st.RESET_ALL}")
-    with open(misc_commands_py, "rb+") as filehandle:
-        filehandle.seek(-5, os.SEEK_END)
-        filehandle.truncate()
-    with open(misc_commands_py, "a") as filehandle:
-        filehandle.write(f"\"{JukeBot_version}\"\n")
-
     in_virtualenv = sys.base_prefix != sys.prefix
     site_packages_dir = sys.prefix
     print(f"{fg.YELLOW}In virtualenv? {in_virtualenv}{st.RESET_ALL}")
@@ -38,13 +31,6 @@ def build():
                               "--onefile",
                               f"--paths={site_packages_dir}",
                               f"--name=JukeBot-v.{JukeBot_version}-{sys.platform}"])
-
-    print(f"{fg.YELLOW}Reverting build version in {misc_commands_py}...{st.RESET_ALL}")
-    with open(misc_commands_py, "rb+") as filehandle:
-        filehandle.seek(-10, os.SEEK_END)
-        filehandle.truncate()
-    with open(misc_commands_py, "a") as filehandle:
-        filehandle.write("None\n")
 
     config_json = os.path.join(os.getcwd(), "config.json")
     if os.path.exists(config_json):

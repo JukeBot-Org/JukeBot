@@ -1,6 +1,7 @@
 """Reads config.json and uses the values within it to define global
 variables.
 """
+RELEASE_VER = None
 import json
 import os
 from datetime import datetime
