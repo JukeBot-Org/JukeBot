@@ -18,6 +18,7 @@ DISCORD_BOT_TOKEN = config_settings["DISCORD_BOT_TOKEN"]
 FFMPEG_PATH       = config_settings["FFMPEG_PATH"]
 COMMAND_PREFIX    = config_settings["COMMAND_PREFIX"]
 LISTENING_TO      = "{}help".format(COMMAND_PREFIX)
+MAX_IDLE_TIME     = config_settings["MAX_IDLE_TIME"]
 
 LOG_FILE_DIR      = os.path.join(os.getcwd(), "logs")
 LOG_FILE_NAME     = f"jukebot_{exec_time}.log"

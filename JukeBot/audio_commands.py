@@ -10,7 +10,7 @@ from asyncio import sleep
 import time
 import json
 
-import JukeBot.config as config
+import JukeBot.config
 from JukeBot.embed_dialogs import dialogBox
 import JukeBot.data
 from JukeBot.data import humanize_duration
@@ -38,11 +38,11 @@ class Audio(commands.Cog):
                                "noplaylist"     : "True"}
         self.FFMPEG_OPTIONS = {"before_options" : "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
                                "options"        : "-vn",
-                               "executable"     : config.FFMPEG_PATH}
+                               "executable"     : JukeBot.config.FFMPEG_PATH}
         self.voice_channel = None # Stores the current channel
         self.idled_time = 0
-        self.time_to_idle_for = 3 # seconds, TODO: move this to config.json
-        self.last_text_channel = None #nextcord.TextChannel object
+        self.time_to_idle_for = JukeBot.config.MAX_IDLE_TIME
+        self.last_text_channel = None # nextcord.TextChannel object
 
 # ================================== FUNCTIONS =================================== #
 
@@ -50,7 +50,7 @@ class Audio(commands.Cog):
     async def idle_timer(self):
         """This task is started when JukeBot begins playing audio, triggering
         every second. When the queue is exhausted and is_playing == False, the
-        idled_time counter will increment every second. Once the idlet_time
+        idled_time counter will increment every second. Once the idle_time
         counter == the amount in self.time_to_idle_for, JukeBot will disconnect
         from its current voice channel and senbd a message to the channel in
         which the most recent command was issued to JukeBot.
@@ -62,7 +62,7 @@ class Audio(commands.Cog):
                 logging.info(f"Idled for {self.idled_time} seconds")
                 await self.voice_channel.disconnect()
                 reply = dialogBox("DC'd", "JukeBot has auto-DC'd from the voice channel.",
-                                  f"In order to save bandwidth and keep things tidy, JukeBot automatically disconnects after {humanize_duration(self.time_to_idle_for)} of inactivity.\nHit `{config.COMMAND_PREFIX}play` to start JukeBot again.")
+                                  f"In order to save bandwidth and keep things tidy, JukeBot automatically disconnects after {humanize_duration(self.time_to_idle_for)} of inactivity.\nHit `{JukeBot.config.COMMAND_PREFIX}play` to start JukeBot again.")
                 reply.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
                 reply.set_footer(text="This message will automatically disappear shortly.")
                 await self.last_text_channel.send(embed=reply, delete_after=120)
@@ -76,6 +76,9 @@ class Audio(commands.Cog):
         the bot will disconnect.
         TODO: implement a total play-time tracker.
         """
+        if member is not member.guild.me:
+            return # Make sure we only fire the below for JukeBot , not anybody else.
+        
         if before.channel is None and after.channel is not None:
             logging.info(f"Connected to voice channel \"{after.channel}\"")
         if before.channel is not None and after.channel is None:
@@ -160,9 +163,6 @@ class Audio(commands.Cog):
         else:
             self.is_playing = False
 
-    def active_voice_client(self, guild_id):
-        for voice_client in self.client.voice_clients:
-            None
 # =================================== COMMANDS =================================== #
 
     @commands.command(aliases=["p"])

@@ -11,11 +11,11 @@ from colorama import Fore as fg
 from colorama import Style as st
 import logging
 
-import JukeBot.config as config
+import JukeBot.config
 from JukeBot.audio_commands import Audio
 from JukeBot.misc_commands import Other, ImprovedHelp
 
-client = commands.Bot(command_prefix=config.COMMAND_PREFIX, help_command=ImprovedHelp())
+client = commands.Bot(command_prefix=JukeBot.config.COMMAND_PREFIX, help_command=ImprovedHelp())
 
 def initialise():
     """Initialises Opus (on non-Windows platforms), Colorama, the log file for
@@ -25,12 +25,12 @@ def initialise():
     client.add_cog(Audio(client))
     client.add_cog(Other(client))
 
-    if not os.path.exists(config.LOG_FILE_DIR):
+    if not os.path.exists(JukeBot.config.LOG_FILE_DIR):
         print(f"{fg.YELLOW}Logs directory missing. Creating...{st.RESET_ALL}")
-        os.mkdir(config.LOG_FILE_DIR)
+        os.mkdir(JukeBot.config.LOG_FILE_DIR)
         print(f"{fg.GREEN}Created.{st.RESET_ALL}\n")
 
-    logging.basicConfig(filename=config.LOG_FILE_PATH, level=logging.INFO, format="%(asctime)s %(levelname)s:%(message)s")
+    logging.basicConfig(filename=JukeBot.config.LOG_FILE_PATH, level=logging.INFO, format="%(asctime)s %(levelname)s:%(message)s")
 
     if sys.platform == "win32":
         print(f"{fg.YELLOW}Manually loading Opus not necessary, skipping.{st.RESET_ALL}")
@@ -52,8 +52,8 @@ def initialise():
 @client.event
 async def on_ready():
     print(f"{fg.GREEN}Logged in{st.RESET_ALL} as {client.user}.")
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=config.LISTENING_TO)) # Listening to !help
-    print(f"{fg.GREEN}Bot is ready!{st.RESET_ALL} Command prefix is {fg.GREEN}{config.COMMAND_PREFIX}{st.RESET_ALL}\n")
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=JukeBot.config.LISTENING_TO)) # Listening to !help
+    print(f"{fg.GREEN}Bot is ready!{st.RESET_ALL} Command prefix is {fg.GREEN}{JukeBot.config.COMMAND_PREFIX}{st.RESET_ALL}\n")
     print(f"Press {fg.YELLOW}Ctrl+C{st.RESET_ALL} to safely shut down JukeBot.\n")
 
 @client.event # Handles errors in discord.py commands
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     try:
         initialise()
         print(f"\n{fg.YELLOW}Logging in...{st.RESET_ALL}")
-        client.run(config.DISCORD_BOT_TOKEN) # Hello, world!
+        client.run(JukeBot.config.DISCORD_BOT_TOKEN) # Hello, world!
 
     except Exception as error: # Handles non-command errors
         logging.error("=====================================================================================")

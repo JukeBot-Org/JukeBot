@@ -5,7 +5,7 @@ import nextcord as discord
 from nextcord.ext import commands
 import time
 
-import JukeBot.config as config
+import JukeBot.config
 from JukeBot.embed_dialogs import dialogBox
 
 def is_developer():
@@ -17,7 +17,7 @@ def docstring_scrubber(original):
     """Takes a docstring and splits out the examples section from the command
     help details. Really only used by ImprovedHelp().
     """
-    full = original.replace("<prefix>", config.COMMAND_PREFIX)
+    full = original.replace("<prefix>", JukeBot.config.COMMAND_PREFIX)
     synopsis = full.split("\n",1)[0]
     truncated = full.split("\n",1)[1].split("**Examples**")[0]
     return [synopsis, full, truncated]
@@ -59,7 +59,7 @@ class ImprovedHelp(commands.HelpCommand):
 
     async def send_bot_help(self, mapping): # !help
         """Triggers on !help, provides command names for all commands in this bot."""
-        embed = dialogBox("Help", f"How to use {self.app_name}", f"Type `{config.COMMAND_PREFIX}help commandname` for more help on a specific command.")
+        embed = dialogBox("Help", f"How to use {self.app_name}", f"Type `{JukeBot.config.COMMAND_PREFIX}help commandname` for more help on a specific command.")
 
         # For each cog, we go through and add it as a field to the embed dialog.
         # The !help commands does not belong to a cog and therefore has no type.
@@ -71,7 +71,7 @@ class ImprovedHelp(commands.HelpCommand):
                 cog_name = "System"
 
             embed.add_field(name=f"Category: {cog_name}",
-                            value="".join([config.COMMAND_PREFIX+command.name+"\n" for command in mapping[cog]]),
+                            value="".join([JukeBot.config.COMMAND_PREFIX+command.name+"\n" for command in mapping[cog]]),
                             inline=False)
         embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
         await self.get_destination().send(embed=embed)
@@ -84,7 +84,7 @@ class ImprovedHelp(commands.HelpCommand):
 
         for command in cog.get_commands():
             synopsis,full,truncated = docstring_scrubber(command.help)
-            embed.add_field(name=f"{config.COMMAND_PREFIX}{command.name} — {synopsis}",
+            embed.add_field(name=f"{JukeBot.config.COMMAND_PREFIX}{command.name} — {synopsis}",
                             value=truncated,
                             inline=False)
         embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
@@ -95,7 +95,7 @@ class ImprovedHelp(commands.HelpCommand):
     async def send_command_help(self, command):
         """Triggers on !help commandname, provides full instructions for the specified command."""
         synopsis,full,truncated = docstring_scrubber(command.help)
-        embed = dialogBox("Help", f"How to use {self.app_name}", f"**{config.COMMAND_PREFIX}{command.name}** — {full}")
+        embed = dialogBox("Help", f"How to use {self.app_name}", f"**{JukeBot.config.COMMAND_PREFIX}{command.name}** — {full}")
         embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
         await self.get_destination().send(embed=embed)
         return await super().send_command_help(command)
