@@ -1,4 +1,4 @@
-import nextcord as discord
+import nextcord
 from nextcord.ext import commands, tasks
 from youtube_dl import YoutubeDL
 from colorama import Fore, Style
@@ -77,14 +77,14 @@ class Audio(commands.Cog):
         TODO: implement a total play-time tracker.
         """
         if member is not member.guild.me:
-            return # Make sure we only fire the below for JukeBot , not anybody else.
+            return # Make sure we only fire the below for JukeBot, not anybody else.
         
         if before.channel is None and after.channel is not None:
             logging.info(f"Connected to voice channel \"{after.channel}\"")
         if before.channel is not None and after.channel is None:
-            logging.info(f"Disconnecting from voice channel \"{before.channel}\"")
+            logging.info(f"Disconnecting from voice channel \"{before.channel}\"")        
             # If the bot was manually disconnected, we need to clean up the broken voice client connection.
-            voice_client = discord.utils.get(self.client.voice_clients, guild=self.last_text_channel.guild)
+            voice_client = nextcord.utils.get(self.client.voice_clients, guild=self.last_text_channel.guild)
             if voice_client:
                 await voice_client.disconnect()
                 voice_client.cleanup()
@@ -138,7 +138,7 @@ class Audio(commands.Cog):
             # ...then play the track in the current VC!
             # Once the track is finished playing, repeat from the start.
             # Loop until the queue is empty, at which point...
-            self.voice_channel.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
+            self.voice_channel.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
         else:
             # ...state that the bot is no longer playing, stopping the play loop.
             self.is_playing = False
@@ -146,8 +146,8 @@ class Audio(commands.Cog):
     def play_next(self, ctx):
         """Plays the next track in the queue. Different to play_audio() in that
         it does not attempt to join a VC. Doing so would make this async, which
-        won't work with discord.py/nextcord's ability to invoke a lambda once
-        audio is finished playing audio. It's tricky. Maybe TODO?"""
+        won't work with nextcord's ability to invoke a lambda once audio is
+        finished playing audio. It's tricky. Maybe TODO?"""
 
         # Remove the previously-played track from the queue to move to the next one.
         if self.queue != []:  # This'll throw an exception if we try to pop from an empty list...
@@ -158,7 +158,7 @@ class Audio(commands.Cog):
             self.is_playing = True
 
             media_url = self.queue[0].source
-            self.voice_channel.play(discord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
+            self.voice_channel.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
 
         else:
             self.is_playing = False

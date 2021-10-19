@@ -2,7 +2,7 @@
 """The main entry point for JukeBot. Instantiates the bot (as client),
 initialises libraries, handles error logging.
 """
-import nextcord as discord
+import nextcord
 from nextcord.ext import commands
 import sys
 import os
@@ -41,9 +41,9 @@ def initialise():
         print("Finding Opus library...")
         opus_loc = ctypes.util.find_library('opus')
         print("Loading Opus...")
-        load_opus = discord.opus.load_opus(opus_loc)
+        load_opus = nextcord.opus.load_opus(opus_loc)
         print("Checking if Opus is loaded...")
-        if discord.opus.is_loaded():
+        if nextcord.opus.is_loaded():
             print(f"{fg.GREEN}Opus module loaded successfully.{st.RESET_ALL}")
         else:
             print(f"{fg.RED}Opus not loaded! Audio may not work.{st.RESET_ALL}")
@@ -52,11 +52,11 @@ def initialise():
 @client.event
 async def on_ready():
     print(f"{fg.GREEN}Logged in{st.RESET_ALL} as {client.user}.")
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=JukeBot.config.LISTENING_TO)) # Listening to !help
+    await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name=JukeBot.config.LISTENING_TO)) # Listening to !help
     print(f"{fg.GREEN}Bot is ready!{st.RESET_ALL} Command prefix is {fg.GREEN}{JukeBot.config.COMMAND_PREFIX}{st.RESET_ALL}\n")
     print(f"Press {fg.YELLOW}Ctrl+C{st.RESET_ALL} to safely shut down JukeBot.\n")
 
-@client.event # Handles errors in discord.py commands
+@client.event # Handles errors in nextcord.py commands
 async def on_command_error(ctx, error):
     logging.error("=====================================================================================")
     logging.error("UNHANDLED COMMAND ERROR, PLEASE REPORT TO https://github.com/squigjess/JukeBot/issues", exc_info=error)

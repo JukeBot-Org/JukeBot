@@ -1,7 +1,6 @@
 """Defines any miscellaneous commands (currently only !about) and the improved
 !help command.
 """
-import nextcord as discord
 from nextcord.ext import commands
 import time
 
