@@ -140,13 +140,11 @@ class Audio(commands.Cog):
             # ...state that the bot is no longer playing, stopping the play loop.
             self.is_playing = False
 
-            # Begin the disconnect timer. TODO
-
     def play_next(self, ctx):
         """Plays the next track in the queue. Different to play_audio() in that
         it does not attempt to join a VC. Doing so would make this async, which
         won't work with discord.py/nextcord's ability to invoke a lambda once
-        audio is finished playing. It's tricky. Maybe TODO?"""
+        audio is finished playing audio. It's tricky. Maybe TODO?"""
 
         # Remove the previously-played track from the queue to move to the next one.
         if self.queue != []:  # This'll throw an exception if we try to pop from an empty list...
@@ -161,8 +159,6 @@ class Audio(commands.Cog):
 
         else:
             self.is_playing = False
-
-            # Begin the disconnect timer. TODO
 
     def active_voice_client(self, guild_id):
         for voice_client in self.client.voice_clients:
@@ -332,6 +328,11 @@ class Audio(commands.Cog):
         `<prefix>np`
         `<prefix>playing`
         """
+        if self.queue == []:
+            reply = dialogBox("Warn", "Hang on!", "JukeBot is currently not playing..")
+            reply.set_footer(text="This message will automatically disappear shortly.")
+            await ctx.send(embed=reply, delete_after=10)
+            return
         currently_playing = self.queue[0]
         reply = dialogBox("Playing", "Currently playing", currently_playing.title, url=currently_playing.web_url)
         reply.set_thumbnail(url=currently_playing.thumb)
@@ -374,25 +375,3 @@ class Audio(commands.Cog):
         await ctx.invoke(self.client.get_command('play'), 'six')
         await ctx.invoke(self.client.get_command('queue'))
         await ctx.send(embed=dialogBox("Debug", "Test queue finished loading."))
-
-    @commands.command()
-    @is_developer()
-    @commands.is_owner()
-    async def vclient(self, ctx):
-        """**Internal command.**
-        foo.
-        """
-        voice_client = discord.utils.get(self.client.voice_clients, guild=ctx.guild)
-        await ctx.send(embed=dialogBox("Debug", "Debug", f"`{voice_client}`"))
-
-    @commands.command()
-    @is_developer()
-    @commands.is_owner()
-    async def dcv(self, ctx):
-        """**Internal command.**
-        foo.
-        """
-        voice_client = discord.utils.get(self.client.voice_clients, guild=ctx.guild)
-        await ctx.send("Before disconnect...",embed=dialogBox("Debug", "Debug", f"`{voice_client}`"))
-        voice_client.cleanup()
-        await ctx.send("After disconnect...", embed=dialogBox("Debug", "Debug", f"`{voice_client}`"))

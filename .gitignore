@@ -11,6 +11,7 @@ testing_GUI.py
 __pycache__/
 *.py[cod]
 *$py.class
+.vscode/
 
 # C extensions
 *.so

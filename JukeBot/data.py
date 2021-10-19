@@ -28,7 +28,11 @@ class Track:
         return f"\"{self.title}\" ({self.duration}), requested by {self.requestor} [{self.web_url}]"
 
     def time_left(self, time_now):
-        diff = time_now - self.time_started
+        if self.time_started == None:
+            diff = 0
+        else:
+            diff = time_now - self.time_started
+
         time_left = humanize_duration(self.duration.total_seconds() - diff.total_seconds())
         return time_left
 
