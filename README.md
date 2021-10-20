@@ -3,7 +3,7 @@
 
 ------------------------
 
-![Python](https://img.shields.io/badge/python-3.9+-blue) [![Powered by Nextcord](https://custom-icon-badges.herokuapp.com/badge/-Powered%20by%20Nextcord-0d1620?logo=nextcord)](https://github.com/nextcord/nextcord "Powered by Nextcord Python API Wrapper") ![Python](https://img.shields.io/badge/python-3.9+-blue)
+![Python](https://img.shields.io/badge/python-3.9+-blue) [![Powered by Nextcord](https://custom-icon-badges.herokuapp.com/badge/-Powered%20by%20Nextcord-0d1620?logo=nextcord)](https://github.com/nextcord/nextcord "Powered by Nextcord Python API Wrapper")
 
 ![Scrutinizer code quality (GitHub)](https://img.shields.io/scrutinizer/quality/g/squigjess/jukebot/testing) ![Scrutinizer build status](https://img.shields.io/scrutinizer/build/g/squigjess/JukeBot/testing) ![Scrutinizer coverage (GitHub/BitBucket)](https://img.shields.io/scrutinizer/coverage/g/squigjess/JukeBot/testing)
 
