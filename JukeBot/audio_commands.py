@@ -5,7 +5,7 @@ from colorama import Fore, Style
 import datetime
 import arrow
 import logging
-from asyncio import sleep
+import asyncio
 
 import time
 import json
@@ -362,18 +362,25 @@ class Audio(commands.Cog):
 
     @commands.command()
     async def pause(self, ctx):
-        # Collect the current time
-        # Store it in self.queue.tracks[0].time_paused
+        # Store the current clock time in the current track.
+        # Later on, this will be referenced when we need to see how long the
+        # track has been paused for.
+        self.queue.tracks[0].time_paused = arrow.utcnow()
+        
         # Pause the player
-        return None
+        self.voice_channel.pause()
+        await ctx.send(embed=dialogBox("Debug", "Debug", f"Paused track {self.queue.tracks[0].title}"))
 
     @commands.command(aliases=["unpause"])
     async def resume(self, ctx):
-        # Collect the current time
-        # Compare the time_paused with time_now, get total_seconds()
-        # store the above diff in self.queue.tracks[0].total_pause_time
+        # Calculate how long the track has been paused for.
+        # TODO: Break this into smaller chunks for readability.
+        self.queue.tracks[0].total_pause_time += (arrow.utcnow() - self.queue.tracks[0].time_paused).total_seconds()
+        
         # Resume the player
-        return None
+        self.voice_channel.resume()
+        await ctx.send(embed=dialogBox("Debug", "Debug", f"Resumed track {self.queue.tracks[0].title}."))
+        await ctx.send(embed=dialogBox("Debug", "Debug", f"Track was paused for {self.queue.tracks[0].total_pause_time} seconds in total."))
 
     @commands.command()
     @is_developer()

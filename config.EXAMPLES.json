@@ -2,5 +2,5 @@
     "DISCORD_BOT_TOKEN" : "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "FFMPEG_PATH"       : "C:/ffmpeg/bin/ffmpeg.exe",
     "COMMAND_PREFIX"    : "!",
-    "MAX_IDLE_TIME"     : "120"
+    "MAX_IDLE_TIME"     : 120
 }

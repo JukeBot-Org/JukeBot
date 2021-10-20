@@ -30,9 +30,9 @@ class Track:
         return f"\"{self.title}\" ({self.duration}), requested by {self.requestor} [{self.web_url}]"
 
     def time_left(self, time_now):
-        diff = (time_now - self.time_started) - self.total_pause_time
+        diff = (time_now - self.time_started).total_seconds() - self.total_pause_time
 
-        time_left = humanize_duration(self.duration.total_seconds() - diff.total_seconds())
+        time_left = humanize_duration(self.duration.total_seconds() - diff)
         return time_left
 
 class Queue:
