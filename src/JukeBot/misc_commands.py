@@ -6,6 +6,7 @@ import time
 
 import JukeBot.config
 from JukeBot.embed_dialogs import dialogBox
+import JukeBot.checks
 
 def humanize_duration(total_seconds):
     hours, remainder = divmod(int(total_seconds),60*60)

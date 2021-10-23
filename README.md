@@ -42,7 +42,10 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * Features
   * playing local files
   * Saving queues
+  * `ctx.reply()` over `ctx.send()`
 * Behind the scenes stuff
+  * Any better way to write help w/ nextcord?
+  * ignore_extra?
   * Write tests
   * Test multi-server capabilities
   * Move queue from a list to a JukeBot.queue.Queue object.

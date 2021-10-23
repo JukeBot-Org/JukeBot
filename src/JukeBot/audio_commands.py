@@ -172,6 +172,7 @@ class Audio(commands.Cog):
 # =================================== COMMANDS =================================== #
 
     @commands.command(aliases=["p"])
+    @JukeBot.checks.user_in_vc()
     async def play(self, ctx, *params):
         """**Plays a track in the voice channel that you're currently in.**
         Once you're in a voice channel, put the name of the track, or a YouTube
@@ -195,12 +196,6 @@ class Audio(commands.Cog):
         search_query = " ".join(params)
         self.last_text_channel = ctx.channel
         loading_msg = await ctx.send(f"`Loading track \"{search_query}\"...`")
-
-        if ctx.author.voice is None:
-            reply = dialogBox("Warn", "Hang on!", "Connect to a voice channel before issuing the command.")
-            reply.set_footer(text="This message will automatically disappear shortly.")
-            await ctx.send(embed=reply, delete_after=10)
-            return
 
         track_data = await self.search_yt(search_query, ctx) # Search YouTube for the video/query that the user requested.
         if track_data == False: # Comes back if the video is unable to be played due to uploader permissions, or if we got a malformed link.
@@ -226,6 +221,7 @@ class Audio(commands.Cog):
             await self.play_audio(ctx)
 
     @commands.command()
+    @JukeBot.checks.jukebot_in_vc()
     async def queue(self, ctx):
         """**Displays the queue of tracks waiting to be played.**
         The first track will be the one currently playing.
@@ -235,11 +231,6 @@ class Audio(commands.Cog):
 
         `<prefix>queue`
         """
-        if self.voice_channel == None:
-            reply = dialogBox("Warn", "Hang on!", "JukeBot is currently not playing; there's nothing in the queue.")
-            reply.set_footer(text="This message will automatically disappear shortly.")
-            await ctx.send(embed=reply, delete_after=10)
-            return
 
         tracks = []
         if self.queue.is_empty():
@@ -259,6 +250,8 @@ class Audio(commands.Cog):
         await ctx.send(embed=reply)
 
     @commands.command()
+    @JukeBot.checks.jukebot_in_vc()
+    @JukeBot.checks.is_playing()
     async def skip(self, ctx):
         """**Skips the track currently playing.**
         If there are still tracks in the queue, the next one will automatically
@@ -269,16 +262,17 @@ class Audio(commands.Cog):
 
         `<prefix>skip`
         """
-        if self.voice_channel == None:
-            reply = dialogBox("Warn", "Hang on!", "JukeBot is currently not playing; there's nothing to skip.")
-        else:
-            reply = dialogBox("Skip", "Skipped track")
-            self.voice_channel.stop() # Next track should automatically play (worked in testing, lets see how it goes...)
+
+        reply = dialogBox("Skip", "Skipped track")
+        self.voice_channel.stop() # Next track should automatically play (worked in testing, lets see how it goes...)
 
         reply.set_footer(text="This message will automatically disappear shortly.")
         await ctx.send(embed=reply, delete_after=10)
 
+    # TODO: check if the track exists in the queue before invoking
     @commands.command()
+    @JukeBot.checks.jukebot_in_vc()
+    @JukeBot.checks.queue_not_empty()
     async def clear(self, ctx, *params):
         """**Removes all tracks from the queue.**
         Does not affect the currently-playing track. `<prefix>clear` can be
@@ -296,11 +290,6 @@ class Audio(commands.Cog):
         `<prefix>clear`
         `<prefix>clear 3`
         """
-        if self.queue == []:
-            reply = dialogBox("Warn", "Hang on!", "The queue is already empty.")
-            reply.set_footer(text="This message will automatically disappear shortly.")
-            await ctx.send(embed=reply, delete_after=10)
-            return
 
         if params:
             track_to_remove = int(params[0])
@@ -321,6 +310,9 @@ class Audio(commands.Cog):
             await ctx.send(embed=reply, delete_after=10)
 
     @commands.command(aliases=["np", "playing"])
+    @JukeBot.checks.jukebot_in_vc()
+    @JukeBot.checks.is_playing()
+    @JukeBot.checks.queue_not_empty()
     async def nowplaying(self, ctx):
         """**Displays the currently-playing track.**
         Includes the amount of time left in the track as well..
@@ -334,11 +326,6 @@ class Audio(commands.Cog):
         `<prefix>np`
         `<prefix>playing`
         """
-        if self.queue == []:
-            reply = dialogBox("Warn", "Hang on!", "JukeBot is currently not playing.")
-            reply.set_footer(text="This message will automatically disappear shortly.")
-            await ctx.send(embed=reply, delete_after=10)
-            return
         currently_playing = self.queue.tracks[0]
         reply = dialogBox("Playing", "Currently playing", currently_playing.title, url=currently_playing.web_url)
         reply.set_thumbnail(url=currently_playing.thumb)
@@ -347,6 +334,7 @@ class Audio(commands.Cog):
         msg = await ctx.send(embed=reply)
 
     @commands.command(aliases=["leave", "disconnect"])
+    @JukeBot.checks.jukebot_in_vc()
     async def stop(self, ctx):
         """**Halts JukeBox entirely.**
         Stops JukeBot playing audio, clears the queue, and disconnects it
@@ -371,6 +359,9 @@ class Audio(commands.Cog):
         await ctx.send(embed=reply, delete_after=10)
 
     @commands.command()
+    @JukeBot.checks.jukebot_in_vc()
+    @JukeBot.checks.is_playing()
+    @JukeBot.checks.not_paused()
     async def pause(self, ctx):
         """**Pauses playback.**
         Music will remain paused until the track is resumed with `<prefix>resume`.
@@ -380,19 +371,6 @@ class Audio(commands.Cog):
 
         `<prefix>pause`
         """
-
-        if self.is_playing == False or self.voice_channel == None:
-            reply = dialogBox("Warn", "Hang on!", f"JukeBot is currently not playing.")
-            reply.set_footer(text="This message will automatically disappear shortly.")
-            await ctx.send(embed=reply, delete_after=10)
-            return
-
-        if self.queue.is_paused == True:
-            reply = dialogBox("Warn", "Hang on!", f"JukeBot is already paused.\nType `{JukeBot.config.COMMAND_PREFIX}resume` to resume the track.")
-            reply.set_footer(text="This message will automatically disappear shortly.")
-            await ctx.send(embed=reply, delete_after=10)
-            return
-
         # Store the current clock time.
         # Later on, this will be referenced when we need to see how many
         # seconds the track has been paused for.
@@ -407,6 +385,9 @@ class Audio(commands.Cog):
         await ctx.send(embed=reply, delete_after=10)
 
     @commands.command(aliases=["unpause"])
+    @JukeBot.checks.jukebot_in_vc()
+    @JukeBot.checks.is_playing()
+    @JukeBot.checks.is_paused()
     async def resume(self, ctx):
         """**Resumes playback of a paused track.**
         A track must be currently paused for this command to work.
@@ -420,18 +401,6 @@ class Audio(commands.Cog):
         `<prefix>unpause`
         """
 
-        if self.is_playing == False or self.voice_channel == None:
-            reply = dialogBox("Warn", "Hang on!", f"JukeBot is currently not playing.")
-            reply.set_footer(text="This message will automatically disappear shortly.")
-            await ctx.send(embed=reply, delete_after=10)
-            return
-
-        if self.queue.is_paused == False:
-            reply = dialogBox("Warn", "Hang on!", f"JukeBot isn't paused.\nType `{JukeBot.config.COMMAND_PREFIX}pause` to pause the track.")
-            reply.set_footer(text="This message will automatically disappear shortly.")
-            await ctx.send(embed=reply, delete_after=10)
-            return
-
         # Calculate how long the track has been paused for.
         time_paused = self.queue.tracks[0].time_paused
         total_pause_time = (arrow.utcnow() - time_paused).total_seconds()
@@ -439,13 +408,14 @@ class Audio(commands.Cog):
         
         # Resume the player
         self.voice_channel.resume()
+        self.queue.is_paused = False
         reply = dialogBox("Playing", f"Resumed track: **{self.queue.tracks[0].title}**")
         reply.set_footer(text="This message will automatically disappear shortly.")
         await ctx.send(embed=reply, delete_after=10)
 
-    @commands.command()
+    @commands.command(hidden=True)
+    @JukeBot.checks.user_in_vc()
     @JukeBot.checks.is_developer()
-    @commands.is_owner()
     async def tq(self, ctx):
         """**Internal command.**
         Loads some example tracks for testing queue-related operations.
@@ -459,3 +429,7 @@ class Audio(commands.Cog):
         # await ctx.invoke(self.client.get_command('play'), 'six')
         await ctx.invoke(self.client.get_command('queue'))
         await ctx.send(embed=dialogBox("Debug", "Test queue finished loading."))
+
+    @commands.command(name="chunt")
+    async def foo(self, ctx):
+        await ctx.reply("in command")
