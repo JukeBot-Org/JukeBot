@@ -3,9 +3,7 @@
 
 ------------------------
 
-![Python](https://img.shields.io/badge/python-3.9+-blue) [![Powered by Nextcord](https://custom-icon-badges.herokuapp.com/badge/-Powered%20by%20Nextcord-0d1620?logo=nextcord)](https://github.com/nextcord/nextcord "Powered by Nextcord Python API Wrapper")
-
-![Scrutinizer code quality (GitHub)](https://img.shields.io/scrutinizer/quality/g/squigjess/jukebot/testing) ![Scrutinizer build status](https://img.shields.io/scrutinizer/build/g/squigjess/JukeBot/testing) ![Scrutinizer coverage (GitHub/BitBucket)](https://img.shields.io/scrutinizer/coverage/g/squigjess/JukeBot/testing)
+[![Powered by Nextcord](https://custom-icon-badges.herokuapp.com/badge/-Powered%20by%20Nextcord-0d1620?logo=nextcord)](https://github.com/nextcord/nextcord "Powered by Nextcord Python API Wrapper") ![Python version](https://img.shields.io/github/pipenv/locked/python-version/squigjess/jukebot) ![Scrutinizer code quality (GitHub)](https://img.shields.io/scrutinizer/quality/g/squigjess/jukebot/testing) ![Scrutinizer build status](https://img.shields.io/scrutinizer/build/g/squigjess/JukeBot/testing)
 
 # JukeBot
 
@@ -19,14 +17,13 @@ If you would like to run JukeBot and report on your bugs and issues, I would be 
 
 # Installation
 
-## 1. Install Python dependencies
-    python3 -m venv venv
-    source venv/bin/activate   # For macOS/Linux
-    venv/Scripts/activate.bat  # For Windows
-    pip install -r requirements.txt
+## 1. Install Python dependencies with `pipenv`
+    pipenv shell
+    pipenv install
+    pipenv install --dev # for build dependencies
 
 ## 2. Set up `config.py`
-Rename `config.EXAMPLES.py` to `config.py` and update the FFmpeg path and your Discord bot's token.
+Rename `config.EXAMPLES.json` to `config.json` and update the FFmpeg path and your Discord bot's token.
 
 ## 3. Install FFmpeg
 * Download the FFmpeg binaries for your system from [the official ffmpeg.org website](https://ffmpeg.org/download.html)
@@ -36,15 +33,23 @@ Rename `config.EXAMPLES.py` to `config.py` and update the FFmpeg path and your D
 ## 4. Set up a Discord application and bot
 I'm not gonna go into too much detail on this, but create a bot, add it to your server, then put the bot's token in `DISCORD_BOT_TOKEN` in `config.py`.
 
+
+
+-------
+
+
+
 # To do
 * Bugs
   * N/A
 * Features
   * Add `!resume`, `!pause`, and ~~`!stop`~~ commands
   * playing local files
+  * Saving queues
 * Behind the scenes stuff
   * Test multi-server capabilities
   * Move queue from a list to a JukeBot.Queue object.
+  * Move back to pretty-help now that I've ported it to Nextcord.
   * [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)
   * https://pyinstaller.readthedocs.io/en/stable/operating-mode.html#hiding-the-source-code
   * https://pyinstaller.readthedocs.io/en/stable/usage.html#cmdoption-i

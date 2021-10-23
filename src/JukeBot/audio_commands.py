@@ -30,7 +30,7 @@ class Audio(commands.Cog):
         self.client = client
 
         # Determines whether or not the bot is currently playing.
-        # If audio is already playing and a new play request is received, it will instead be queued..
+        # If audio is already playing and a new play request is received, it will instead be queued.
         self.is_playing = False
 
         self.queue = JukeBot.data.Queue()
@@ -81,9 +81,12 @@ class Audio(commands.Cog):
         
         if before.channel is None and after.channel is not None:
             logging.info(f"Connected to voice channel \"{after.channel}\"")
-        if before.channel is not None and after.channel is None:
+
+        elif before.channel is not None and after.channel is None:
             logging.info(f"Disconnecting from voice channel \"{before.channel}\"")        
             # If the bot was manually disconnected, we need to clean up the broken voice client connection.
+            # NOTE: I've submitted a bugfix pull request to Nextcord which, when marged into the main repo,
+            # will make the four lines below redundant.
             voice_client = nextcord.utils.get(self.client.voice_clients, guild=self.last_text_channel.guild)
             if voice_client:
                 await voice_client.disconnect()
@@ -108,8 +111,8 @@ class Audio(commands.Cog):
                 info = ydl.extract_info(f"ytsearch:{item}", download=False)["entries"][0]
                 ytdl_data = info
             except Exception as e:
-                raise e
                 print("====================================\n" + Style.RESET_ALL)
+                raise e
                 return False
         print("====================================\n" + Style.RESET_ALL)
 
