@@ -12,8 +12,9 @@ styles = {#Reason      Which emoji to use      The colour of the accent on the l
           # JukeBot-specific styles
           "Help"    : [":woman_technologist:", JukeBot_Bluegreen],
           "Playing" : [":arrow_forward:",      JukeBot_Bluegreen],
+          "Paused"  : [":pause_button:",       JukeBot_Bluegreen],
           "Queued"  : [":arrow_heading_down:", JukeBot_Bluegreen],
-          "DC'd"    : [":eject:",              JukeBot_Bluegreen],
+          "Eject"   : [":eject:",              JukeBot_Bluegreen],
           "Version" : [":green_heart:",        JukeBot_Bluegreen],
           "Skip"    : [":track_next:",         JukeBot_Bluegreen]}
 

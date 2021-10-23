@@ -62,7 +62,7 @@ class Audio(commands.Cog):
             if self.idled_time >= self.time_to_idle_for:
                 logging.info(f"Idled for {self.idled_time} seconds")
                 await self.voice_channel.disconnect()
-                reply = dialogBox("DC'd", "JukeBot has auto-DC'd from the voice channel.",
+                reply = dialogBox("Eject", "JukeBot has auto-DC'd from the voice channel.",
                                   f"In order to save bandwidth and keep things tidy, JukeBot automatically disconnects after {humanize_duration(self.time_to_idle_for)} of inactivity.\nHit `{JukeBot.config.COMMAND_PREFIX}play` to start JukeBot again.")
                 reply.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
                 reply.set_footer(text="This message will automatically disappear shortly.")
@@ -104,7 +104,7 @@ class Audio(commands.Cog):
 
     async def search_yt(self, item, ctx):
         """Searches YouTube for the requested search term or URL, returns a
-        JukeBot.Track object for the first result only."""
+        JukeBot.track.Track object for the first result only."""
 
         print(Fore.YELLOW + "======== YouTube Downloader ========")
         with YoutubeDL(self.YDL_OPTIONS) as ydl:
@@ -139,6 +139,7 @@ class Audio(commands.Cog):
 
             # ...record when the track started playing...
             self.queue.tracks[0].time_started = arrow.utcnow()
+
             # ...then play the track in the current VC!
             # Once the track is finished playing, repeat from the start.
             # Loop until the queue is empty, at which point...
@@ -347,7 +348,7 @@ class Audio(commands.Cog):
 
     @commands.command(aliases=["leave", "disconnect"])
     async def stop(self, ctx):
-        """**Halts JukeBox entirely.***
+        """**Halts JukeBox entirely.**
         Stops JukeBot playing audio, clears the queue, and disconnects it
         from the current voice channel. JukeBot will remain disconnected until
         a user starts it again with `<prefix>play`.
@@ -363,28 +364,57 @@ class Audio(commands.Cog):
         """
         self.voice_channel.stop()
         self.queue.clear()
+        self.voice_channel.disconnect()
+
+        reply = dialogBox("Eject", "JukeBot stopped", "Music stopped and queue cleared.")
+        reply.set_footer(text="This message will automatically disappear shortly.")
+        await ctx.send(embed=reply, delete_after=10)
 
     @commands.command()
     async def pause(self, ctx):
-        # Store the current clock time in the current track.
-        # Later on, this will be referenced when we need to see how long the
-        # track has been paused for.
+        """**Pauses playback.**
+        Music will remain paused until the track is resumed with `<prefix>resume`.
+
+        **Examples**
+        `<prefix>pause` takes no parameters.
+
+        `<prefix>pause`
+        """
+        # Store the current clock time.
+        # Later on, this will be referenced when we need to see how many
+        # seconds the track has been paused for.
         self.queue.tracks[0].time_paused = arrow.utcnow()
         
         # Pause the player
         self.voice_channel.pause()
-        await ctx.send(embed=dialogBox("Debug", "Debug", f"Paused track {self.queue.tracks[0].title}"))
+
+        reply = dialogBox("Paused", "Paused track", f"Type `{JukeBot.config.COMMAND_PREFIX}resume` to resume the track.")
+        reply.set_footer(text="This message will automatically disappear shortly.")
+        await ctx.send(embed=reply, delete_after=10)
 
     @commands.command(aliases=["unpause"])
     async def resume(self, ctx):
+        """**Resumes playback of a paused track.**
+        A track must be currently paused for this command to work.
+
+        **Examples**
+        `<prefix>resume` takes no parameters.
+
+        `<prefix>resume`
+
+        **Aliases** — Instead of **<prefix>resume**, you can also use:
+        `<prefix>unpause`
+        """
         # Calculate how long the track has been paused for.
-        # TODO: Break this into smaller chunks for readability.
-        self.queue.tracks[0].total_pause_time += (arrow.utcnow() - self.queue.tracks[0].time_paused).total_seconds()
+        time_paused = self.queue.tracks[0].time_paused
+        total_pause_time = (arrow.utcnow() - time_paused).total_seconds()
+        self.queue.tracks[0].total_pause_time += total_pause_time
         
         # Resume the player
         self.voice_channel.resume()
-        await ctx.send(embed=dialogBox("Debug", "Debug", f"Resumed track {self.queue.tracks[0].title}."))
-        await ctx.send(embed=dialogBox("Debug", "Debug", f"Track was paused for {self.queue.tracks[0].total_pause_time} seconds in total."))
+        reply = dialogBox("Playing", f"Resumed track: **{self.queue.tracks[0].title}**")
+        reply.set_footer(text="This message will automatically disappear shortly.")
+        await ctx.send(embed=reply, delete_after=10)
 
     @commands.command()
     @is_developer()
