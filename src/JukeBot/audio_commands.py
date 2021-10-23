@@ -12,8 +12,9 @@ import json
 
 import JukeBot.config
 from JukeBot.embed_dialogs import dialogBox
-import JukeBot.data
-from JukeBot.data import humanize_duration
+import JukeBot.queue
+import JukeBot.track
+from JukeBot.track import humanize_duration
 from JukeBot.misc_commands import is_developer
 
 def trim(name):
@@ -33,7 +34,7 @@ class Audio(commands.Cog):
         # If audio is already playing and a new play request is received, it will instead be queued.
         self.is_playing = False
 
-        self.queue = JukeBot.data.Queue()
+        self.queue = JukeBot.queue.Queue()
         self.YDL_OPTIONS    = {"format"         : "bestaudio",
                                "noplaylist"     : "True"}
         self.FFMPEG_OPTIONS = {"before_options" : "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
@@ -116,7 +117,7 @@ class Audio(commands.Cog):
                 return False
         print("====================================\n" + Style.RESET_ALL)
 
-        track_obj = JukeBot.data.Track(ytdl_data, ctx)
+        track_obj = JukeBot.track.Track(ytdl_data, ctx)
         return track_obj
 
     async def play_audio(self, ctx, from_skip=False):

@@ -1,5 +1,5 @@
 # Project-specific ignores
-config.json
+JukeBot.config
 ytdl_example.json
 bin/
 local_audio/

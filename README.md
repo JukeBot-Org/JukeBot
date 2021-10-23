@@ -3,7 +3,7 @@
 
 ------------------------
 
-[![Powered by Nextcord](https://custom-icon-badges.herokuapp.com/badge/-Powered%20by%20Nextcord-0d1620?logo=nextcord)](https://github.com/nextcord/nextcord "Powered by Nextcord Python API Wrapper") ![Python version](https://img.shields.io/github/pipenv/locked/python-version/squigjess/jukebot) ![Scrutinizer code quality (GitHub)](https://img.shields.io/scrutinizer/quality/g/squigjess/jukebot/testing) ![Scrutinizer build status](https://img.shields.io/scrutinizer/build/g/squigjess/JukeBot/testing)
+[![Powered by Nextcord](https://custom-icon-badges.herokuapp.com/badge/-Powered%20by%20Nextcord-0d1620?logo=nextcord)](https://github.com/nextcord/nextcord "Powered by Nextcord Python API Wrapper") ![Python version](https://img.shields.io/github/pipenv/locked/python-version/squigjess/JukeBot/testing) ![Scrutinizer code quality (GitHub)](https://img.shields.io/scrutinizer/quality/g/squigjess/JukeBot/testing) ![Scrutinizer build status](https://img.shields.io/scrutinizer/build/g/squigjess/JukeBot/testing)
 
 # JukeBot
 
@@ -22,22 +22,19 @@ If you would like to run JukeBot and report on your bugs and issues, I would be 
     pipenv install
     pipenv install --dev # for build dependencies
 
-## 2. Set up `config.py`
-Rename `config.EXAMPLES.json` to `config.json` and update the FFmpeg path and your Discord bot's token.
-
-## 3. Install FFmpeg
+## 2. Install FFmpeg
 * Download the FFmpeg binaries for your system from [the official ffmpeg.org website](https://ffmpeg.org/download.html)
 * Place them somewhere accessible on your machine.
 * Update `FFMPEG_PATH` in `config.py`.
 
-## 4. Set up a Discord application and bot
+## 3. Set up a Discord application and bot
 I'm not gonna go into too much detail on this, but create a bot, add it to your server, then put the bot's token in `DISCORD_BOT_TOKEN` in `config.py`.
 
-
+## 4. Set up `config.py`
+* Rename `JukeBot.EXAMPLES.config` to `JukeBot.config`
+* Update the config file with the FFmpeg path and your Discord bot's token.
 
 -------
-
-
 
 # To do
 * Bugs
@@ -47,6 +44,7 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
   * playing local files
   * Saving queues
 * Behind the scenes stuff
+  * Write tests
   * Test multi-server capabilities
   * Move queue from a list to a JukeBot.Queue object.
   * Move back to pretty-help now that I've ported it to Nextcord.
@@ -59,6 +57,7 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * Maybes
   * Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
 <!--
+* Move from JSON to TOML for user config
 * Send a message to the last text channel when JukeBot disconnects.
 * [Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.](https://www.py4u.net/discuss/262449)
 * [Implement proper error handling](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#error-handling)

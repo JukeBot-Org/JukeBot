@@ -1,8 +1,8 @@
-"""Reads config.json and uses the values within it to define global
+"""Reads JukeBot.config and uses the values within it to define global
 variables.
 """
 RELEASE_VER = None
-import json
+import toml
 import os
 from datetime import datetime
 
@@ -11,8 +11,8 @@ from colorama import Fore as fg
 from colorama import Style as st
 colorama.init()
 
-conf_file = open("config.json", "r")
-config_settings = json.loads(conf_file.read())
+conf_file = open("JukeBot.config", "r")
+config_settings = toml.loads(conf_file.read())
 exec_time = datetime.now().strftime("%d-%m-%Y_%H:%M:%S")
 
 DISCORD_BOT_TOKEN = config_settings["DISCORD_BOT_TOKEN"]
