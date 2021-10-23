@@ -17,14 +17,6 @@ import JukeBot.track
 from JukeBot.misc_commands import humanize_duration
 import JukeBot.checks
 
-def trim(name):
-    trimmed = ""
-    if len(name) > 52: trimmed = name[:50]+'...'
-    else:              trimmed = name
-    padding_amt = 55-len(trimmed)
-    padding = " "*padding_amt
-    return f"{trimmed}{padding}"
-
 class Audio(commands.Cog):
     """The cog that handles all of the audio-playing commands and operations."""
     def __init__(self, client):
@@ -53,8 +45,8 @@ class Audio(commands.Cog):
         every second. When the queue is exhausted and is_playing == False, the
         idled_time counter will increment every second. Once the idle_time
         counter == the amount in self.time_to_idle_for, JukeBot will disconnect
-        from its current voice channel and senbd a message to the channel in
-        which the most recent command was issued to JukeBot.
+        from its current voice channel and send a message to the channel in
+        which the most recent command was issued.
         """
         if not self.is_playing:
             self.idled_time+=1
@@ -231,22 +223,7 @@ class Audio(commands.Cog):
 
         `<prefix>queue`
         """
-
-        tracks = []
-        if self.queue.is_empty():
-            queue_details = "Empty queue!"
-
-        else: # TODO: Move this to JukeBot.Queue
-            header = "#  Track title                                            Duration "
-            for track in range(0, len(self.queue.tracks)):
-                queue_pos = track+1
-                trimmed_title = trim(self.queue.tracks[track].title)
-                duration = self.queue.tracks[track].duration
-                tracks.append(f"{queue_pos}  {trimmed_title}{duration}  \n")
-
-            queue_details = f"`{header}\n{''.join(tracks)}`"
-
-        reply = embed=dialogBox("Queued", "Queued tracks", queue_details)
+        reply = embed=dialogBox("Queued", "Queued tracks", self.queue.pretty_display())
         await ctx.send(embed=reply)
 
     @commands.command(name="skip")
