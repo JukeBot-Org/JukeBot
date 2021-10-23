@@ -14,8 +14,8 @@ import JukeBot.config
 from JukeBot.embed_dialogs import dialogBox
 import JukeBot.queue
 import JukeBot.track
-from JukeBot.track import humanize_duration
-from JukeBot.misc_commands import is_developer
+from JukeBot.misc_commands import humanize_duration
+import JukeBot.checks
 
 def trim(name):
     trimmed = ""
@@ -335,7 +335,7 @@ class Audio(commands.Cog):
         `<prefix>playing`
         """
         if self.queue == []:
-            reply = dialogBox("Warn", "Hang on!", "JukeBot is currently not playing..")
+            reply = dialogBox("Warn", "Hang on!", "JukeBot is currently not playing.")
             reply.set_footer(text="This message will automatically disappear shortly.")
             await ctx.send(embed=reply, delete_after=10)
             return
@@ -380,6 +380,19 @@ class Audio(commands.Cog):
 
         `<prefix>pause`
         """
+
+        if self.is_playing == False or self.voice_channel == None:
+            reply = dialogBox("Warn", "Hang on!", f"JukeBot is currently not playing.")
+            reply.set_footer(text="This message will automatically disappear shortly.")
+            await ctx.send(embed=reply, delete_after=10)
+            return
+
+        if self.queue.is_paused == True:
+            reply = dialogBox("Warn", "Hang on!", f"JukeBot is already paused.\nType `{JukeBot.config.COMMAND_PREFIX}resume` to resume the track.")
+            reply.set_footer(text="This message will automatically disappear shortly.")
+            await ctx.send(embed=reply, delete_after=10)
+            return
+
         # Store the current clock time.
         # Later on, this will be referenced when we need to see how many
         # seconds the track has been paused for.
@@ -387,6 +400,7 @@ class Audio(commands.Cog):
         
         # Pause the player
         self.voice_channel.pause()
+        self.queue.is_paused = True
 
         reply = dialogBox("Paused", "Paused track", f"Type `{JukeBot.config.COMMAND_PREFIX}resume` to resume the track.")
         reply.set_footer(text="This message will automatically disappear shortly.")
@@ -405,6 +419,19 @@ class Audio(commands.Cog):
         **Aliases** — Instead of **<prefix>resume**, you can also use:
         `<prefix>unpause`
         """
+
+        if self.is_playing == False or self.voice_channel == None:
+            reply = dialogBox("Warn", "Hang on!", f"JukeBot is currently not playing.")
+            reply.set_footer(text="This message will automatically disappear shortly.")
+            await ctx.send(embed=reply, delete_after=10)
+            return
+
+        if self.queue.is_paused == False:
+            reply = dialogBox("Warn", "Hang on!", f"JukeBot isn't paused.\nType `{JukeBot.config.COMMAND_PREFIX}pause` to pause the track.")
+            reply.set_footer(text="This message will automatically disappear shortly.")
+            await ctx.send(embed=reply, delete_after=10)
+            return
+
         # Calculate how long the track has been paused for.
         time_paused = self.queue.tracks[0].time_paused
         total_pause_time = (arrow.utcnow() - time_paused).total_seconds()
@@ -417,7 +444,7 @@ class Audio(commands.Cog):
         await ctx.send(embed=reply, delete_after=10)
 
     @commands.command()
-    @is_developer()
+    @JukeBot.checks.is_developer()
     @commands.is_owner()
     async def tq(self, ctx):
         """**Internal command.**

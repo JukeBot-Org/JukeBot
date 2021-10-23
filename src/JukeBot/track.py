@@ -1,11 +1,7 @@
 """Defines how track data is stored."""
 import datetime
 
-def humanize_duration(total_seconds):
-    hours, remainder = divmod(int(total_seconds),60*60)
-    minutes, seconds = divmod(remainder,60)
-    final_representation = (f"{hours} hr " if hours>0 else "") + (f"{minutes} min " if minutes>0 else "") + f"{seconds} sec "
-    return final_representation
+from JukeBot.misc_commands import humanize_duration
 
 class Track:
     """Represents a track in the queue."""

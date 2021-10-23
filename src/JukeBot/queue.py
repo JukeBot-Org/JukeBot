@@ -4,6 +4,7 @@ class Queue:
     def __init__(self):
         self.tracks = []
         self.is_empty = lambda: not bool(self.tracks) #lmfao
+        self.is_paused = False
 
     def clear(self):
         self.tracks = []
@@ -16,6 +17,3 @@ class Queue:
 
     def add_track(self, track_data):
         self.tracks.append(track_data)
-
-    def track(self, track_number):
-        return None

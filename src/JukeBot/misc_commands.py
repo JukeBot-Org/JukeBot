@@ -7,10 +7,11 @@ import time
 import JukeBot.config
 from JukeBot.embed_dialogs import dialogBox
 
-def is_developer():
-    async def predicate(ctx):
-        return ctx.author.id in [83333350588157952]
-    return commands.check(predicate)
+def humanize_duration(total_seconds):
+    hours, remainder = divmod(int(total_seconds),60*60)
+    minutes, seconds = divmod(remainder,60)
+    final_representation = (f"{hours} hr " if hours>0 else "") + (f"{minutes} min " if minutes>0 else "") + f"{seconds} sec "
+    return final_representation
 
 def docstring_scrubber(original):
     """Takes a docstring and splits out the examples section from the command
@@ -131,7 +132,7 @@ class Other(commands.Cog):
         await ctx.send(embed=reply)
 
     @commands.command()
-    @is_developer()
+    @JukeBot.checks.is_developer()
     async def update(self, ctx):
         await ctx.message.delete()
         """**Internal command.**

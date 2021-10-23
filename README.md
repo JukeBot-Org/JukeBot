@@ -40,13 +40,12 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * Bugs
   * N/A
 * Features
-  * Add `!resume`, `!pause`, and ~~`!stop`~~ commands
   * playing local files
   * Saving queues
 * Behind the scenes stuff
   * Write tests
   * Test multi-server capabilities
-  * Move queue from a list to a JukeBot.Queue object.
+  * Move queue from a list to a JukeBot.queue.Queue object.
   * Move back to pretty-help now that I've ported it to Nextcord.
   * [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)
   * https://pyinstaller.readthedocs.io/en/stable/operating-mode.html#hiding-the-source-code
@@ -57,6 +56,7 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * Maybes
   * Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
 <!--
+* Add `!resume`, `!pause`, and `!stop` commands
 * Move from JSON to TOML for user config
 * Send a message to the last text channel when JukeBot disconnects.
 * [Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.](https://www.py4u.net/discuss/262449)
