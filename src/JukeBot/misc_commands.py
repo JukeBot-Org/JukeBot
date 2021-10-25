@@ -8,12 +8,6 @@ import JukeBot.config
 from JukeBot.embed_dialogs import dialogBox
 import JukeBot.checks
 
-def humanize_duration(total_seconds):
-    hours, remainder = divmod(int(total_seconds),60*60)
-    minutes, seconds = divmod(remainder,60)
-    final_representation = (f"{hours} hr " if hours>0 else "") + (f"{minutes} min " if minutes>0 else "") + f"{seconds} sec "
-    return final_representation
-
 def docstring_scrubber(original):
     """Takes a docstring and splits out the examples section from the command
     help details. Really only used by ImprovedHelp().
@@ -130,7 +124,7 @@ class Other(commands.Cog):
         else: # If this is a live release version...
             reply.set_footer(text=f"JukeBot — v.{JukeBot.config.RELEASE_VER}")
 
-        await ctx.send(embed=reply)
+        await ctx.reply(embed=reply)
 
     @commands.command()
     @JukeBot.checks.is_developer()
@@ -147,4 +141,4 @@ class Other(commands.Cog):
         _Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to me on Discord at squig#1312, or via the ticket system at https://github.com/squigjess/JukeBot/issues if you see any!_""")
         reply.set_image(url="https://media.discordapp.net/attachments/887723918574645331/895242544223518740/discordjp.jpg")
         reply.set_footer(text="This update message will automatically disappear after 24 hrs.")
-        await ctx.send(embed=reply, delete_after=86400) # 24 hrs
+        await ctx.reply(embed=reply, delete_after=86400) # 24 hrs

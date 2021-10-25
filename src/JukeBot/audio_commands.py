@@ -14,7 +14,7 @@ import JukeBot.config
 from JukeBot.embed_dialogs import dialogBox
 import JukeBot.queue
 import JukeBot.track
-from JukeBot.misc_commands import humanize_duration
+from JukeBot.track import humanize_duration
 import JukeBot.checks
 
 class Audio(commands.Cog):
@@ -187,13 +187,13 @@ class Audio(commands.Cog):
         """
         search_query = " ".join(params)
         self.last_text_channel = ctx.channel
-        loading_msg = await ctx.send(f"`Loading track \"{search_query}\"...`")
+        loading_msg = await ctx.reply(f"`Loading track \"{search_query}\"...`")
 
         track_data = await self.search_yt(search_query, ctx) # Search YouTube for the video/query that the user requested.
         if track_data == False: # Comes back if the video is unable to be played due to uploader permissions, or if we got a malformed link.
             reply = dialogBox("Error", "Unable to play track", "Incorrect video format or link type.")
             reply.set_footer(text="This message will automatically disappear shortly.")
-            await ctx.send(embed=reply, delete_after=10)
+            await ctx.reply(embed=reply, delete_after=10)
             return
         track_data.voice_channel = ctx.author.voice.channel
 
@@ -207,7 +207,7 @@ class Audio(commands.Cog):
         reply.add_field(name="Duration" , value=track_data.human_duration, inline=True)
         reply.add_field(name="Requested by" , value=track_data.requestor, inline=True)
 
-        await ctx.send(embed=reply)
+        await ctx.reply(embed=reply)
 
         if self.is_playing == False:
             await self.play_audio(ctx)
@@ -224,7 +224,7 @@ class Audio(commands.Cog):
         `<prefix>queue`
         """
         reply = embed=dialogBox("Queued", "Queued tracks", self.queue.pretty_display())
-        await ctx.send(embed=reply)
+        await ctx.reply(embed=reply)
 
     @commands.command(name="skip")
     @JukeBot.checks.jukebot_in_vc()
@@ -244,7 +244,7 @@ class Audio(commands.Cog):
         self.voice_channel.stop() # Next track should automatically play (worked in testing, lets see how it goes...)
 
         reply.set_footer(text="This message will automatically disappear shortly.")
-        await ctx.send(embed=reply, delete_after=10)
+        await ctx.reply(embed=reply, delete_after=10)
 
     # TODO: check if the track exists in the queue before invoking
     @commands.command(name="clear")
@@ -277,14 +277,14 @@ class Audio(commands.Cog):
                 reply = dialogBox("Queued", f"Removed track no. {track_to_remove} from queue", track_title)
                 reply.set_thumbnail(url=track_thumb)
                 reply.set_footer(text="This message will automatically disappear shortly.")
-                await ctx.send(embed=reply, delete_after=10)
+                await ctx.reply(embed=reply, delete_after=10)
                 return
 
         else:
             self.queue.clear()
             reply = dialogBox("Queued", "Cleared queue")
             reply.set_footer(text="This message will automatically disappear shortly.")
-            await ctx.send(embed=reply, delete_after=10)
+            await ctx.reply(embed=reply, delete_after=10)
 
     @commands.command(name="nowplaying", aliases=["np", "playing"])
     @JukeBot.checks.jukebot_in_vc()
@@ -308,7 +308,7 @@ class Audio(commands.Cog):
         reply.set_thumbnail(url=currently_playing.thumb)
         reply.add_field(name="Duration", value=currently_playing.human_duration, inline=True)
         reply.add_field(name="Time remaining", value=currently_playing.time_left(arrow.utcnow()), inline=True)
-        msg = await ctx.send(embed=reply)
+        msg = await ctx.reply(embed=reply)
 
     @commands.command(name="stop", aliases=["leave", "disconnect"])
     @JukeBot.checks.jukebot_in_vc()
@@ -333,7 +333,7 @@ class Audio(commands.Cog):
 
         reply = dialogBox("Eject", "JukeBot stopped", "Music stopped and queue cleared.")
         reply.set_footer(text="This message will automatically disappear shortly.")
-        await ctx.send(embed=reply, delete_after=10)
+        await ctx.reply(embed=reply, delete_after=10)
 
     @commands.command(name="pause")
     @JukeBot.checks.jukebot_in_vc()
@@ -359,7 +359,7 @@ class Audio(commands.Cog):
 
         reply = dialogBox("Paused", "Paused track", f"Type `{JukeBot.config.COMMAND_PREFIX}resume` to resume the track.")
         reply.set_footer(text="This message will automatically disappear shortly.")
-        await ctx.send(embed=reply, delete_after=10)
+        await ctx.reply(embed=reply, delete_after=10)
 
     @commands.command(name="resume", aliases=["unpause"])
     @JukeBot.checks.jukebot_in_vc()
@@ -388,7 +388,7 @@ class Audio(commands.Cog):
         self.queue.is_paused = False
         reply = dialogBox("Playing", f"Resumed track: **{self.queue.tracks[0].title}**")
         reply.set_footer(text="This message will automatically disappear shortly.")
-        await ctx.send(embed=reply, delete_after=10)
+        await ctx.reply(embed=reply, delete_after=10)
 
     @commands.command(name="tq", hidden=True)
     @JukeBot.checks.user_in_vc()
@@ -397,7 +397,7 @@ class Audio(commands.Cog):
         """**Internal command.**
         Loads some example tracks for testing queue-related operations.
         """
-        await ctx.send(embed=dialogBox("Debug", "Loading test queue..."))
+        await ctx.reply(embed=dialogBox("Debug", "Loading test queue..."))
         await ctx.invoke(self.client.get_command('play'), 'one')
         await ctx.invoke(self.client.get_command('play'), 'two')
         await ctx.invoke(self.client.get_command('play'), 'three')
@@ -405,7 +405,7 @@ class Audio(commands.Cog):
         # await ctx.invoke(self.client.get_command('play'), 'five')
         # await ctx.invoke(self.client.get_command('play'), 'six')
         await ctx.invoke(self.client.get_command('queue'))
-        await ctx.send(embed=dialogBox("Debug", "Test queue finished loading."))
+        await ctx.reply(embed=dialogBox("Debug", "Test queue finished loading."))
 
     @commands.command(name="chunt")
     async def _foo(self, ctx):

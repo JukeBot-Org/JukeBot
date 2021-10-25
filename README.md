@@ -42,7 +42,6 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * Features
   * playing local files
   * Saving queues
-  * `ctx.reply()` over `ctx.send()`
 * Behind the scenes stuff
   * Any better way to write help w/ nextcord?
   * ignore_extra?
@@ -59,6 +58,7 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * Maybes
   * Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
 <!--
+* `ctx.reply()` over `ctx.reply()`
 * Add `!resume`, `!pause`, and `!stop` commands
 * Move from JSON to TOML for user config
 * Send a message to the last text channel when JukeBot disconnects.
