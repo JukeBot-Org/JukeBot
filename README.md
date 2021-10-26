@@ -43,7 +43,9 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
   * playing local files
   * Saving queues
 * Behind the scenes stuff
-  * Any better way to write help w/ nextcord?
+  * Import some things via __init__.py
+  * PEP8 style adherence
+  * dn
   * ignore_extra?
   * Write tests
   * Test multi-server capabilities
