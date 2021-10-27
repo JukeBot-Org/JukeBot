@@ -1,4 +1,6 @@
 # Project-specific ignores
+PEP8-report.txt
+pep8-check
 JukeBot.config
 ytdl_example.json
 bin/

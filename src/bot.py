@@ -15,7 +15,9 @@ import JukeBot.config
 from JukeBot.audio_commands import Audio
 from JukeBot.misc_commands import Other, ImprovedHelp
 
-client = commands.Bot(command_prefix=JukeBot.config.COMMAND_PREFIX, help_command=ImprovedHelp())
+client = commands.Bot(command_prefix=JukeBot.config.COMMAND_PREFIX,
+                      help_command=ImprovedHelp())
+
 
 def initialise():
     """Initialises Opus (on non-Windows platforms), Colorama, the log file for
@@ -30,7 +32,9 @@ def initialise():
         os.mkdir(JukeBot.config.LOG_FILE_DIR)
         print(f"{fg.GREEN}Created.{st.RESET_ALL}\n")
 
-    logging.basicConfig(filename=JukeBot.config.LOG_FILE_PATH, level=logging.INFO, format="%(asctime)s %(levelname)s:%(message)s")
+    logging.basicConfig(filename=JukeBot.config.LOG_FILE_PATH,
+                        level=logging.INFO,
+                        format="%(asctime)s %(levelname)s:%(message)s")
 
     if sys.platform == "win32":
         print(f"{fg.YELLOW}Manually loading Opus not necessary, skipping.{st.RESET_ALL}")
@@ -48,28 +52,32 @@ def initialise():
         else:
             print(f"{fg.RED}Opus not loaded! Audio may not work.{st.RESET_ALL}")
 
+
 # Begin handling Discord bot stuff
 @client.event
 async def on_ready():
     print(f"{fg.GREEN}Logged in{st.RESET_ALL} as {client.user}.")
-    await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name=JukeBot.config.LISTENING_TO)) # Listening to !help
+    await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening,
+                                                            name=JukeBot.config.LISTENING_TO))  # Listening to !help
     print(f"{fg.GREEN}Bot is ready!{st.RESET_ALL} Command prefix is {fg.GREEN}{JukeBot.config.COMMAND_PREFIX}{st.RESET_ALL}\n")
     print(f"Press {fg.YELLOW}Ctrl+C{st.RESET_ALL} to safely shut down JukeBot.\n")
 
-@client.event # Handles errors in nextcord.py commands
+
+@client.event  # Handles errors in nextcord.py commands
 async def on_command_error(ctx, error):
     logging.error("=====================================================================================")
     logging.error("UNHANDLED COMMAND ERROR, PLEASE REPORT TO https://github.com/squigjess/JukeBot/issues", exc_info=error)
     logging.error("=====================================================================================")
     raise error
 
+
 if __name__ == "__main__":
     try:
         initialise()
         print(f"\n{fg.YELLOW}Logging in...{st.RESET_ALL}")
-        client.run(JukeBot.config.DISCORD_BOT_TOKEN) # Hello, world!
+        client.run(JukeBot.config.DISCORD_BOT_TOKEN)  # Hello, world!
 
-    except Exception as error: # Handles non-command errors
+    except Exception as error:  # Handles non-command errors
         logging.error("=====================================================================================")
         logging.exception("UNHANDLED GENERIC ERROR, PLEASE REPORT TO https://github.com/squigjess/JukeBot/issues")
         logging.error("=====================================================================================")

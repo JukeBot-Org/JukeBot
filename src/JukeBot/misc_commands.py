@@ -8,14 +8,16 @@ import JukeBot.config
 from JukeBot.embed_dialogs import dialogBox
 import JukeBot.checks
 
+
 def docstring_scrubber(original):
     """Takes a docstring and splits out the examples section from the command
     help details. Really only used by ImprovedHelp().
     """
     full = original.replace("<prefix>", JukeBot.config.COMMAND_PREFIX)
-    synopsis = full.split("\n",1)[0]
-    truncated = full.split("\n",1)[1].split("**Examples**")[0]
+    synopsis = full.split("\n", 1)[0]
+    truncated = full.split("\n", 1)[1].split("**Examples**")[0]
     return [synopsis, full, truncated]
+
 
 class ImprovedHelp(commands.HelpCommand):
     """A much nicer !help command that uses Discord embeds to generate a more
@@ -52,7 +54,7 @@ class ImprovedHelp(commands.HelpCommand):
         super().__init__()
         self.app_name = app_name
 
-    async def send_bot_help(self, mapping): # !help
+    async def send_bot_help(self, mapping):  # !help
         """Triggers on !help, provides command names for all commands in this bot."""
         embed = dialogBox("Help", f"How to use {self.app_name}", f"Type `{JukeBot.config.COMMAND_PREFIX}help commandname` for more help on a specific command.")
 
@@ -60,25 +62,24 @@ class ImprovedHelp(commands.HelpCommand):
         # The !help commands does not belong to a cog and therefore has no type.
         # Therefore we check to avoid an exception and instead add it to a dummy group.
         for cog in mapping:
-            if cog != None:
+            if cog is not None:
                 cog_name = cog.qualified_name
             else:
                 cog_name = "System"
 
             embed.add_field(name=f"Category: {cog_name}",
-                            value="".join([JukeBot.config.COMMAND_PREFIX+command.name+"\n" for command in mapping[cog]]),
+                            value="".join([JukeBot.config.COMMAND_PREFIX + command.name + "\n" for command in mapping[cog]]),
                             inline=False)
         embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
         await self.get_destination().send(embed=embed)
         return await super().send_bot_help(mapping)
-
 
     async def send_cog_help(self, cog):
         """Triggers on !help CogName, provides truncated instructions for all commands in a specified cog."""
         embed = dialogBox("Help", f"How to use {self.app_name}: {cog.qualified_name} commands")
 
         for command in cog.get_commands():
-            synopsis,full,truncated = docstring_scrubber(command.help)
+            synopsis, full, truncated = docstring_scrubber(command.help)
             embed.add_field(name=f"{JukeBot.config.COMMAND_PREFIX}{command.name} — {synopsis}",
                             value=truncated,
                             inline=False)
@@ -86,14 +87,14 @@ class ImprovedHelp(commands.HelpCommand):
         await self.get_destination().send(embed=embed)
         return await super().send_cog_help(cog)
 
-
     async def send_command_help(self, command):
         """Triggers on !help commandname, provides full instructions for the specified command."""
-        synopsis,full,truncated = docstring_scrubber(command.help)
+        synopsis, full, truncated = docstring_scrubber(command.help)
         embed = dialogBox("Help", f"How to use {self.app_name}", f"**{JukeBot.config.COMMAND_PREFIX}{command.name}** — {full}")
         embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
         await self.get_destination().send(embed=embed)
         return await super().send_command_help(command)
+
 
 class Other(commands.Cog):
     """Commands that do not fit into the Audio cog, i.e. those that handle
@@ -119,9 +120,9 @@ class Other(commands.Cog):
 
         Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to https://github.com/squigjess/JukeBot/issues if you see any!""")
         reply.set_image(url="https://media.discordapp.net/attachments/887723918574645331/895242544223518740/discordjp.jpg")
-        if not JukeBot.config.RELEASE_VER: # If we're currently running the bot from source in testing...
+        if not JukeBot.config.RELEASE_VER:  # If we're currently running the bot from source in testing...
             reply.set_footer(text=f"JukeBot — Running from source, unknown version")
-        else: # If this is a live release version...
+        else:  # If this is a live release version...
             reply.set_footer(text=f"JukeBot — v.{JukeBot.config.RELEASE_VER}")
 
         await ctx.reply(embed=reply)
@@ -141,4 +142,4 @@ class Other(commands.Cog):
         _Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to me on Discord at squig#1312, or via the ticket system at https://github.com/squigjess/JukeBot/issues if you see any!_""")
         reply.set_image(url="https://media.discordapp.net/attachments/887723918574645331/895242544223518740/discordjp.jpg")
         reply.set_footer(text="This update message will automatically disappear after 24 hrs.")
-        await ctx.send(embed=reply, delete_after=86400) # 24 hrs
+        await ctx.send(embed=reply, delete_after=86400)  # 24 hrs

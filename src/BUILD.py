@@ -16,6 +16,7 @@ from colorama import Fore as fg
 from colorama import Style as st
 colorama.init()
 
+
 def build():
     repo = git.Repo(search_parent_directories=True)
     JukeBot_version = repo.head.object.hexsha[0:7]
@@ -40,8 +41,8 @@ def build():
         print(f"{fg.YELLOW}Copying default config file to dist dir...{st.RESET_ALL}")
         copy(os.path.join("config.EXAMPLES.json"), os.path.join("dist", "config.json"))
 
-
     print(f"{fg.GREEN}Build success!{st.RESET_ALL} Executable can be found in /dist")
+
 
 if __name__ == "__main__":
     try:

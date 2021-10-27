@@ -17,6 +17,7 @@ import JukeBot.track
 from JukeBot.track import humanize_duration
 import JukeBot.checks
 
+
 class Audio(commands.Cog):
     """The cog that handles all of the audio-playing commands and operations."""
     def __init__(self, client):
@@ -27,29 +28,29 @@ class Audio(commands.Cog):
         self.is_playing = False
 
         self.queue = JukeBot.queue.Queue()
-        self.YDL_OPTIONS    = {"format"         : "bestaudio",
-                               "noplaylist"     : "True"}
-        self.FFMPEG_OPTIONS = {"before_options" : "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
-                               "options"        : "-vn",
-                               "executable"     : JukeBot.config.FFMPEG_PATH}
-        self.voice_channel = None # Stores the current channel
+        self.YDL_OPTIONS = {"format": "bestaudio",
+                            "noplaylist": "True"}
+        self.FFMPEG_OPTIONS = {"before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
+                               "options": "-vn",
+                               "executable": JukeBot.config.FFMPEG_PATH}
+        self.voice_channel = None  # Stores the current channel
         self.idled_time = 0
         self.time_to_idle_for = JukeBot.config.MAX_IDLE_TIME
-        self.last_text_channel = None # nextcord.TextChannel object
+        self.last_text_channel = None  # nextcord.TextChannel object
 
 # ================================== FUNCTIONS =================================== #
 
     @tasks.loop(seconds=1.0, count=None)
     async def idle_timer(self):
         """This task is started when JukeBot begins playing audio, triggering
-        every second. When the queue is exhausted and is_playing == False, the
+        every second. When the queue is exhausted and is_playing is False, the
         idled_time counter will increment every second. Once the idle_time
         counter == the amount in self.time_to_idle_for, JukeBot will disconnect
         from its current voice channel and send a message to the channel in
         which the most recent command was issued.
         """
         if not self.is_playing:
-            self.idled_time+=1
+            self.idled_time += 1
             print(f"Idled for {self.idled_time} seconds")
             if self.idled_time >= self.time_to_idle_for:
                 logging.info(f"Idled for {self.idled_time} seconds")
@@ -70,13 +71,13 @@ class Audio(commands.Cog):
         TODO: implement a total play-time tracker.
         """
         if member is not member.guild.me:
-            return # Make sure we only fire the below for JukeBot, not anybody else.
-        
+            return  # Make sure we only fire the below for JukeBot, not anybody else.
+
         if before.channel is None and after.channel is not None:
             logging.info(f"Connected to voice channel \"{after.channel}\"")
 
         elif before.channel is not None and after.channel is None:
-            logging.info(f"Disconnecting from voice channel \"{before.channel}\"")        
+            logging.info(f"Disconnecting from voice channel \"{before.channel}\"")
             # If the bot was manually disconnected, we need to clean up the broken voice client connection.
             # NOTE: I've submitted a bugfix pull request to Nextcord which, when marged into the main repo,
             # will make the four lines below redundant.
@@ -115,7 +116,7 @@ class Audio(commands.Cog):
     async def play_audio(self, ctx, from_skip=False):
         """If the bot is not playing at all, this will play the first track in
         the queue, then immediately invoke play_next() afterwards."""
-        if len(self.queue.tracks) > 0: # If there are tracks in the queue...
+        if len(self.queue.tracks) > 0:  # If there are tracks in the queue...
             # ...state that the bot is about to start playing...
             self.is_playing = True
 
@@ -125,7 +126,7 @@ class Audio(commands.Cog):
             media_url = self.queue.tracks[0].source
 
             # ...join a VC if not already in one...
-            if self.voice_channel == None:
+            if self.voice_channel is None:
                 self.voice_channel = await self.queue.tracks[0].voice_channel.connect()
                 self.idle_timer.start()
 
@@ -147,8 +148,8 @@ class Audio(commands.Cog):
         finished playing audio. It's tricky. Maybe TODO?"""
 
         # Remove the previously-played track from the queue to move to the next one.
-        if self.queue.is_empty() == False: # This'll throw an exception if we try to pop from an empty list...
-            self.queue.remove_track(0)   # ...so we do this otherwise-useless check to avoid clogging up logfiles.
+        if self.queue.is_empty() is False:  # This'll throw an exception if we try to pop from an empty list...
+            self.queue.remove_track(0)      # ...so we do this otherwise-useless check to avoid clogging up logfiles.
 
         # If there are any more tracks waiting in the queue...
         if len(self.queue.tracks) > 0:
@@ -189,8 +190,8 @@ class Audio(commands.Cog):
         self.last_text_channel = ctx.channel
         loading_msg = await ctx.reply(f"`Loading track \"{search_query}\"...`")
 
-        track_data = await self.search_yt(search_query, ctx) # Search YouTube for the video/query that the user requested.
-        if track_data == False: # Comes back if the video is unable to be played due to uploader permissions, or if we got a malformed link.
+        track_data = await self.search_yt(search_query, ctx)  # Search YouTube for the video/query that the user requested.
+        if track_data is False:  # Comes back if the video is unable to be played due to uploader permissions, or if we got a malformed link.
             reply = dialogBox("Error", "Unable to play track", "Incorrect video format or link type.")
             reply.set_footer(text="This message will automatically disappear shortly.")
             await ctx.reply(embed=reply, delete_after=10)
@@ -204,12 +205,12 @@ class Audio(commands.Cog):
         await loading_msg.delete()
         reply = dialogBox("Queued", f"Adding to queue: {track_data.title}", url=track_data.web_url)
         reply.set_thumbnail(url=track_data.thumb)
-        reply.add_field(name="Duration" , value=track_data.human_duration, inline=True)
-        reply.add_field(name="Requested by" , value=track_data.requestor, inline=True)
+        reply.add_field(name="Duration", value=track_data.human_duration, inline=True)
+        reply.add_field(name="Requested by", value=track_data.requestor, inline=True)
 
         await ctx.reply(embed=reply)
 
-        if self.is_playing == False:
+        if self.is_playing is False:
             await self.play_audio(ctx)
 
     @commands.command(name="queue")
@@ -223,7 +224,7 @@ class Audio(commands.Cog):
 
         `<prefix>queue`
         """
-        reply = embed=dialogBox("Queued", "Queued tracks", self.queue.pretty_display())
+        reply = dialogBox("Queued", "Queued tracks", self.queue.pretty_display())
         await ctx.reply(embed=reply)
 
     @commands.command(name="skip")
@@ -241,7 +242,7 @@ class Audio(commands.Cog):
         """
 
         reply = dialogBox("Skip", "Skipped track")
-        self.voice_channel.stop() # Next track should automatically play (worked in testing, lets see how it goes...)
+        self.voice_channel.stop()  # Next track should automatically play (worked in testing, lets see how it goes...)
 
         reply.set_footer(text="This message will automatically disappear shortly.")
         await ctx.reply(embed=reply, delete_after=10)
@@ -352,7 +353,7 @@ class Audio(commands.Cog):
         # Later on, this will be referenced when we need to see how many
         # seconds the track has been paused for.
         self.queue.tracks[0].time_paused = arrow.utcnow()
-        
+
         # Pause the player
         self.voice_channel.pause()
         self.queue.is_paused = True
@@ -382,7 +383,7 @@ class Audio(commands.Cog):
         time_paused = self.queue.tracks[0].time_paused
         total_pause_time = (arrow.utcnow() - time_paused).total_seconds()
         self.queue.tracks[0].total_pause_time += total_pause_time
-        
+
         # Resume the player
         self.voice_channel.resume()
         self.queue.is_paused = False
