@@ -18,9 +18,11 @@ If you would like to run JukeBot and report on your bugs and issues, I would be 
 # Installation
 
 ## 1. Install Python dependencies with `pip`
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
 ## 2. Install FFmpeg
 * Download the FFmpeg binaries for your system from [the official ffmpeg.org website](https://ffmpeg.org/download.html)
@@ -38,22 +40,18 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 
 # To do
 * Bugs
-  * N/A
+  * Handle `MissingRequiredArgument` error in `on_command_error`.
 * Features
+  * Implement some kind of extensions system, namely for the optional Spotify integration
   * playing local files
   * Saving queues
 * Behind the scenes stuff
-* Behind the scenes stuff
   * Typehint and re-document functions to work w Sphinx 
-  * Import some things via __init__.py
-  * PEP8 style adherence
-  * dn
   * ignore_extra?
   * Write tests
   * Test multi-server capabilities
   * Move queue from a list to a JukeBot.queue.Queue object.
   * Move back to pretty-help now that I've ported it to Nextcord.
-  * [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)
   * https://pyinstaller.readthedocs.io/en/stable/operating-mode.html#hiding-the-source-code
   * https://pyinstaller.readthedocs.io/en/stable/usage.html#cmdoption-i
 * Documentation
@@ -62,6 +60,9 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 * Maybes
   * Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
 <!--
+* [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)
+* Import some things via __init__.py
+* PEP8 style adherence
 * `ctx.reply()` over `ctx.reply()`
 * Add `!resume`, `!pause`, and `!stop` commands
 * Move from JSON to TOML for user config
