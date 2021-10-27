@@ -74,7 +74,7 @@ def queue_not_empty():
     return commands.check(predicate)
 
 
-def not_paused():
+def is_not_paused():
     """A command with this check will only run if JukeBot is currently
     paused.
     """

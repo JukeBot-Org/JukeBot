@@ -2,13 +2,8 @@ import nextcord
 from nextcord.ext import commands, tasks
 from youtube_dl import YoutubeDL
 from colorama import Fore, Style
-import datetime
 import arrow
 import logging
-import asyncio
-
-import time
-import json
 
 import JukeBot
 from JukeBot.embed_dialogs import dialogBox
@@ -24,7 +19,7 @@ class Audio(commands.Cog):
         # If audio is already playing and a new play request is received, it will instead be queued.
         self.is_playing = False
 
-        self.queue = JukeBot.queue.Queue()
+        self.queue = JukeBot.Queue()
         self.YDL_OPTIONS = {"format": "bestaudio",
                             "noplaylist": "True"}
         self.FFMPEG_OPTIONS = {"before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
@@ -94,7 +89,7 @@ class Audio(commands.Cog):
 
     async def search_yt(self, item, ctx):
         """Searches YouTube for the requested search term or URL, returns a
-        JukeBot.track.Track object for the first result only."""
+        JukeBot.Track object for the first result only."""
 
         print(Fore.YELLOW + "======== YouTube Downloader ========")
         with YoutubeDL(self.YDL_OPTIONS) as ydl:
@@ -107,7 +102,7 @@ class Audio(commands.Cog):
                 return False
         print("====================================\n" + Style.RESET_ALL)
 
-        track_obj = JukeBot.track.Track(ytdl_data, ctx)
+        track_obj = JukeBot.Track(ytdl_data, ctx)
         return track_obj
 
     async def play_audio(self, ctx, from_skip=False):
@@ -336,7 +331,7 @@ class Audio(commands.Cog):
     @commands.command(name="pause")
     @JukeBot.checks.jukebot_in_vc()
     @JukeBot.checks.is_playing()
-    @JukeBot.checks.not_paused()
+    @JukeBot.checks.is_not_paused()
     async def _pause(self, ctx):
         """**Pauses playback.**
         Music will remain paused until the track is resumed with `<prefix>resume`.
@@ -404,7 +399,3 @@ class Audio(commands.Cog):
         # await ctx.invoke(self.client.get_command('play'), 'six')
         await ctx.invoke(self.client.get_command('queue'))
         await ctx.reply(embed=dialogBox("Debug", "Test queue finished loading."))
-
-    @commands.command(name="chunt")
-    async def _foo(self, ctx):
-        await ctx.reply("in command")
