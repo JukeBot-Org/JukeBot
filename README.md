@@ -21,7 +21,6 @@ If you would like to run JukeBot and report on your bugs and issues, I would be 
     python3 -m venv venv
     source venv/bin/activate
     pip install -r requirements.txt
-    pip install -r requirements-dev.txt # Installs development dependencies as well.
 
 ## 2. Install FFmpeg
 * Download the FFmpeg binaries for your system from [the official ffmpeg.org website](https://ffmpeg.org/download.html)
