@@ -43,6 +43,8 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
   * playing local files
   * Saving queues
 * Behind the scenes stuff
+* Behind the scenes stuff
+  * Typehint and re-document functions to work w Sphinx 
   * Import some things via __init__.py
   * PEP8 style adherence
   * dn
