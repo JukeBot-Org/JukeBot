@@ -10,12 +10,9 @@ import asyncio
 import time
 import json
 
-import JukeBot.config
+import JukeBot
 from JukeBot.embed_dialogs import dialogBox
-import JukeBot.queue
-import JukeBot.track
-from JukeBot.track import humanize_duration
-import JukeBot.checks
+from JukeBot.utils import humanize_duration
 
 
 class Audio(commands.Cog):

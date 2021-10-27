@@ -2,7 +2,7 @@
 
 from nextcord.ext import commands
 from JukeBot.embed_dialogs import dialogBox
-import JukeBot.config
+import JukeBot
 
 temp_title = "Hang on!"
 temp_footer = "This message will automatically disappear shortly."

@@ -3,10 +3,8 @@
 """
 from nextcord.ext import commands
 import time
-
-import JukeBot.config
+import JukeBot
 from JukeBot.embed_dialogs import dialogBox
-import JukeBot.checks
 
 
 def docstring_scrubber(original):

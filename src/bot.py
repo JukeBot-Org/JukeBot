@@ -11,7 +11,7 @@ from colorama import Fore as fg
 from colorama import Style as st
 import logging
 
-import JukeBot.config
+import JukeBot
 from JukeBot.audio_commands import Audio
 from JukeBot.misc_commands import Other, ImprovedHelp
 
