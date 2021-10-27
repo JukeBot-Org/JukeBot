@@ -14,6 +14,7 @@ import logging
 import JukeBot
 from JukeBot.audio_commands import Audio
 from JukeBot.misc_commands import Other, ImprovedHelp
+from JukeBot.embed_dialogs import dialogBox
 
 client = commands.Bot(command_prefix=JukeBot.config.COMMAND_PREFIX,
                       help_command=ImprovedHelp())
@@ -65,6 +66,14 @@ async def on_ready():
 
 @client.event  # Handles errors in nextcord.py commands
 async def on_command_error(ctx, error):
+    print(type(error))
+    if type(error) == commands.MissingRequiredArgument:
+        reply = dialogBox("Warn", JukeBot.checks.temp_title,
+                          f"JukeBot isn't paused.\nType `{JukeBot.config.COMMAND_PREFIX}pause` to pause the track.")
+        reply.set_footer(text=JukeBot.checks.temp_footer)
+        await ctx.send(embed=reply)
+        return
+
     logging.error("=====================================================================================")
     logging.error("UNHANDLED COMMAND ERROR, PLEASE REPORT TO https://github.com/squigjess/JukeBot/issues", exc_info=error)
     logging.error("=====================================================================================")

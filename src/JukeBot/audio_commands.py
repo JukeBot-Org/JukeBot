@@ -99,13 +99,12 @@ class Audio(commands.Cog):
             except Exception as e:
                 print("====================================\n" + Style.RESET_ALL)
                 raise e
-                return False
         print("====================================\n" + Style.RESET_ALL)
 
         track_obj = JukeBot.Track(ytdl_data, ctx)
         return track_obj
 
-    async def play_audio(self, ctx, from_skip=False):
+    async def play_audio(self, ctx):
         """If the bot is not playing at all, this will play the first track in
         the queue, then immediately invoke play_next() afterwards."""
         if len(self.queue.tracks) > 0:  # If there are tracks in the queue...
@@ -158,7 +157,7 @@ class Audio(commands.Cog):
 
     @commands.command(name="play", aliases=["p"])
     @JukeBot.checks.user_in_vc()
-    async def _play(self, ctx, *params):
+    async def _play(self, ctx, *, param):
         """**Plays a track in the voice channel that you're currently in.**
         Once you're in a voice channel, put the name of the track, or a YouTube
         link to the track, that you would like to play after the `<prefix>play`
@@ -171,14 +170,20 @@ class Audio(commands.Cog):
         YouTube video, or a search query that you would type into Youtube to
         find that video (see examples).
 
-        `<prefix>play `
+        `<prefix>play`
         `<prefix>play https://www.youtube.com/watch?v=dQw4w9WgXcQ`
         `<prefix>play earth wind and fire september`
 
         **Aliases** — Instead of **<prefix>play**, you can also use:
         `<prefix>p`
         """
-        search_query = " ".join(params)
+        print(repr(param))
+        if bool(param) is False:
+            print("no play lol")
+        return
+
+        search_query = " ".join(param)
+        
         self.last_text_channel = ctx.channel
         loading_msg = await ctx.reply(f"`Loading track \"{search_query}\"...`")
 
