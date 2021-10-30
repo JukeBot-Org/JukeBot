@@ -23,11 +23,11 @@ def is_playing():
     audio.
     """
     async def predicate(ctx):
-        if ctx.cog.is_playing is False:
+        if ctx.cog.all_queues[ctx.guild.id].is_playing is False:
             reply = dialogBox("Warn", temp_title, "JukeBot is currently not playing.")
             reply.set_footer(text=temp_footer)
             await ctx.send(embed=reply, delete_after=visible_time)
-        return ctx.cog.is_playing
+        return ctx.cog.all_queues[ctx.guild.id].is_playing
     return commands.check(predicate)
 
 
@@ -50,12 +50,14 @@ def jukebot_in_vc():
     at the time of invocation.
     """
     async def predicate(ctx):
-        if ctx.cog.voice_channel is None:
+        _mkqueue(ctx)  # Don't ask
+        if ctx.cog.all_queues[ctx.guild.id].audio_player is None:
             reply = dialogBox("Warn", temp_title,
                               f"JukeBot is not in a voice channel at the moment.\nPerhaps try `{JukeBot.config.COMMAND_PREFIX}play`ing a track first?")
             reply.set_footer(text=temp_footer)
             await ctx.send(embed=reply, delete_after=visible_time)
             return False
+
         return True
     return commands.check(predicate)
 
@@ -65,12 +67,13 @@ def queue_not_empty():
     is not empty.
     """
     async def predicate(ctx):
-        if ctx.cog.queue.tracks == []:
+        if ctx.cog.all_queues[ctx.guild.id].tracks == []:
             reply = dialogBox("Warn", temp_title,
                               f"The queue is currently empty.\nPerhaps try `{JukeBot.config.COMMAND_PREFIX}play`ing a track first?")
             reply.set_footer(text=temp_footer)
             await ctx.send(embed=reply, delete_after=visible_time)
             return False
+
         return True
     return commands.check(predicate)
 
@@ -80,7 +83,8 @@ def is_not_paused():
     paused.
     """
     async def predicate(ctx):
-        if ctx.cog.queue.is_paused is True:
+        print(ctx.cog.all_queues[ctx.guild.id].audio_player.is_paused())
+        if ctx.cog.all_queues[ctx.guild.id].audio_player.is_paused() is True:
             reply = dialogBox("Warn", temp_title,
                               f"JukeBot is already paused.\nType `{JukeBot.config.COMMAND_PREFIX}resume` to resume the track.")
             reply.set_footer(text=temp_footer)
@@ -95,7 +99,8 @@ def is_paused():
     paused. Mainly for use with the !resume command.
     """
     async def predicate(ctx):
-        if ctx.cog.queue.is_paused is False:
+        print(ctx.cog.all_queues[ctx.guild.id].audio_player.is_paused())
+        if ctx.cog.all_queues[ctx.guild.id].audio_player.is_paused() is False:
             reply = dialogBox("Warn", temp_title,
                               f"JukeBot isn't paused.\nType `{JukeBot.config.COMMAND_PREFIX}pause` to pause the track.")
             reply.set_footer(text=temp_footer)
@@ -125,3 +130,14 @@ async def command_not_found(ctx):
                       f"Command not found: `{command_attempted}`.\nType `{help_command}` for a list of commands you can use.")
     reply.set_footer(text=temp_footer)
     await ctx.send(embed=reply, delete_after=6)
+
+
+# This is not actually a check that can be used with a decorator like usual, but is instead
+# a pre-invoke hook - https://nextcord.readthedocs.io/en/latest/ext/commands/api.html#nextcord.ext.commands.Command.before_invoke
+def _mkqueue(ctx):
+    if ctx.guild.id not in ctx.cog.all_queues:
+        ctx.cog.all_queues[ctx.guild.id] = JukeBot.Queue()
+
+
+async def set_up_guild_queue(cog, ctx):
+    _mkqueue(ctx)

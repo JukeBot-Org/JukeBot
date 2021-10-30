@@ -6,8 +6,8 @@ class Queue:
     def __init__(self):
         self.tracks = []
         self.is_empty = lambda: not bool(self.tracks)  # lmfao
-        self.is_paused = False
         self.is_playing = False
+        self.audio_player = None  # a nextcord.VoiceChannel object representing the VC we're in currently.
 
     def clear(self):
         self.tracks = []
