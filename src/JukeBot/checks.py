@@ -113,4 +113,15 @@ async def argument_is_missing(ctx):
     reply = dialogBox("Warn", temp_title,
                       f"Missing argument for command `{command_attempted}`.\nType `{help_for_command}` for info on how to use this command.")
     reply.set_footer(text=temp_footer)
-    await ctx.send(embed=reply)
+    await ctx.send(embed=reply, delete_after=visible_time)
+
+
+# This is not actually a check that can be used with a decorator like usual.
+# This is actually called in an on_command_error listener.
+async def command_not_found(ctx):
+    command_attempted = JukeBot.config.COMMAND_PREFIX + ctx.message.content[1:]
+    help_command = f"{JukeBot.config.COMMAND_PREFIX}help"
+    reply = dialogBox("Warn", temp_title,
+                      f"Command not found: `{command_attempted}`.\nType `{help_command}` for a list of commands you can use.")
+    reply.set_footer(text=temp_footer)
+    await ctx.send(embed=reply, delete_after=6)
