@@ -15,12 +15,12 @@ class Audio(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-        # Determines whether or not the bot is currently playing.
-        # If audio is already playing and a new play request is received,
-        # it will instead be queued.
-        self.is_playing = False
+        # # Determines whether or not the bot is currently playing.
+        # # If audio is already playing and a new play request is received,
+        # # it will instead be queued.
+        # self.is_playing = False
 
-        self.queue = JukeBot.Queue()
+        self.all_queues = {}
         self.YDL_OPTIONS = {"format": "bestaudio",
                             "noplaylist": "True"}
         self.FFMPEG_OPTIONS = {"before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
@@ -36,28 +36,28 @@ class Audio(commands.Cog):
 
 # ================================== FUNCTIONS =================================== #
 
-    @tasks.loop(seconds=1.0, count=None)
-    async def idle_timer(self):
-        """This task is started when JukeBot begins playing audio, triggering
-        every second. When the queue is exhausted and is_playing is False, the
-        idled_time counter will increment every second. Once the idle_time
-        counter == the amount in self.time_to_idle_for, JukeBot will disconnect
-        from its current voice channel and send a message to the channel in
-        which the most recent command was issued.
-        """
-        if not self.is_playing:
-            self.idled_time += 1
-            print(f"Idled for {self.idled_time} seconds")
-            if self.idled_time >= self.time_to_idle_for:
-                logging.info(f"Idled for {self.idled_time} seconds")
-                await self.voice_channel.disconnect()
-                reply = dialogBox("Eject", "JukeBot has auto-DC'd from the voice channel.",
-                                  f"In order to save bandwidth and keep things tidy, JukeBot automatically disconnects after {humanize_duration(self.time_to_idle_for)} of inactivity.\nHit `{JukeBot.config.COMMAND_PREFIX}play` to start JukeBot again.")
-                reply.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
-                reply.set_footer(text="This message will automatically disappear shortly.")
-                await self.last_text_channel.send(embed=reply, delete_after=120)
-        if self.is_playing:
-            self.idled_time = 0
+    # @tasks.loop(seconds=1.0, count=None)
+    # async def idle_timer(self, ctx):
+    #     """This task is started when JukeBot begins playing audio, triggering
+    #     every second. When the queue is exhausted and is_playing is False, the
+    #     idled_time counter will increment every second. Once the idle_time
+    #     counter == the amount in self.time_to_idle_for, JukeBot will disconnect
+    #     from its current voice channel and send a message to the channel in
+    #     which the most recent command was issued.
+    #     """
+    #     if not self.all_queues[ctx.guild.id].is_playing:
+    #         self.idled_time += 1
+    #         print(f"Idled for {self.idled_time} seconds")
+    #         if self.idled_time >= self.time_to_idle_for:
+    #             logging.info(f"Idled for {self.idled_time} seconds")
+    #             await self.voice_channel.disconnect()
+    #             reply = dialogBox("Eject", "JukeBot has auto-DC'd from the voice channel.",
+    #                               f"In order to save bandwidth and keep things tidy, JukeBot automatically disconnects after {humanize_duration(self.time_to_idle_for)} of inactivity.\nHit `{JukeBot.config.COMMAND_PREFIX}play` to start JukeBot again.")
+    #             reply.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
+    #             reply.set_footer(text="This message will automatically disappear shortly.")
+    #             await self.last_text_channel.send(embed=reply, delete_after=120)
+    #     if self.all_queues[ctx.guild.id].is_playing:
+    #         self.idled_time = 0
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -83,11 +83,11 @@ class Audio(commands.Cog):
 
             # Reset a few vars
             self.voice_channel = None
-            self.queue.clear()
-            self.is_playing = False
+            self.all_queues[member.guild.id].clear()
+            self.all_queues[member.guild.id].is_playing = False
 
             # Stop the idle timer if it's running.
-            self.idle_timer.stop()
+            # self.idle_timer.stop(ctx)
             logging.info(f"Successfully disconnected from voice channel \"{before.channel}\"")
 
     async def search_yt(self, item, ctx):
@@ -108,22 +108,22 @@ class Audio(commands.Cog):
     async def play_audio(self, ctx):
         """If the bot is not playing at all, this will play the first track in
         the queue, then immediately invoke play_next() afterwards."""
-        if len(self.queue.tracks) > 0:  # If there are tracks in the queue...
+        if len(self.all_queues[ctx.guild.id].tracks) > 0:  # If there are tracks in the queue...
             # ...state that the bot is about to start playing...
-            self.is_playing = True
+            self.all_queues[ctx.guild.id].is_playing = True
 
-            logging.info(f"Playing {self.queue.tracks[0]}")
+            logging.info(f"Playing {self.all_queues[ctx.guild.id].tracks[0]}")
 
             # ...get the first URL...
-            media_url = self.queue.tracks[0].source
+            media_url = self.all_queues[ctx.guild.id].tracks[0].source
 
             # ...join a VC if not already in one...
             if self.voice_channel is None:
-                self.voice_channel = await self.queue.tracks[0].voice_channel.connect()
-                self.idle_timer.start()
+                self.voice_channel = await self.all_queues[ctx.guild.id].tracks[0].voice_channel.connect()
+                # self.idle_timer.start(ctx)
 
             # ...record when the track started playing...
-            self.queue.tracks[0].time_started = arrow.utcnow()
+            self.all_queues[ctx.guild.id].tracks[0].time_started = arrow.utcnow()
 
             # ...then play the track in the current VC!
             # Once the track is finished playing, repeat from the start.
@@ -131,7 +131,7 @@ class Audio(commands.Cog):
             self.voice_channel.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
         else:
             # ...state that the bot is no longer playing, stopping the play loop.
-            self.is_playing = False
+            self.all_queues[ctx.guild.id].is_playing = False
 
     def play_next(self, ctx):
         """Plays the next track in the queue. Different to play_audio() in that
@@ -139,19 +139,19 @@ class Audio(commands.Cog):
         won't work with nextcord's ability to invoke a lambda once audio is
         finished playing audio. It's tricky. Maybe TODO?"""
         # Remove the previously-played track from the queue to move to the next one.
-        if self.queue.is_empty() is False:  # This'll throw an exception if we try to pop from an empty list...
-            self.queue.remove_track(0)      # ...so we do this otherwise-useless check to avoid clogging up logfiles.
+        if self.all_queues[ctx.guild.id].is_empty() is False:  # This'll throw an exception if we try to pop from an empty list...
+            self.all_queues[ctx.guild.id].remove_track(0)      # ...so we do this otherwise-useless check to avoid clogging up logfiles.
 
         # If there are any more tracks waiting in the queue...
-        if len(self.queue.tracks) > 0:
-            self.is_playing = True
+        if len(self.all_queues[ctx.guild.id].tracks) > 0:
+            self.all_queues[ctx.guild.id].is_playing = True
 
-            media_url = self.queue.tracks[0].source
-            self.queue.tracks[0].time_started = arrow.utcnow()
+            media_url = self.all_queues[ctx.guild.id].tracks[0].source
+            self.all_queues[ctx.guild.id].tracks[0].time_started = arrow.utcnow()
             self.voice_channel.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
 
         else:
-            self.is_playing = False
+            self.all_queues[ctx.guild.id].is_playing = False
 
 # =================================== COMMANDS =================================== #
 
@@ -189,8 +189,10 @@ class Audio(commands.Cog):
             return
         track_data.voice_channel = ctx.author.voice.channel
 
-        # Add the track data to JukeBot's queue.
-        self.queue.add_track(track_data)
+        # Add the track data to JukeBot's queue for this guild.
+        if ctx.guild.id not in self.all_queues:
+            self.all_queues[ctx.guild.id] = JukeBot.Queue()
+        self.all_queues[ctx.guild.id].add_track(track_data)
 
         # Start preparing the dialog to be posted.
         await loading_msg.delete()
@@ -201,7 +203,7 @@ class Audio(commands.Cog):
 
         await ctx.send(embed=reply)
 
-        if self.is_playing is False:
+        if self.all_queues[ctx.guild.id].is_playing is False:
             await self.play_audio(ctx)
 
     @commands.command(name="queue")
@@ -215,7 +217,10 @@ class Audio(commands.Cog):
 
         `<prefix>queue`
         """
-        reply = dialogBox("Queued", "Queued tracks", self.queue.pretty_display())
+        if ctx.guild.id not in self.all_queues:
+            reply = dialogBox("Queued", "Queued tracks", "Nothing in the queue!")
+        else:
+            reply = dialogBox("Queued", "Queued tracks", self.all_queues[ctx.guild.id].pretty_display())
         await ctx.send(embed=reply)
 
     @commands.command(name="skip")
@@ -259,21 +264,25 @@ class Audio(commands.Cog):
         `<prefix>clear`
         `<prefix>clear 3`
         """
+        if ctx.guild.id not in self.all_queues:
+            reply = dialogBox("Queued", "Queued tracks", "Nothing in the queue!")
+            reply.set_footer(text="This message will automatically disappear shortly.")
+            await ctx.send(embed=reply, delete_after=10)
+            return
 
         if track_to_remove:
             track_to_remove = int(track_to_remove[0])
             if track_to_remove:
-                track_title = self.queue.tracks[track_to_remove - 1].title
-                track_thumb = self.queue.tracks[track_to_remove - 1].thumb
-                self.queue.remove_track(track_to_remove - 1)
+                track_title = self.all_queues[ctx.guild.id].tracks[track_to_remove - 1].title
+                track_thumb = self.all_queues[ctx.guild.id].tracks[track_to_remove - 1].thumb
+                self.all_queues[ctx.guild.id].remove_track(track_to_remove - 1)
                 reply = dialogBox("Queued", f"Removed track no. {track_to_remove} from queue", track_title)
                 reply.set_thumbnail(url=track_thumb)
                 reply.set_footer(text="This message will automatically disappear shortly.")
                 await ctx.send(embed=reply, delete_after=10)
                 return
-
         else:
-            self.queue.clear()
+            self.all_queues[ctx.guild.id].clear()
             reply = dialogBox("Queued", "Cleared queue")
             reply.set_footer(text="This message will automatically disappear shortly.")
             await ctx.send(embed=reply, delete_after=10)
@@ -295,7 +304,13 @@ class Audio(commands.Cog):
         `<prefix>np`
         `<prefix>playing`
         """
-        currently_playing = self.queue.tracks[0]
+        if ctx.guild.id not in self.all_queues:
+            reply = dialogBox("Queued", "Queued tracks", "Nothing in the queue!")
+            reply.set_footer(text="This message will automatically disappear shortly.")
+            await ctx.send(embed=reply, delete_after=10)
+            return
+            
+        currently_playing = self.all_queues[ctx.guild.id].tracks[0]
         reply = dialogBox("Playing", "Currently playing", currently_playing.title, url=currently_playing.web_url)
         reply.set_thumbnail(url=currently_playing.thumb)
         reply.add_field(name="Duration", value=currently_playing.human_duration, inline=True)
@@ -320,7 +335,7 @@ class Audio(commands.Cog):
         `<prefix>disconnect`
         """
         self.voice_channel.stop()
-        self.queue.clear()
+        self.all_queues[ctx.guild.id].clear()
         await self.voice_channel.disconnect()
 
         reply = dialogBox("Eject", "JukeBot stopped", "Music stopped and queue cleared.")
@@ -343,11 +358,11 @@ class Audio(commands.Cog):
         # Store the current clock time.
         # Later on, this will be referenced when we need to see how many
         # seconds the track has been paused for.
-        self.queue.tracks[0].time_paused = arrow.utcnow()
+        self.all_queues[ctx.guild.id].tracks[0].time_paused = arrow.utcnow()
 
         # Pause the player
         self.voice_channel.pause()
-        self.queue.is_paused = True
+        self.all_queues[ctx.guild.id].is_paused = True
 
         reply = dialogBox("Paused", "Paused track", f"Type `{JukeBot.config.COMMAND_PREFIX}resume` to resume the track.")
         reply.set_footer(text="This message will automatically disappear shortly.")
@@ -371,13 +386,13 @@ class Audio(commands.Cog):
         """
 
         # Calculate how long the track has been paused for.
-        time_paused = self.queue.tracks[0].time_paused
+        time_paused = self.all_queues[ctx.guild.id].tracks[0].time_paused
         total_pause_time = (arrow.utcnow() - time_paused).total_seconds()
-        self.queue.tracks[0].total_pause_time += total_pause_time
+        self.all_queues[ctx.guild.id].tracks[0].total_pause_time += total_pause_time
 
         # Resume the player
         self.voice_channel.resume()
-        self.queue.is_paused = False
-        reply = dialogBox("Playing", f"Resumed track: **{self.queue.tracks[0].title}**")
+        self.all_queues[ctx.guild.id].is_paused = False
+        reply = dialogBox("Playing", f"Resumed track: **{self.all_queues[ctx.guild.id].tracks[0].title}**")
         reply.set_footer(text="This message will automatically disappear shortly.")
         await ctx.send(embed=reply, delete_after=10)

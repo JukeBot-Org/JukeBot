@@ -7,6 +7,7 @@ class Queue:
         self.tracks = []
         self.is_empty = lambda: not bool(self.tracks)  # lmfao
         self.is_paused = False
+        self.is_playing = False
 
     def clear(self):
         self.tracks = []

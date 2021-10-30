@@ -67,8 +67,6 @@ class Tests(commands.Cog):
         await ctx.invoke(self.client.get_command("play"), search_query="doja cat imagine")
         await ctx.invoke(self.client.get_command("play"), search_query="earth wind and fire september")
         await ctx.invoke(self.client.get_command("play"), search_query="cult of dionysus the orion experience")
-        await ctx.invoke(self.client.get_command("play"), search_query="california soul marlena shaw")
-        await ctx.invoke(self.client.get_command("queue"))
         await ctx.invoke(self.client.get_command("queue"))
         await ctx.send(embed=dialogBox("Debug", "Test queue finished loading."))
 
