@@ -16,7 +16,8 @@ class Audio(commands.Cog):
         self.client = client
 
         # Determines whether or not the bot is currently playing.
-        # If audio is already playing and a new play request is received, it will instead be queued.
+        # If audio is already playing and a new play request is received,
+        # it will instead be queued.
         self.is_playing = False
 
         self.queue = JukeBot.Queue()
@@ -58,8 +59,7 @@ class Audio(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         """Fires when JukeBot changes voice channels. If disconnecting from a
-        voice channel, reset the queue and start the idle timer, after which
-        the bot will disconnect.
+        voice channel, reset the queue and stop the idle timer.
         TODO: implement a total play-time tracker.
         """
         if member is not member.guild.me:
@@ -71,8 +71,8 @@ class Audio(commands.Cog):
         elif before.channel is not None and after.channel is None:
             logging.info(f"Disconnecting from voice channel \"{before.channel}\"")
             # If the bot was manually disconnected, we need to clean up the broken voice client connection.
-            # NOTE: I've submitted a bugfix pull request to Nextcord which, when marged into the main repo,
-            # will make the four lines below redundant.
+            # NOTE: I've submitted a bugfix pull request to Nextcord which, in the next main release, will
+            # make the four lines below redundant.
             voice_client = nextcord.utils.get(self.client.voice_clients, guild=self.last_text_channel.guild)
             if voice_client:
                 await voice_client.disconnect()
@@ -93,12 +93,10 @@ class Audio(commands.Cog):
 
         print(Fore.YELLOW + "======== YouTube Downloader ========")
         with YoutubeDL(self.YDL_OPTIONS) as ydl:
-            try:
-                info = ydl.extract_info(f"ytsearch:{item}", download=False)["entries"][0]
-                ytdl_data = info
-            except Exception as e:
-                print("====================================\n" + Style.RESET_ALL)
-                raise e
+            ydl_results = ydl.extract_info(f"ytsearch:{item}", download=False)["entries"]
+            if len(ydl_results) == 0:  # The list above will be empty if there were any issues.
+                return False
+            ytdl_data = ydl_results[0]
         print("====================================\n" + Style.RESET_ALL)
 
         track_obj = JukeBot.Track(ytdl_data, ctx)
@@ -137,7 +135,6 @@ class Audio(commands.Cog):
         it does not attempt to join a VC. Doing so would make this async, which
         won't work with nextcord's ability to invoke a lambda once audio is
         finished playing audio. It's tricky. Maybe TODO?"""
-
         # Remove the previously-played track from the queue to move to the next one.
         if self.queue.is_empty() is False:  # This'll throw an exception if we try to pop from an empty list...
             self.queue.remove_track(0)      # ...so we do this otherwise-useless check to avoid clogging up logfiles.
@@ -157,7 +154,7 @@ class Audio(commands.Cog):
 
     @commands.command(name="play", aliases=["p"])
     @JukeBot.checks.user_in_vc()
-    async def _play(self, ctx, *, param):
+    async def _play(self, ctx, *, search_query):
         """**Plays a track in the voice channel that you're currently in.**
         Once you're in a voice channel, put the name of the track, or a YouTube
         link to the track, that you would like to play after the `<prefix>play`
@@ -177,21 +174,15 @@ class Audio(commands.Cog):
         **Aliases** — Instead of **<prefix>play**, you can also use:
         `<prefix>p`
         """
-        print(repr(param))
-        if bool(param) is False:
-            print("no play lol")
-        return
-
-        search_query = " ".join(param)
-        
         self.last_text_channel = ctx.channel
-        loading_msg = await ctx.reply(f"`Loading track \"{search_query}\"...`")
+        loading_msg = await ctx.send(f"`Loading track \"{search_query}\"...`")
 
         track_data = await self.search_yt(search_query, ctx)  # Search YouTube for the video/query that the user requested.
         if track_data is False:  # Comes back if the video is unable to be played due to uploader permissions, or if we got a malformed link.
-            reply = dialogBox("Error", "Unable to play track", "Incorrect video format or link type.")
+            reply = dialogBox("Error", "Unable to play track",
+                              "Incorrect video format, no results for search query, streaming disabled by YouTube uploader, or malformed link provided.")
             reply.set_footer(text="This message will automatically disappear shortly.")
-            await ctx.reply(embed=reply, delete_after=10)
+            await ctx.send(embed=reply, delete_after=10)
             return
         track_data.voice_channel = ctx.author.voice.channel
 
@@ -205,7 +196,7 @@ class Audio(commands.Cog):
         reply.add_field(name="Duration", value=track_data.human_duration, inline=True)
         reply.add_field(name="Requested by", value=track_data.requestor, inline=True)
 
-        await ctx.reply(embed=reply)
+        await ctx.send(embed=reply)
 
         if self.is_playing is False:
             await self.play_audio(ctx)
@@ -222,7 +213,7 @@ class Audio(commands.Cog):
         `<prefix>queue`
         """
         reply = dialogBox("Queued", "Queued tracks", self.queue.pretty_display())
-        await ctx.reply(embed=reply)
+        await ctx.send(embed=reply)
 
     @commands.command(name="skip")
     @JukeBot.checks.jukebot_in_vc()
@@ -242,13 +233,13 @@ class Audio(commands.Cog):
         self.voice_channel.stop()  # Next track should automatically play (worked in testing, lets see how it goes...)
 
         reply.set_footer(text="This message will automatically disappear shortly.")
-        await ctx.reply(embed=reply, delete_after=10)
+        await ctx.send(embed=reply, delete_after=10)
 
     # TODO: check if the track exists in the queue before invoking
     @commands.command(name="clear")
     @JukeBot.checks.jukebot_in_vc()
     @JukeBot.checks.queue_not_empty()
-    async def _clear(self, ctx, *params):
+    async def _clear(self, ctx, *track_to_remove):
         """**Removes all tracks from the queue.**
         Does not affect the currently-playing track. `<prefix>clear` can be
         followed by the number of an item in the queue to remove only that
@@ -266,8 +257,8 @@ class Audio(commands.Cog):
         `<prefix>clear 3`
         """
 
-        if params:
-            track_to_remove = int(params[0])
+        if track_to_remove:
+            track_to_remove = int(track_to_remove[0])
             if track_to_remove:
                 track_title = self.queue.tracks[track_to_remove - 1].title
                 track_thumb = self.queue.tracks[track_to_remove - 1].thumb
@@ -275,14 +266,14 @@ class Audio(commands.Cog):
                 reply = dialogBox("Queued", f"Removed track no. {track_to_remove} from queue", track_title)
                 reply.set_thumbnail(url=track_thumb)
                 reply.set_footer(text="This message will automatically disappear shortly.")
-                await ctx.reply(embed=reply, delete_after=10)
+                await ctx.send(embed=reply, delete_after=10)
                 return
 
         else:
             self.queue.clear()
             reply = dialogBox("Queued", "Cleared queue")
             reply.set_footer(text="This message will automatically disappear shortly.")
-            await ctx.reply(embed=reply, delete_after=10)
+            await ctx.send(embed=reply, delete_after=10)
 
     @commands.command(name="nowplaying", aliases=["np", "playing"])
     @JukeBot.checks.jukebot_in_vc()
@@ -306,7 +297,7 @@ class Audio(commands.Cog):
         reply.set_thumbnail(url=currently_playing.thumb)
         reply.add_field(name="Duration", value=currently_playing.human_duration, inline=True)
         reply.add_field(name="Time remaining", value=currently_playing.time_left(arrow.utcnow()), inline=True)
-        msg = await ctx.reply(embed=reply)
+        msg = await ctx.send(embed=reply)
 
     @commands.command(name="stop", aliases=["leave", "disconnect"])
     @JukeBot.checks.jukebot_in_vc()
@@ -327,11 +318,11 @@ class Audio(commands.Cog):
         """
         self.voice_channel.stop()
         self.queue.clear()
-        self.voice_channel.disconnect()
+        await self.voice_channel.disconnect()
 
         reply = dialogBox("Eject", "JukeBot stopped", "Music stopped and queue cleared.")
         reply.set_footer(text="This message will automatically disappear shortly.")
-        await ctx.reply(embed=reply, delete_after=10)
+        await ctx.send(embed=reply, delete_after=10)
 
     @commands.command(name="pause")
     @JukeBot.checks.jukebot_in_vc()
@@ -357,7 +348,7 @@ class Audio(commands.Cog):
 
         reply = dialogBox("Paused", "Paused track", f"Type `{JukeBot.config.COMMAND_PREFIX}resume` to resume the track.")
         reply.set_footer(text="This message will automatically disappear shortly.")
-        await ctx.reply(embed=reply, delete_after=10)
+        await ctx.send(embed=reply, delete_after=10)
 
     @commands.command(name="resume", aliases=["unpause"])
     @JukeBot.checks.jukebot_in_vc()
@@ -386,21 +377,4 @@ class Audio(commands.Cog):
         self.queue.is_paused = False
         reply = dialogBox("Playing", f"Resumed track: **{self.queue.tracks[0].title}**")
         reply.set_footer(text="This message will automatically disappear shortly.")
-        await ctx.reply(embed=reply, delete_after=10)
-
-    @commands.command(name="tq", hidden=True)
-    @JukeBot.checks.user_in_vc()
-    @JukeBot.checks.is_developer()
-    async def _tq(self, ctx):
-        """**Internal command.**
-        Loads some example tracks for testing queue-related operations.
-        """
-        await ctx.reply(embed=dialogBox("Debug", "Loading test queue..."))
-        await ctx.invoke(self.client.get_command('play'), 'one')
-        await ctx.invoke(self.client.get_command('play'), 'two')
-        await ctx.invoke(self.client.get_command('play'), 'three')
-        # await ctx.invoke(self.client.get_command('play'), 'four')
-        # await ctx.invoke(self.client.get_command('play'), 'five')
-        # await ctx.invoke(self.client.get_command('play'), 'six')
-        await ctx.invoke(self.client.get_command('queue'))
-        await ctx.reply(embed=dialogBox("Debug", "Test queue finished loading."))
+        await ctx.send(embed=reply, delete_after=10)

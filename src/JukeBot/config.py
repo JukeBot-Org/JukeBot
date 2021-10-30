@@ -9,7 +9,7 @@ import colorama
 from colorama import Fore as fg
 from colorama import Style as st
 
-RELEASE_VER = None
+RELEASE_VER = "0.0.0"
 colorama.init()
 
 conf_file = open("JukeBot.config", "r")

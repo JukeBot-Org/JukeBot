@@ -6,6 +6,7 @@ import JukeBot
 
 temp_title = "Hang on!"
 temp_footer = "This message will automatically disappear shortly."
+visible_time = 10  # seconds. Warnings will vanish after this.
 
 
 def is_developer():
@@ -25,7 +26,7 @@ def is_playing():
         if ctx.cog.is_playing is False:
             reply = dialogBox("Warn", temp_title, "JukeBot is currently not playing.")
             reply.set_footer(text=temp_footer)
-            await ctx.reply(embed=reply, delete_after=10)
+            await ctx.send(embed=reply, delete_after=visible_time)
         return ctx.cog.is_playing
     return commands.check(predicate)
 
@@ -38,7 +39,7 @@ def user_in_vc():
         if ctx.author.voice is None:
             reply = dialogBox("Warn", temp_title, "Connect to a voice channel before issuing the command.")
             reply.set_footer(text=temp_footer)
-            await ctx.reply(embed=reply, delete_after=10)
+            await ctx.send(embed=reply, delete_after=visible_time)
             return False
         return True
     return commands.check(predicate)
@@ -53,7 +54,7 @@ def jukebot_in_vc():
             reply = dialogBox("Warn", temp_title,
                               f"JukeBot is not in a voice channel at the moment.\nPerhaps try `{JukeBot.config.COMMAND_PREFIX}play`ing a track first?")
             reply.set_footer(text=temp_footer)
-            await ctx.reply(embed=reply, delete_after=10)
+            await ctx.send(embed=reply, delete_after=visible_time)
             return False
         return True
     return commands.check(predicate)
@@ -68,7 +69,7 @@ def queue_not_empty():
             reply = dialogBox("Warn", temp_title,
                               f"The queue is currently empty.\nPerhaps try `{JukeBot.config.COMMAND_PREFIX}play`ing a track first?")
             reply.set_footer(text=temp_footer)
-            await ctx.reply(embed=reply, delete_after=10)
+            await ctx.send(embed=reply, delete_after=visible_time)
             return False
         return True
     return commands.check(predicate)
@@ -83,7 +84,7 @@ def is_not_paused():
             reply = dialogBox("Warn", temp_title,
                               f"JukeBot is already paused.\nType `{JukeBot.config.COMMAND_PREFIX}resume` to resume the track.")
             reply.set_footer(text=temp_footer)
-            await ctx.reply(embed=reply, delete_after=10)
+            await ctx.send(embed=reply, delete_after=visible_time)
             return False
         return True
     return commands.check(predicate)
@@ -98,7 +99,18 @@ def is_paused():
             reply = dialogBox("Warn", temp_title,
                               f"JukeBot isn't paused.\nType `{JukeBot.config.COMMAND_PREFIX}pause` to pause the track.")
             reply.set_footer(text=temp_footer)
-            await ctx.reply(embed=reply, delete_after=10)
+            await ctx.send(embed=reply, delete_after=visible_time)
             return False
         return True
     return commands.check(predicate)
+
+
+# This is not actually a check that can be used with a decorator like usual.
+# This is actually called in an on_command_error listener.
+async def argument_is_missing(ctx):
+    command_attempted = JukeBot.config.COMMAND_PREFIX + ctx.command.name
+    help_for_command = f"{JukeBot.config.COMMAND_PREFIX}help {ctx.command.name}"
+    reply = dialogBox("Warn", temp_title,
+                      f"Missing argument for command `{command_attempted}`.\nType `{help_for_command}` for info on how to use this command.")
+    reply.set_footer(text=temp_footer)
+    await ctx.send(embed=reply)

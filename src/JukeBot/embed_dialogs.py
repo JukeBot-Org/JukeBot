@@ -9,6 +9,8 @@ styles = {#Reason      Which emoji to use      The colour of the accent on the l
           "Warn":    [":warning:",            Colour.yellow()],
           "Error":   [":no_entry_sign:",      Colour.red()],
           "Debug":   [":gear:",               Colour.lighter_grey()],
+          "Test":    [":red_circle:",         Colour.red()],
+          "Success": [":white_check_mark:",   Colour.green()],
           # JukeBot-specific styles
           "Help":    [":woman_technologist:", JukeBot_Bluegreen],
           "Playing": [":arrow_forward:",      JukeBot_Bluegreen],

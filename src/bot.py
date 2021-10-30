@@ -12,12 +12,10 @@ from colorama import Style as st
 import logging
 
 import JukeBot
-from JukeBot.audio_commands import Audio
-from JukeBot.misc_commands import Other, ImprovedHelp
 from JukeBot.embed_dialogs import dialogBox
 
 client = commands.Bot(command_prefix=JukeBot.config.COMMAND_PREFIX,
-                      help_command=ImprovedHelp())
+                      help_command=JukeBot.misc_commands.ImprovedHelp())
 
 
 def initialise():
@@ -25,8 +23,9 @@ def initialise():
     this session, and the command cogs for discord.py/nextcord.
     """
     colorama.init()
-    client.add_cog(Audio(client))
-    client.add_cog(Other(client))
+    client.add_cog(JukeBot.audio_commands.Audio(client))
+    client.add_cog(JukeBot.misc_commands.Other(client))
+    client.add_cog(JukeBot.test_commands.Tests(client))
 
     if not os.path.exists(JukeBot.config.LOG_FILE_DIR):
         print(f"{fg.YELLOW}Logs directory missing. Creating...{st.RESET_ALL}")
@@ -64,14 +63,14 @@ async def on_ready():
     print(f"Press {fg.YELLOW}Ctrl+C{st.RESET_ALL} to safely shut down JukeBot.\n")
 
 
-@client.event  # Handles errors in nextcord.py commands
+@client.event  # Handles errors in nextcord commands
 async def on_command_error(ctx, error):
-    print(type(error))
-    if type(error) == commands.MissingRequiredArgument:
-        reply = dialogBox("Warn", JukeBot.checks.temp_title,
-                          f"JukeBot isn't paused.\nType `{JukeBot.config.COMMAND_PREFIX}pause` to pause the track.")
-        reply.set_footer(text=JukeBot.checks.temp_footer)
-        await ctx.send(embed=reply)
+    # print(type(error))
+    if type(error) == commands.MissingRequiredArgument:  # If we're missing an argument in a command that requires one...
+        await JukeBot.checks.argument_is_missing(ctx)
+        return
+
+    if type(error) == commands.CheckFailure:
         return
 
     logging.error("=====================================================================================")

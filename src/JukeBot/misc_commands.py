@@ -21,8 +21,8 @@ class ImprovedHelp(commands.HelpCommand):
     """A much nicer !help command that uses Discord embeds to generate a more
     easily grokkable experience for end users. See below for the syntax that
     your command docstrings should follow in order to work with this function.
-    Requires embed_dialogs.py in order to function, otherwise this is a drop-in
-    class that can be used as-is in most discord.py/nextcord projects
+    Requires embed_dialogs.py in order to function, otherwise this is a
+    drop-in class that can be used as-is in most discord.py/nextcord projects.
     ---------------------------------------------------------------------------
 
     '''**One-line explanation of what the command does.**
@@ -123,7 +123,7 @@ class Other(commands.Cog):
         else:  # If this is a live release version...
             reply.set_footer(text=f"JukeBot — v.{JukeBot.config.RELEASE_VER}")
 
-        await ctx.reply(embed=reply)
+        await ctx.send(embed=reply)
 
     @commands.command()
     @JukeBot.checks.is_developer()
@@ -134,10 +134,14 @@ class Other(commands.Cog):
         """
         reply = dialogBox("Version", "JukeBot has been updated!",
         """**Thank you for helping test out JukeBot while I still work on it!**\n
-        **JukeBot will no longer linger in the voice channel forever! After two minutes of no audio playing, it will disconnect, ready for you to hit `!play` again.**
-        I've also made the `!queue` look a lot nicer and fixed a few more bugs.
+        **This is quite a milestone update; a lot of changes have been implemented, bringing JukeBot closer to being a fully-stable audio streaming bot!**
+          - A bunch of major bugs have been fixed.
+          - New commands are here - `!pause`, `!resume`, `!nowplaying`, and `!stop`/`!disconnect`.
+          - You can now remove individual tracks from the queue with `!clear x`, where `x` is the number of the track in the queue (see `!queue`).
+        
+        Currently, I'm working on the Spotify integration problem and the ability to save queues. Hold tight!
 
-        _Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to me on Discord at squig#1312, or via the ticket system at https://github.com/squigjess/JukeBot/issues if you see any!_""")
+        _As you jam out, please keep in mind that JukeBot is still a work-in-progress. If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - please report them to me on Discord at squig#1312, or via the ticket system at https://github.com/squigjess/JukeBot/issues if you see any._""")
         reply.set_image(url="https://media.discordapp.net/attachments/887723918574645331/895242544223518740/discordjp.jpg")
-        reply.set_footer(text="This update message will automatically disappear after 24 hrs.")
+        reply.set_footer(text="This update message will automatically disappear after 24 hrs.\n\nhttp://squigjess.github.io/JukeBot")
         await ctx.send(embed=reply, delete_after=86400)  # 24 hrs
