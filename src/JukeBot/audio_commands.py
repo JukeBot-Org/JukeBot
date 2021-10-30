@@ -31,6 +31,8 @@ class Audio(commands.Cog):
         self.time_to_idle_for = JukeBot.config.MAX_IDLE_TIME
         self.last_text_channel = None  # nextcord.TextChannel object
 
+        self.current_guild_vc = lambda rrr: nextcord.utils.get(self.client.voice_clients, guild=rrr)  # Gets the VC of the guild we're currently in.
+
 # ================================== FUNCTIONS =================================== #
 
     @tasks.loop(seconds=1.0, count=None)
