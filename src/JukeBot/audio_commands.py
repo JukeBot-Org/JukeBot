@@ -48,10 +48,13 @@ class Audio(commands.Cog):
     #     """
     #     if not self.all_queues[ctx.guild.id].is_playing:
     #         self.idled_time += 1
-    #         print(f"Idled for {self.idled_time} seconds")
+    #         print(f"**{ctx.guild.name}** - Idled for {self.idled_time} seconds")
+
     #         if self.idled_time >= self.time_to_idle_for:
-    #             logging.info(f"Idled for {self.idled_time} seconds")
-    #             await self.voice_channel.disconnect()
+    #             logging.info(f"**{ctx.guild.name}** - Idled for {self.idled_time} seconds")
+    #             if self.all_queues[ctx.guild.id].audio_player:
+    #                 await self.all_queues[ctx.guild.id].audio_player.disconnect()
+                
     #             reply = dialogBox("Eject", "JukeBot has auto-DC'd from the voice channel.",
     #                               f"In order to save bandwidth and keep things tidy, JukeBot automatically disconnects after {humanize_duration(self.time_to_idle_for)} of inactivity.\nHit `{JukeBot.config.COMMAND_PREFIX}play` to start JukeBot again.")
     #             reply.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
@@ -60,36 +63,36 @@ class Audio(commands.Cog):
     #     if self.all_queues[ctx.guild.id].is_playing:
     #         self.idled_time = 0
 
-    # @commands.Cog.listener()
-    # async def on_voice_state_update(self, member, before, after):
-    #     """Fires when JukeBot changes voice channels. If disconnecting from a
-    #     voice channel, reset the queue and stop the idle timer.
-    #     TODO: implement a total play-time tracker.
-    #     """
-    #     if member is not member.guild.me:
-    #         return  # Make sure we only fire the below for JukeBot, not anybody else.
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        """Fires when JukeBot changes voice channels. If disconnecting from a
+        voice channel, reset the queue and stop the idle timer.
+        TODO: implement a total play-time tracker.
+        """
+        if member is not member.guild.me:   
+            return  # Make sure we only fire the below for JukeBot, not anybody else.
 
-    #     if before.channel is None and after.channel is not None:
-    #         logging.info(f"Connected to voice channel \"{after.channel}\"")
+        if before.channel is None and after.channel is not None:
+            print(f"Connected to voice channel \"{after.channel}\"")
 
-    #     elif before.channel is not None and after.channel is None:
-    #         logging.info(f"Disconnecting from voice channel \"{before.channel}\"")
-    #         # If the bot was manually disconnected, we need to clean up the broken voice client connection.
-    #         # NOTE: I've submitted a bugfix pull request to Nextcord which, in the next main release, will
-    #         # make the four lines below redundant.
-    #         voice_client = nextcord.utils.get(self.client.voice_clients, guild=self.last_text_channel.guild)
-    #         if voice_client:
-    #             await voice_client.disconnect()
-    #             voice_client.cleanup()
+        elif before.channel is not None and after.channel is None:
+            print(f"Disconnecting from voice channel \"{before.channel}\"")
+            # If the bot was manually disconnected, we need to clean up the broken voice client connection.
+            # NOTE: I've submitted a bugfix pull request to Nextcord which, in the next main release, will
+            # make the four lines below redundant.
+            voice_client = self.current_guild_vc(member.guild)
+            if voice_client:
+                await voice_client.disconnect()
+                voice_client.cleanup()
 
-    #         # Reset a few vars
-    #         self.voice_channel = None
-    #         self.all_queues[member.guild.id].clear()
-    #         self.all_queues[member.guild.id].is_playing = False
+            # Reset a few vars
+            self.all_queues[member.guild.id].audio_player = None
+            self.all_queues[member.guild.id].clear()
+            self.all_queues[member.guild.id].is_playing = False
 
-    #         # Stop the idle timer if it's running.
-    #         # self.idle_timer.stop(ctx)
-    #         logging.info(f"Successfully disconnected from voice channel \"{before.channel}\"")
+            # Stop the idle timer if it's running.
+            # self.idle_timer.stop(ctx)
+            logging.info(f"Successfully disconnected from voice channel \"{before.channel}\"")
 
     async def search_yt(self, item, ctx):
         """Searches YouTube for the requested search term or URL, returns a
@@ -386,3 +389,11 @@ class Audio(commands.Cog):
         reply = dialogBox("Playing", f"Resumed track: **{self.all_queues[ctx.guild.id].tracks[0].title}**")
         reply.set_footer(text="This message will automatically disappear shortly.")
         await ctx.send(embed=reply, delete_after=10)
+
+    @commands.command(name="m", hidden=True)
+    async def _m(self, ctx):
+        """**Internal command.**
+        If you accept the definition that a word is some letters
+        surrounded by a gap, then...
+        """
+        await JukeBot.checks.set_up_guild_queue(None, ctx)
