@@ -1,6 +1,6 @@
-from JukeBot.checks import jukebot_in_vc
 import nextcord
-from nextcord.ext import commands, tasks
+from nextcord.ext import commands
+# from nextcord.ext import tasks
 from youtube_dl import YoutubeDL
 from colorama import Fore, Style
 import arrow
@@ -8,7 +8,7 @@ import logging
 
 import JukeBot
 from JukeBot.embed_dialogs import dialogBox
-from JukeBot.utils import humanize_duration
+# from JukeBot.utils import humanize_duration
 
 
 class Audio(commands.Cog):
@@ -31,9 +31,9 @@ class Audio(commands.Cog):
         self.idled_time = 0
         self.time_to_idle_for = JukeBot.config.MAX_IDLE_TIME
         # self.last_text_channel = None  # nextcord.TextChannel object
-        
+
         # Gets the VC of the guild we're currently in. Currently unused.
-        self.current_guild_vc = lambda rrr: nextcord.utils.get(self.client.voice_clients, guild=rrr) 
+        self.current_guild_vc = lambda g: nextcord.utils.get(self.client.voice_clients, guild=g)
 
 # ================================== FUNCTIONS =================================== #
 
@@ -54,7 +54,7 @@ class Audio(commands.Cog):
     #             logging.info(f"**{ctx.guild.name}** - Idled for {self.idled_time} seconds")
     #             if self.all_queues[ctx.guild.id].audio_player:
     #                 await self.all_queues[ctx.guild.id].audio_player.disconnect()
-                
+
     #             reply = dialogBox("Eject", "JukeBot has auto-DC'd from the voice channel.",
     #                               f"In order to save bandwidth and keep things tidy, JukeBot automatically disconnects after {humanize_duration(self.time_to_idle_for)} of inactivity.\nHit `{JukeBot.config.COMMAND_PREFIX}play` to start JukeBot again.")
     #             reply.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
@@ -62,7 +62,7 @@ class Audio(commands.Cog):
     #             await self.last_text_channel.send(embed=reply, delete_after=120)
     #     if self.all_queues[ctx.guild.id].is_playing:
     #         self.idled_time = 0
-    
+
     # @tasks.loop(seconds=1.0, count=None)
     # async def new_idle_timer(self, ctx):
     #     for queue in self.all_queues:
@@ -74,7 +74,7 @@ class Audio(commands.Cog):
         voice channel, reset the queue and stop the idle timer.
         TODO: implement a total play-time tracker.
         """
-        if member is not member.guild.me:   
+        if member is not member.guild.me:
             return  # Make sure we only fire the below for JukeBot, not anybody else.
 
         if before.channel is None and after.channel is not None:
@@ -306,13 +306,13 @@ class Audio(commands.Cog):
         **Aliases** — Instead of **<prefix>nowplaying**, you can also use:
         `<prefix>np`
         `<prefix>playing`
-        """            
+        """
         currently_playing = self.all_queues[ctx.guild.id].tracks[0]
         reply = dialogBox("Playing", "Currently playing", currently_playing.title, url=currently_playing.web_url)
         reply.set_thumbnail(url=currently_playing.thumb)
         reply.add_field(name="Duration", value=currently_playing.human_duration, inline=True)
         reply.add_field(name="Time remaining", value=currently_playing.time_left(arrow.utcnow()), inline=True)
-        msg = await ctx.send(embed=reply)
+        await ctx.send(embed=reply)
 
     @commands.command(name="stop", aliases=["leave", "disconnect"])
     @commands.before_invoke(JukeBot.checks.set_up_guild_queue)
