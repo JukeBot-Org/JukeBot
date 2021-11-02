@@ -50,7 +50,6 @@ def jukebot_in_vc():
     at the time of invocation.
     """
     async def predicate(ctx):
-        await set_up_guild_queue(None, ctx)  # Don't ask
         if ctx.cog.all_queues[ctx.guild.id].audio_player is None:
             reply = dialogBox("Warn", temp_title,
                               f"JukeBot is not in a voice channel at the moment.\nPerhaps try `{JukeBot.config.COMMAND_PREFIX}play`ing a track first?")
@@ -134,6 +133,6 @@ async def command_not_found(ctx):
 
 # This is not actually a check that can be used with a decorator like usual, but is instead
 # a pre-invoke hook - https://nextcord.readthedocs.io/en/latest/ext/commands/api.html#nextcord.ext.commands.Command.before_invoke
-async def set_up_guild_queue(cog, ctx):
+async def set_up_guild_queue(ctx):
     if ctx.guild.id not in ctx.cog.all_queues:
-        ctx.cog.all_queues[ctx.guild.id] = JukeBot.Queue()
+        ctx.cog.all_queues[ctx.guild.id] = JukeBot.Queue(ctx.guild)

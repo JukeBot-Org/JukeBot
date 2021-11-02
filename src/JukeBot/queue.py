@@ -1,13 +1,15 @@
 """Defines how queue data is stored."""
 from JukeBot.utils import trim
+import nextcord
 
 
 class Queue:
-    def __init__(self):
+    def __init__(self, guild: nextcord.Guild):
         self.tracks = []
         self.is_empty = lambda: not bool(self.tracks)  # lmfao
         self.is_playing = False
         self.audio_player = None  # a nextcord.VoiceChannel object representing the VC we're in currently.
+        self.guild = guild
 
     def clear(self):
         self.tracks = []

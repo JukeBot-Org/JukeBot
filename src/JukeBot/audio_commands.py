@@ -16,12 +16,10 @@ class Audio(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-        # # Determines whether or not the bot is currently playing.
-        # # If audio is already playing and a new play request is received,
-        # # it will instead be queued.
-        # self.is_playing = False
-
         self.all_queues = {}
+        for g in self.client.guilds:
+            self.all_queues[g.id] = JukeBot.Queue(g)
+
         self.YDL_OPTIONS = {"format": "bestaudio",
                             "noplaylist": "True"}
         self.FFMPEG_OPTIONS = {"before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
@@ -65,8 +63,10 @@ class Audio(commands.Cog):
 
     @tasks.loop(seconds=1.0, count=None)
     async def new_idle_timer(self, ctx):
+
         for queue in self.all_queues:
-            print(queue)
+            print(self.all_queues[queue])
+            print(f"{self.all_queues[queue].guild.name} - {self.all_queues[queue]}\n")
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -96,7 +96,7 @@ class Audio(commands.Cog):
             self.all_queues[member.guild.id].is_playing = False
 
             # Stop the idle timer if it's running.
-            # self.idle_timer.stop(ctx)
+            self.new_idle_timer.stop(None)
             logging.info(f"Successfully disconnected from voice channel \"{before.channel}\"")
 
     async def search_yt(self, item, ctx):
@@ -129,7 +129,7 @@ class Audio(commands.Cog):
             # ...join a VC if not already in one...
             if self.all_queues[ctx.guild.id].audio_player is None:
                 self.all_queues[ctx.guild.id].audio_player = await self.all_queues[ctx.guild.id].tracks[0].voice_channel.connect()
-                # self.idle_timer.start(ctx)
+                self.new_idle_timer.start(ctx)
 
             # ...record when the track started playing...
             self.all_queues[ctx.guild.id].tracks[0].time_started = arrow.utcnow()
@@ -165,7 +165,6 @@ class Audio(commands.Cog):
 # =================================== COMMANDS =================================== #
 
     @commands.command(name="play", aliases=["p"])
-    @commands.before_invoke(JukeBot.checks.set_up_guild_queue)
     @JukeBot.checks.user_in_vc()
     async def _play(self, ctx, *, search_query):
         """**Plays a track in the voice channel that you're currently in.**
@@ -215,7 +214,6 @@ class Audio(commands.Cog):
             await self.play_audio(ctx)
 
     @commands.command(name="queue")
-    @commands.before_invoke(JukeBot.checks.set_up_guild_queue)
     @JukeBot.checks.jukebot_in_vc()
     async def _queue(self, ctx):
         """**Displays the queue of tracks waiting to be played.**
@@ -230,7 +228,6 @@ class Audio(commands.Cog):
         await ctx.send(embed=reply)
 
     @commands.command(name="skip")
-    @commands.before_invoke(JukeBot.checks.set_up_guild_queue)
     @JukeBot.checks.jukebot_in_vc()
     @JukeBot.checks.is_playing()
     async def _skip(self, ctx):
@@ -252,7 +249,6 @@ class Audio(commands.Cog):
 
     # TODO: check if the track exists in the queue before invoking
     @commands.command(name="clear")
-    @commands.before_invoke(JukeBot.checks.set_up_guild_queue)
     @JukeBot.checks.jukebot_in_vc()
     @JukeBot.checks.queue_not_empty()
     async def _clear(self, ctx, *track_to_remove):
@@ -290,7 +286,6 @@ class Audio(commands.Cog):
             await ctx.send(embed=reply, delete_after=10)
 
     @commands.command(name="nowplaying", aliases=["np", "playing"])
-    @commands.before_invoke(JukeBot.checks.set_up_guild_queue)
     @JukeBot.checks.jukebot_in_vc()
     @JukeBot.checks.is_playing()
     @JukeBot.checks.queue_not_empty()
@@ -315,7 +310,6 @@ class Audio(commands.Cog):
         await ctx.send(embed=reply)
 
     @commands.command(name="stop", aliases=["leave", "disconnect"])
-    @commands.before_invoke(JukeBot.checks.set_up_guild_queue)
     @JukeBot.checks.jukebot_in_vc()
     async def _stop(self, ctx):
         """**Halts JukeBox entirely.**
@@ -341,7 +335,6 @@ class Audio(commands.Cog):
         await ctx.send(embed=reply, delete_after=10)
 
     @commands.command(name="pause")
-    @commands.before_invoke(JukeBot.checks.set_up_guild_queue)
     @JukeBot.checks.jukebot_in_vc()
     @JukeBot.checks.is_playing()
     @JukeBot.checks.is_not_paused()
@@ -367,7 +360,6 @@ class Audio(commands.Cog):
         await ctx.send(embed=reply, delete_after=10)
 
     @commands.command(name="resume", aliases=["unpause"])
-    @commands.before_invoke(JukeBot.checks.set_up_guild_queue)
     @JukeBot.checks.jukebot_in_vc()
     @JukeBot.checks.is_playing()
     @JukeBot.checks.is_paused()
@@ -395,10 +387,28 @@ class Audio(commands.Cog):
         reply.set_footer(text="This message will automatically disappear shortly.")
         await ctx.send(embed=reply, delete_after=10)
 
-    @commands.command(name="m", hidden=True)
-    async def _m(self, ctx):
+# ================================ TEST COMMANDS ================================= #
+
+    @commands.command(name="tq", hidden=True)
+    @JukeBot.checks.user_in_vc()
+    @JukeBot.checks.is_developer()
+    async def _tq(self, ctx):
+        """**Internal command.**
+        Loads some example tracks for testing queue-related operations.
+        """
+        await ctx.send(embed=dialogBox("Debug", "Loading test queue..."))
+        await ctx.invoke(self.client.get_command("play"), search_query="doja cat imagine")
+        await ctx.invoke(self.client.get_command("play"), search_query="earth wind and fire september")
+        await ctx.invoke(self.client.get_command("play"), search_query="cult of dionysus the orion experience")
+        await ctx.invoke(self.client.get_command("queue"))
+        await ctx.send(embed=dialogBox("Debug", "Test queue finished loading."))
+
+    @commands.command(name="x", hidden=True)
+    @JukeBot.checks.user_in_vc()
+    @JukeBot.checks.is_developer()
+    async def _x(self, ctx):
         """**Internal command.**
         If you accept the definition that a word is some letters
         surrounded by a gap, then...
         """
-        await JukeBot.checks.set_up_guild_queue(None, ctx)
+        await ctx.invoke(self.client.get_command("play"), search_query="tom scott disintegrates xnopyt")

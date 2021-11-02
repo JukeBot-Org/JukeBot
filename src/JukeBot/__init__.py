@@ -6,4 +6,3 @@ from . import utils
 
 from . import audio_commands
 from . import misc_commands
-from . import test_commands

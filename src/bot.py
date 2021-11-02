@@ -19,12 +19,9 @@ client = commands.Bot(command_prefix=JukeBot.config.COMMAND_PREFIX,
 
 def initialise():
     """Initialises Opus (on non-Windows platforms), Colorama, the log file for
-    this session, and the command cogs for discord.py/nextcord.
+    this session, etc.
     """
     colorama.init()
-    client.add_cog(JukeBot.audio_commands.Audio(client))
-    client.add_cog(JukeBot.misc_commands.Other(client))
-    client.add_cog(JukeBot.test_commands.Tests(client))
 
     if not os.path.exists(JukeBot.config.LOG_FILE_DIR):
         print(f"{fg.YELLOW}Logs directory missing. Creating...{st.RESET_ALL}")
@@ -58,6 +55,8 @@ async def on_ready():
     print(f"{fg.GREEN}Logged in{st.RESET_ALL} as {client.user}.")
     await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening,
                                                             name=JukeBot.config.LISTENING_TO))  # Listening to !help
+    client.add_cog(JukeBot.audio_commands.Audio(client))
+    client.add_cog(JukeBot.misc_commands.Other(client))
     print(f"{fg.GREEN}Bot is ready!{st.RESET_ALL} Command prefix is {fg.GREEN}{JukeBot.config.COMMAND_PREFIX}{st.RESET_ALL}\n")
     print(f"Press {fg.YELLOW}Ctrl+C{st.RESET_ALL} to safely shut down JukeBot.\n")
 
