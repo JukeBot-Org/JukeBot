@@ -2,7 +2,6 @@
 !help command.
 """
 from nextcord.ext import commands
-import time
 import JukeBot
 from JukeBot.embed_dialogs import dialogBox
 
@@ -119,7 +118,7 @@ class Other(commands.Cog):
         Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to https://github.com/squigjess/JukeBot/issues if you see any!""")
         reply.set_image(url="https://media.discordapp.net/attachments/887723918574645331/895242544223518740/discordjp.jpg")
         if not JukeBot.config.RELEASE_VER:  # If we're currently running the bot from source in testing...
-            reply.set_footer(text=f"JukeBot — Running from source, unknown version")
+            reply.set_footer(text="JukeBot — Running from source, unknown version")
         else:  # If this is a live release version...
             reply.set_footer(text=f"JukeBot — v.{JukeBot.config.RELEASE_VER}")
 
@@ -138,7 +137,7 @@ class Other(commands.Cog):
           - A bunch of major bugs have been fixed.
           - New commands are here - `!pause`, `!resume`, `!nowplaying`, and `!stop`/`!disconnect`.
           - You can now remove individual tracks from the queue with `!clear x`, where `x` is the number of the track in the queue (see `!queue`).
-        
+
         Currently, I'm working on the Spotify integration problem and the ability to save queues. Hold tight!
 
         _As you jam out, please keep in mind that JukeBot is still a work-in-progress. If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - please report them to me on Discord at squig#1312, or via the ticket system at https://github.com/squigjess/JukeBot/issues if you see any._""")

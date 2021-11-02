@@ -1,6 +1,6 @@
 import nextcord
 from nextcord.ext import commands
-# from nextcord.ext import tasks
+from nextcord.ext import tasks
 from youtube_dl import YoutubeDL
 from colorama import Fore, Style
 import arrow
@@ -63,10 +63,10 @@ class Audio(commands.Cog):
     #     if self.all_queues[ctx.guild.id].is_playing:
     #         self.idled_time = 0
 
-    # @tasks.loop(seconds=1.0, count=None)
-    # async def new_idle_timer(self, ctx):
-    #     for queue in self.all_queues:
-    #         print(f"{}")
+    @tasks.loop(seconds=1.0, count=None)
+    async def new_idle_timer(self, ctx):
+        for queue in self.all_queues:
+            print(queue)
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):

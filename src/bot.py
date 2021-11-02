@@ -12,7 +12,6 @@ from colorama import Style as st
 import logging
 
 import JukeBot
-from JukeBot.embed_dialogs import dialogBox
 
 client = commands.Bot(command_prefix=JukeBot.config.COMMAND_PREFIX,
                       help_command=JukeBot.misc_commands.ImprovedHelp())
@@ -45,7 +44,7 @@ def initialise():
         print("Finding Opus library...")
         opus_loc = ctypes.util.find_library('opus')
         print("Loading Opus...")
-        load_opus = nextcord.opus.load_opus(opus_loc)
+        nextcord.opus.load_opus(opus_loc)
         print("Checking if Opus is loaded...")
         if nextcord.opus.is_loaded():
             print(f"{fg.GREEN}Opus module loaded successfully.{st.RESET_ALL}")
@@ -70,7 +69,7 @@ async def on_command_error(ctx, error):
         return
 
     if type(error) == commands.CheckFailure:
-        return # No need to raise an exception and clog up the user's logfiles.
+        return  # No need to raise an exception and clog up the user's logfiles.
 
     if type(error) == commands.CommandNotFound:
         await JukeBot.checks.command_not_found(ctx)
