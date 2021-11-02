@@ -12,7 +12,7 @@ colorama.init()
 
 conf_file = open("config.json", "r")
 config_settings = json.loads(conf_file.read())
-exec_time = datetime.now().strftime("%d-%m-%Y_%H:%M:%S")
+exec_time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 
 DISCORD_BOT_TOKEN = config_settings["DISCORD_BOT_TOKEN"]
 FFMPEG_PATH       = config_settings["FFMPEG_PATH"]
