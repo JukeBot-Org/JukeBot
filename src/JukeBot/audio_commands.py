@@ -62,6 +62,11 @@ class Audio(commands.Cog):
     #             await self.last_text_channel.send(embed=reply, delete_after=120)
     #     if self.all_queues[ctx.guild.id].is_playing:
     #         self.idled_time = 0
+    
+    # @tasks.loop(seconds=1.0, count=None)
+    # async def new_idle_timer(self, ctx):
+    #     for queue in self.all_queues:
+    #         print(f"{}")
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):

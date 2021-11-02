@@ -50,7 +50,7 @@ def jukebot_in_vc():
     at the time of invocation.
     """
     async def predicate(ctx):
-        set_up_guild_queue(None, ctx)  # Don't ask
+        await set_up_guild_queue(None, ctx)  # Don't ask
         if ctx.cog.all_queues[ctx.guild.id].audio_player is None:
             reply = dialogBox("Warn", temp_title,
                               f"JukeBot is not in a voice channel at the moment.\nPerhaps try `{JukeBot.config.COMMAND_PREFIX}play`ing a track first?")
