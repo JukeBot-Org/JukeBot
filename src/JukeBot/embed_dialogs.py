@@ -5,7 +5,7 @@ from nextcord import Embed, Colour
 
 JukeBot_Bluegreen = Colour.from_rgb(6, 227, 164)
 
-styles = {#Reason      Which emoji to use      The colour of the accent on the left
+styles = {#Reason    Which emoji to use       The colour of the accent on the left
           "Warn":    [":warning:",            Colour.yellow()],
           "Error":   [":no_entry_sign:",      Colour.red()],
           "Debug":   [":gear:",               Colour.lighter_grey()],

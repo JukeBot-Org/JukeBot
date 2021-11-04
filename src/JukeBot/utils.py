@@ -1,5 +1,4 @@
 """Utility functions used sporadically across JukeBot."""
-import datetime
 
 
 def humanize_duration(total_seconds):
