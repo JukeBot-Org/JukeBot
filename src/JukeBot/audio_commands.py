@@ -15,23 +15,25 @@ class Audio(commands.Cog):
     """The cog that handles all of the audio-playing commands and operations."""
     def __init__(self, client):
         self.client = client
-
         self.all_queues = {}
-        for g in self.client.guilds:
-            self.all_queues[g.id] = JukeBot.Queue(g)
-
         self.YDL_OPTIONS = {"format": "bestaudio",
                             "noplaylist": "True"}
         self.FFMPEG_OPTIONS = {"before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
                                "options": "-vn",
                                "executable": JukeBot.config.FFMPEG_PATH}
-        self.voice_channel = None  # Stores the current channel
-        self.idled_time = 0
         self.time_to_idle_for = JukeBot.config.MAX_IDLE_TIME
         # self.last_text_channel = None  # nextcord.TextChannel object
 
         # Gets the VC of the guild we're currently in. Currently unused.
         self.current_guild_vc = lambda g: nextcord.utils.get(self.client.voice_clients, guild=g)
+
+        # Initialise guild queues for each guild that this instance of JukeBot is currently in.
+        for g in self.client.guilds:
+            self.all_queues[g.id] = JukeBot.Queue(g)
+
+        # Start tracking how long each guild instance has been idling for.
+        # This doesn't look like it scales well. Uhh, TODO?
+        self.new_idle_timer.start()
 
 # ================================== FUNCTIONS =================================== #
 
@@ -62,11 +64,21 @@ class Audio(commands.Cog):
     #         self.idled_time = 0
 
     @tasks.loop(seconds=1.0, count=None)
-    async def new_idle_timer(self, ctx):
-
-        for queue in self.all_queues:
-            print(self.all_queues[queue])
-            print(f"{self.all_queues[queue].guild.name} - {self.all_queues[queue]}\n")
+    async def new_idle_timer(self):
+        True
+        # for queue in self.all_queues:
+        #     print(f"JukeBot instance in guild {self.all_queues[queue].guild.name}")
+        #     if self.all_queues[queue].is_playing is False and self.all_queues[queue].audio_player is None:
+        #         print("DC'd")
+        #     elif self.all_queues[queue].is_playing is False and self.all_queues[queue].audio_player is not None:
+        #         print(f"Currently idling for {self.all_queues[queue].current_idle_time} sec")
+        #     elif self.all_queues[queue].is_playing is True:
+        #         print(f"Currently playing {self.all_queues[queue].tracks[0]}")
+        #     else:
+        #         print("??????")
+        #     print(self.all_queues[queue].audio_player)
+        #     print(type(self.all_queues[queue].audio_player))
+        #     print("\n\n")
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -94,9 +106,6 @@ class Audio(commands.Cog):
             self.all_queues[member.guild.id].audio_player = None
             self.all_queues[member.guild.id].clear()
             self.all_queues[member.guild.id].is_playing = False
-
-            # Stop the idle timer if it's running.
-            self.new_idle_timer.stop(None)
             logging.info(f"Successfully disconnected from voice channel \"{before.channel}\"")
 
     async def search_yt(self, item, ctx):
@@ -129,7 +138,6 @@ class Audio(commands.Cog):
             # ...join a VC if not already in one...
             if self.all_queues[ctx.guild.id].audio_player is None:
                 self.all_queues[ctx.guild.id].audio_player = await self.all_queues[ctx.guild.id].tracks[0].voice_channel.connect()
-                self.new_idle_timer.start(ctx)
 
             # ...record when the track started playing...
             self.all_queues[ctx.guild.id].tracks[0].time_started = arrow.utcnow()
