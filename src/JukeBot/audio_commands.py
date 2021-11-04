@@ -8,7 +8,6 @@ import logging
 
 import JukeBot
 from JukeBot.embed_dialogs import dialogBox
-# from JukeBot.utils import humanize_duration
 
 
 class Audio(commands.Cog):
@@ -22,7 +21,6 @@ class Audio(commands.Cog):
                                "options": "-vn",
                                "executable": JukeBot.config.FFMPEG_PATH}
         self.time_to_idle_for = JukeBot.config.MAX_IDLE_TIME
-        # self.last_text_channel = None  # nextcord.TextChannel object
 
         # Gets the VC of the guild we're currently in. Currently unused.
         self.current_guild_vc = lambda g: nextcord.utils.get(self.client.voice_clients, guild=g)
@@ -33,52 +31,27 @@ class Audio(commands.Cog):
 
         # Start tracking how long each guild instance has been idling for.
         # This doesn't look like it scales well. Uhh, TODO?
-        self.new_idle_timer.start()
+        self.idle_timer.start()
 
 # ================================== FUNCTIONS =================================== #
 
-    # @tasks.loop(seconds=1.0, count=None)
-    # async def idle_timer(self, ctx):
-    #     """This task is started when JukeBot begins playing audio, triggering
-    #     every second. When the queue is exhausted and is_playing is False, the
-    #     idled_time counter will increment every second. Once the idle_time
-    #     counter == the amount in self.time_to_idle_for, JukeBot will disconnect
-    #     from its current voice channel and send a message to the channel in
-    #     which the most recent command was issued.
-    #     """
-    #     if not self.all_queues[ctx.guild.id].is_playing:
-    #         self.idled_time += 1
-    #         print(f"**{ctx.guild.name}** - Idled for {self.idled_time} seconds")
-
-    #         if self.idled_time >= self.time_to_idle_for:
-    #             logging.info(f"**{ctx.guild.name}** - Idled for {self.idled_time} seconds")
-    #             if self.all_queues[ctx.guild.id].audio_player:
-    #                 await self.all_queues[ctx.guild.id].audio_player.disconnect()
-
-    #             reply = dialogBox("Eject", "JukeBot has auto-DC'd from the voice channel.",
-    #                               f"In order to save bandwidth and keep things tidy, JukeBot automatically disconnects after {humanize_duration(self.time_to_idle_for)} of inactivity.\nHit `{JukeBot.config.COMMAND_PREFIX}play` to start JukeBot again.")
-    #             reply.set_thumbnail(url="https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png")
-    #             reply.set_footer(text="This message will automatically disappear shortly.")
-    #             await self.last_text_channel.send(embed=reply, delete_after=120)
-    #     if self.all_queues[ctx.guild.id].is_playing:
-    #         self.idled_time = 0
-
     @tasks.loop(seconds=1.0, count=None)
-    async def new_idle_timer(self):
-        True
-        # for queue in self.all_queues:
-        #     print(f"JukeBot instance in guild {self.all_queues[queue].guild.name}")
-        #     if self.all_queues[queue].is_playing is False and self.all_queues[queue].audio_player is None:
-        #         print("DC'd")
-        #     elif self.all_queues[queue].is_playing is False and self.all_queues[queue].audio_player is not None:
-        #         print(f"Currently idling for {self.all_queues[queue].current_idle_time} sec")
-        #     elif self.all_queues[queue].is_playing is True:
-        #         print(f"Currently playing {self.all_queues[queue].tracks[0]}")
-        #     else:
-        #         print("??????")
-        #     print(self.all_queues[queue].audio_player)
-        #     print(type(self.all_queues[queue].audio_player))
-        #     print("\n\n")
+    async def idle_timer(self):
+        """This loop runs for as long as JukeBot is online. It checks every
+        second to see if any guild instances of JukeBot are not playing and
+        are still connected to the voice channel. If so, wait an amount of
+        seconds equal to MAX_IDLE_TIME, after which the bot disconnects.
+        """
+        for q in self.all_queues:
+            if self.all_queues[q].is_playing is not False:
+                continue  # Skip any bot instances that are currently playing audio.
+            if self.all_queues[q].audio_player is None:
+                continue  # A guild with no audio player has already DC'd.
+
+            self.all_queues[q].current_idle_time += 1
+            if self.all_queues[q].current_idle_time > JukeBot.config.MAX_IDLE_TIME:
+                await self.all_queues[q].audio_player.disconnect()
+                self.all_queues[q].current_idle_time = 0
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -171,6 +144,7 @@ class Audio(commands.Cog):
             self.all_queues[ctx.guild.id].tracks[0].time_started = arrow.utcnow()
             self.all_queues[ctx.guild.id].audio_player.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
 
+        # Otherwise, if the queue is exhausted...
         else:
             self.all_queues[ctx.guild.id].is_playing = False
 
