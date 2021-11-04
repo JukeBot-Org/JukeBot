@@ -5,7 +5,7 @@ from JukeBot.embed_dialogs import dialogBox
 import JukeBot
 
 temp_title = "Hang on!"
-temp_footer = "This message will automatically disappear shortly."
+temp_footer = JukeBot.messages.EPHEMERAL_FOOTER
 visible_time = 10  # seconds. Warnings will vanish after this.
 
 
@@ -25,7 +25,7 @@ def is_playing():
     async def predicate(ctx):
         if ctx.cog.all_queues[ctx.guild.id].is_playing is False:
             reply = dialogBox("Warn", temp_title, "JukeBot is currently not playing.")
-            reply.set_footer(text=temp_footer)
+            reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
             await ctx.send(embed=reply, delete_after=visible_time)
         return ctx.cog.all_queues[ctx.guild.id].is_playing
     return commands.check(predicate)
@@ -37,8 +37,9 @@ def user_in_vc():
     """
     async def predicate(ctx):
         if ctx.author.voice is None:
-            reply = dialogBox("Warn", temp_title, "Connect to a voice channel before issuing the command.")
-            reply.set_footer(text=temp_footer)
+            reply = dialogBox("Warn", temp_title,
+                              "Connect to a voice channel before issuing the command.")
+            reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
             await ctx.send(embed=reply, delete_after=visible_time)
             return False
         return True
@@ -53,7 +54,7 @@ def jukebot_in_vc():
         if ctx.cog.all_queues[ctx.guild.id].audio_player is None:
             reply = dialogBox("Warn", temp_title,
                               f"JukeBot is not in a voice channel at the moment.\nPerhaps try `{JukeBot.config.COMMAND_PREFIX}play`ing a track first?")
-            reply.set_footer(text=temp_footer)
+            reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
             await ctx.send(embed=reply, delete_after=visible_time)
             return False
 
@@ -69,7 +70,7 @@ def queue_not_empty():
         if ctx.cog.all_queues[ctx.guild.id].tracks == []:
             reply = dialogBox("Warn", temp_title,
                               f"The queue is currently empty.\nPerhaps try `{JukeBot.config.COMMAND_PREFIX}play`ing a track first?")
-            reply.set_footer(text=temp_footer)
+            reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
             await ctx.send(embed=reply, delete_after=visible_time)
             return False
 
@@ -85,8 +86,8 @@ def is_not_paused():
         print(ctx.cog.all_queues[ctx.guild.id].audio_player.is_paused())
         if ctx.cog.all_queues[ctx.guild.id].audio_player.is_paused() is True:
             reply = dialogBox("Warn", temp_title,
-                              f"JukeBot is already paused.\nType `{JukeBot.config.COMMAND_PREFIX}resume` to resume the track.")
-            reply.set_footer(text=temp_footer)
+                              f"JukeBot is already paused.\n{JukeBot.messages.PLS_RESUME}")
+            reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
             await ctx.send(embed=reply, delete_after=visible_time)
             return False
         return True
@@ -102,7 +103,7 @@ def is_paused():
         if ctx.cog.all_queues[ctx.guild.id].audio_player.is_paused() is False:
             reply = dialogBox("Warn", temp_title,
                               f"JukeBot isn't paused.\nType `{JukeBot.config.COMMAND_PREFIX}pause` to pause the track.")
-            reply.set_footer(text=temp_footer)
+            reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
             await ctx.send(embed=reply, delete_after=visible_time)
             return False
         return True
@@ -116,7 +117,7 @@ async def argument_is_missing(ctx):
     help_for_command = f"{JukeBot.config.COMMAND_PREFIX}help {ctx.command.name}"
     reply = dialogBox("Warn", temp_title,
                       f"Missing argument for command `{command_attempted}`.\nType `{help_for_command}` for info on how to use this command.")
-    reply.set_footer(text=temp_footer)
+    reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
     await ctx.send(embed=reply, delete_after=visible_time)
 
 
@@ -127,7 +128,7 @@ async def command_not_found(ctx):
     help_command = f"{JukeBot.config.COMMAND_PREFIX}help"
     reply = dialogBox("Warn", temp_title,
                       f"Command not found: `{command_attempted}`.\nType `{help_command}` for a list of commands you can use.")
-    reply.set_footer(text=temp_footer)
+    reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
     await ctx.send(embed=reply, delete_after=6)
 
 
