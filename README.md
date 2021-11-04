@@ -39,52 +39,8 @@ I'm not gonna go into too much detail on this, but create a bot, add it to your 
 -------
 
 # To do
-* Bugs
-  * N/A
-* Features
-  * Implement some kind of extensions system, namely for the optional and eventual Spotify integration
-  * playing local files
-  * Saving queues
-  * Re-enable auto-DC
 * Behind the scenes stuff
-  * Typehint and re-document functions to work w Sphinx 
-  * ignore_extra?
-  * Write tests
-  * Test multi-server capabilities
-  * Move back to pretty-help now that I've ported it to Nextcord.
   * Move long strings to .txt files
 * Documentation
   * Update README and Quickstart once build process is sorted out
     * [include this warning](https://gist.github.com/vbe0201/ade9b80f2d3b64643d854938d40a0a2d#gistcomment-3311754)
-* Maybes
-  * Implement Spotify link recognition and translation (not sure if this is possible with a self-hosted set-up)
-<!--
-* Move queue from a list to a JukeBot.queue.Queue object.
-* Handle `MissingRequiredArgument` error in `on_command_error`.
-* [Move to discord.py's inherent checks system](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#checks)
-* Import some things via __init__.py
-* PEP8 style adherence
-* `ctx.send()` over `ctx.send()`
-* Add `!resume`, `!pause`, and `!stop` commands
-* Move from JSON to TOML for user config
-* Send a message to the last text channel when JukeBot disconnects.
-* [Have JukeBot auto-disconnect (maybe after a delay?) when the queue is exhausted.](https://www.py4u.net/discuss/262449)
-* [Implement proper error handling](https://discordpy.readthedocs.io/en/stable/ext/commands/commands.html?highlight=on_command_error#error-handling)
-* Fix exception when invoking `!nowplaying` with an empty queue
-* stopwatch (under `!nowplaying`)
-* Find out why compiled version doesn't launch a terminal window on Linux.
-* Implement the ability to remove a single track from the queue in !clear
-* Track/queue data refactor
-* Make "queued" msg titles link to the OG video
-* Logfile
-* Update docstrings
-* work on build script
-* Move config to .json in anticipation of exe distribution
-* Add a way to clear the queue.
-* Function-ify redundant embed/dialog code in `!play`.
-* Work on a nicer-looking `!help` command.
-* Add a pretty `!queue` command.
-* Set up GitHub Pages website for JukeBot.
-* Re-implement `!skip`.
-* PySimpleGUI
--->
