@@ -1,7 +1,7 @@
 import nextcord
 from nextcord.ext import commands
 from nextcord.ext import tasks
-from youtube_dl import YoutubeDL
+import youtube_dl
 from colorama import Fore, Style
 import arrow
 import logging
@@ -113,8 +113,12 @@ class Audio(commands.Cog):
         JukeBot.Track object for the first result only."""
 
         print(Fore.YELLOW + "======== YouTube Downloader ========")
-        with YoutubeDL(self.YDL_OPTIONS) as ydl:
-            ydl_results = ydl.extract_info(f"ytsearch:{item}", download=False)["entries"]
+        with youtube_dl.YoutubeDL(self.YDL_OPTIONS) as ydl:
+            try:  # If we get a DownloadError while trying to fetch the YouTube data, it's probably a stream.
+                ydl_results = ydl.extract_info(f"ytsearch:{item}", download=False)["entries"]
+            except Exception as e:
+                print(type(e))
+                return False
             if len(ydl_results) == 0:  # The list above will be empty if there were any issues.
                 return False
             ytdl_data = ydl_results[0]
@@ -200,7 +204,7 @@ class Audio(commands.Cog):
         track_data = await self.search_yt(search_query, ctx)  # Search YouTube for the video/query that the user requested.
         if track_data is False:  # Comes back if the video is unable to be played due to uploader permissions, or if we got a malformed link.
             reply = dialogBox("Error", "Unable to play track",
-                              "Incorrect video format, no results for search query, streaming disabled by YouTube uploader, or malformed link provided.")
+                              "**Possible reasons:**\n- Incorrect video format\n- No results for search query\n- Streaming disabled by YouTube uploader\n- Malformed or invalid link provided.")
             reply.set_footer(text="This message will automatically disappear shortly.")
             await ctx.send(embed=reply, delete_after=10)
             return
