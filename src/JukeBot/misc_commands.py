@@ -4,6 +4,7 @@
 from nextcord.ext import commands
 import JukeBot
 from JukeBot.embed_dialogs import dialogBox
+import JukeBot.messages as msgs
 
 
 def docstring_scrubber(original):
@@ -70,7 +71,7 @@ class ImprovedHelp(commands.HelpCommand):
             embed.add_field(name=f"Category: {cog_name}",
                             value=all_cmds_in_cog,
                             inline=False)
-        embed.set_thumbnail(url=JukeBot.messages.THUMB_IMG)
+        embed.set_thumbnail(url=msgs.THUMB_IMG)
         await self.get_destination().send(embed=embed)
         return await super().send_bot_help(mapping)
 
@@ -83,7 +84,7 @@ class ImprovedHelp(commands.HelpCommand):
             embed.add_field(name=f"{JukeBot.config.COMMAND_PREFIX}{command.name} — {synopsis}",
                             value=truncated,
                             inline=False)
-        embed.set_thumbnail(url=JukeBot.messages.THUMB_IMG)
+        embed.set_thumbnail(url=msgs.THUMB_IMG)
         await self.get_destination().send(embed=embed)
         return await super().send_cog_help(cog)
 
@@ -92,7 +93,7 @@ class ImprovedHelp(commands.HelpCommand):
         synopsis, full, truncated = docstring_scrubber(command.help)
         embed = dialogBox("Help", f"How to use {self.app_name}",
                           f"**{JukeBot.config.COMMAND_PREFIX}{command.name}** — {full}")
-        embed.set_thumbnail(url=JukeBot.messages.THUMB_IMG)
+        embed.set_thumbnail(url=msgs.THUMB_IMG)
         await self.get_destination().send(embed=embed)
         return await super().send_command_help(command)
 
@@ -116,8 +117,8 @@ class Other(commands.Cog):
         `<prefix>about`
         """
         reply = dialogBox("Version", "Thank you for using JukeBot!",
-                          JukeBot.messages.ABOUT)
-        reply.set_image(url=JukeBot.messages.BANNER_IMG)
+                          msgs.ABOUT)
+        reply.set_image(url=msgs.BANNER_IMG)
         if not JukeBot.config.RELEASE_VER:
             reply.set_footer(text="JukeBot — Running from source")
         else:  # If this is a live release version...
@@ -133,7 +134,7 @@ class Other(commands.Cog):
         Provides update messages and changelogs to alpha testers' servers.
         """
         reply = dialogBox("Version", "JukeBot has been updated!",
-                          JukeBot.messages.UPDATE_CHANGELOG)
-        reply.set_image(url=JukeBot.messages.BANNER_IMG)
-        reply.set_footer(text=JukeBot.messages.UPDATE_FOOTER)
+                          msgs.UPDATE_CHANGELOG)
+        reply.set_image(url=msgs.BANNER_IMG)
+        reply.set_footer(text=msgs.UPDATE_FOOTER)
         await ctx.send(embed=reply, delete_after=86400)  # 24 hrs

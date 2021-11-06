@@ -5,9 +5,9 @@ import youtube_dl
 from colorama import Fore, Style
 import arrow
 import logging
-
 import JukeBot
 from JukeBot.embed_dialogs import dialogBox
+import JukeBot.messages as msgs
 
 
 class Audio(commands.Cog):
@@ -182,8 +182,8 @@ class Audio(commands.Cog):
         # permissions, or if we got a malformed link.
         if track_data is False:
             reply = dialogBox("Error", "Unable to play track",
-                              JukeBot.messages.CANNOT_PLAY)
-            reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
+                              msgs.CANNOT_PLAY)
+            reply.set_footer(text=msgs.EPHEMERAL_FOOTER)
             await ctx.send(embed=reply, delete_after=10)
             return
         track_data.voice_channel = ctx.author.voice.channel
@@ -243,9 +243,7 @@ class Audio(commands.Cog):
         # Next track should automatically play (worked in testing, lets see
         # how it goes...)
         self.all_queues[ctx.guild.id].audio_player.stop()
-
-        reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
-        await ctx.send(embed=reply, delete_after=10)
+        await ctx.send(embed=reply)
 
     # TODO: check if the track exists in the queue before invoking
     @commands.command(name="clear")
@@ -276,14 +274,13 @@ class Audio(commands.Cog):
                 self.all_queues[ctx.guild.id].remove_track(track_to_remove - 1)
                 reply = dialogBox("Queued", f"Removed track no. {track_to_remove} from queue", track_title)
                 reply.set_thumbnail(url=track_thumb)
-                reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
+                reply.set_footer(text=msgs.EPHEMERAL_FOOTER)
                 await ctx.send(embed=reply, delete_after=10)
                 return
         else:
             self.all_queues[ctx.guild.id].clear()
             reply = dialogBox("Queued", "Cleared queue")
-            reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
-            await ctx.send(embed=reply, delete_after=10)
+            await ctx.send(embed=reply)
 
     @commands.command(name="nowplaying", aliases=["np", "playing"])
     @JukeBot.checks.jukebot_in_vc()
@@ -338,8 +335,7 @@ class Audio(commands.Cog):
 
         reply = dialogBox("Eject", "JukeBot stopped",
                           "Music stopped and queue cleared.")
-        reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
-        await ctx.send(embed=reply, delete_after=10)
+        await ctx.send(embed=reply)
 
     @commands.command(name="pause")
     @JukeBot.checks.jukebot_in_vc()
@@ -364,9 +360,8 @@ class Audio(commands.Cog):
         self.all_queues[ctx.guild.id].audio_player.pause()
 
         reply = dialogBox("Paused", "Paused track",
-                          f"{JukeBot.messages.PLS_RESUME}")
-        reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
-        await ctx.send(embed=reply, delete_after=10)
+                          f"{msgs.PLS_RESUME}")
+        await ctx.send(embed=reply)
 
     @commands.command(name="resume", aliases=["unpause"])
     @JukeBot.checks.jukebot_in_vc()
@@ -393,31 +388,4 @@ class Audio(commands.Cog):
         # Resume the player
         self.all_queues[ctx.guild.id].audio_player.resume()
         reply = dialogBox("Playing", f"Resumed track: **{self.all_queues[ctx.guild.id].tracks[0].title}**")
-        reply.set_footer(text=JukeBot.messages.EPHEMERAL_FOOTER)
-        await ctx.send(embed=reply, delete_after=10)
-
-# ============================== TEST COMMANDS ============================== #
-
-    @commands.command(name="tq", hidden=True)
-    @JukeBot.checks.user_in_vc()
-    @JukeBot.checks.is_developer()
-    async def _tq(self, ctx):
-        """**Internal command.**
-        Loads some example tracks for testing queue-related operations.
-        """
-        await ctx.send(embed=dialogBox("Debug", "Loading test queue..."))
-        await ctx.invoke(self.client.get_command("play"), search_query="doja cat imagine")
-        await ctx.invoke(self.client.get_command("play"), search_query="earth wind and fire september")
-        await ctx.invoke(self.client.get_command("play"), search_query="cult of dionysus the orion experience")
-        await ctx.invoke(self.client.get_command("queue"))
-        await ctx.send(embed=dialogBox("Debug", "Test queue finished loading."))
-
-    @commands.command(name="x", hidden=True)
-    @JukeBot.checks.user_in_vc()
-    @JukeBot.checks.is_developer()
-    async def _x(self, ctx):
-        """**Internal command.**
-        If you accept the definition that a word is some letters
-        surrounded by a gap, then...
-        """
-        await ctx.invoke(self.client.get_command("play"), search_query="tom scott disintegrates xnopyt")
+        await ctx.send(embed=reply)

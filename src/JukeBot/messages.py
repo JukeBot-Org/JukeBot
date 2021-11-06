@@ -1,4 +1,4 @@
-from JukeBot import config
+import JukeBot.config
 
 EPHEMERAL_FOOTER = "This message will automatically disappear shortly"
 
@@ -6,7 +6,7 @@ CANNOT_PLAY = "**Possible reasons:**\n- Incorrect video format\n- No results for
 
 PRETTY_QUEUE_HEADER = "#  Track title                                            Duration "
 
-PLS_RESUME = f"Type `{config.COMMAND_PREFIX}resume` to resume the track."
+PLS_RESUME = f"Type `{JukeBot.config.COMMAND_PREFIX}resume` to resume the track."
 
 UPDATE_FOOTER = "This update message will automatically disappear after 24 hrs.\n\nhttp://squigjess.github.io/JukeBot"
 

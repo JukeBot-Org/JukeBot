@@ -1,6 +1,6 @@
-import JukeBot
 from JukeBot.utils import trim
 import nextcord
+import JukeBot.messages as msgs
 
 
 class Queue:
@@ -48,7 +48,7 @@ class Queue:
         if self.is_empty():
             return "Empty queue!"
         else:
-            header = JukeBot.messages.PRETTY_QUEUE_HEADER
+            header = msgs.PRETTY_QUEUE_HEADER
             for track in range(0, len(self.tracks)):
                 queue_pos = track + 1
                 trimmed_title = trim(self.tracks[track].title)
