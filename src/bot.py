@@ -75,7 +75,7 @@ async def on_command_error(ctx, error):
         return
 
     logging.error("=====================================================================================")
-    logging.error("UNHANDLED COMMAND ERROR, PLEASE REPORT TO https://github.com/squigjess/JukeBot/issues", exc_info=error)
+    logging.error("UNHANDLED COMMAND ERROR, PLEASE REPORT TO https://github.com/JukeBot-Org/JukeBot/issues", exc_info=error)
     logging.error("=====================================================================================")
     raise error
 
@@ -88,6 +88,6 @@ if __name__ == "__main__":
 
     except Exception as error:  # Handles non-command errors
         logging.error("=====================================================================================")
-        logging.exception("UNHANDLED GENERIC ERROR, PLEASE REPORT TO https://github.com/squigjess/JukeBot/issues")
+        logging.exception("UNHANDLED GENERIC ERROR, PLEASE REPORT TO https://github.com/JukeBot-Org/JukeBot/issues")
         logging.error("=====================================================================================")
         raise error
