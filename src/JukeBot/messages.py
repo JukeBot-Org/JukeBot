@@ -8,7 +8,7 @@ PRETTY_QUEUE_HEADER = "#  Track title                                           
 
 PLS_RESUME = f"Type `{JukeBot.config.COMMAND_PREFIX}resume` to resume the track."
 
-UPDATE_FOOTER = "This update message will automatically disappear after 24 hrs.\n\nhttp://squigjess.github.io/JukeBot"
+UPDATE_FOOTER = "This update message will automatically disappear after 24 hrs.\n\nhttp://JukeBot-Org.github.io/JukeBot"
 
 BANNER_IMG = "https://media.discordapp.net/attachments/887723918574645331/895242544223518740/discordjp.jpg"
 THUMB_IMG = "https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e1257116f08c99c904373b47b7.png"
@@ -16,9 +16,9 @@ THUMB_IMG = "https://cdn.discordapp.com/avatars/886200359054344193/4da9c1e125711
 # =============================== LENGTHY BOIS ============================== #
 
 ABOUT = """**JukeBot** is a self-hostable audio streaming bot that runs on spite, a love for freedom, and Python 3.\n
-You can find more information on the project, as well as download the program to host your own instance of JukeBot, at **https://squigjess.github.io/JukeBot**
+You can find more information on the project, as well as download the program to host your own instance of JukeBot, at **https://JukeBot-Org.github.io/JukeBot**
 
-Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to https://github.com/squigjess/JukeBot/issues if you see any!"""
+Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to https://github.com/JukeBot-Org/JukeBot/issues if you see any!"""
 
 UPDATE_CHANGELOG = """**Thank you for helping test out JukeBot while I still work on it!**\n
 **This is quite a milestone update; a lot of changes have been implemented, bringing JukeBot closer to being a fully-stable audio streaming bot!**
@@ -32,4 +32,4 @@ UPDATE_CHANGELOG = """**Thank you for helping test out JukeBot while I still wor
 
 Currently, I'm working on the Spotify integration problem and the ability to save queues. Hold tight!
 
-_As you jam out, please keep in mind that JukeBot is still a work-in-progress. If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - please report them to me on Discord at squig#1312, or via the ticket system at https://github.com/squigjess/JukeBot/issues if you see any._"""
+_As you jam out, please keep in mind that JukeBot is still a work-in-progress. If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - please report them to me on Discord at squig#1312, or via the ticket system at https://github.com/JukeBot-Org/JukeBot/issues if you see any._"""

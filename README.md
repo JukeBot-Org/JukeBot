@@ -3,11 +3,11 @@
 
 ------------------------
 
-[![Powered by Nextcord](https://custom-icon-badges.herokuapp.com/badge/-Powered%20by%20Nextcord-0d1620?logo=nextcord)](https://github.com/nextcord/nextcord "Powered by Nextcord Python API Wrapper") ![Scrutinizer code quality (GitHub)](https://img.shields.io/scrutinizer/quality/g/squigjess/JukeBot/testing) ![Scrutinizer build status](https://img.shields.io/scrutinizer/build/g/squigjess/JukeBot/testing)
+[![Powered by Nextcord](https://custom-icon-badges.herokuapp.com/badge/-Powered%20by%20Nextcord-0d1620?logo=nextcord)](https://github.com/nextcord/nextcord "Powered by Nextcord Python API Wrapper") ![Scrutinizer code quality (GitHub)](https://img.shields.io/scrutinizer/quality/g/JukeBot-Org/JukeBot/testing) ![Scrutinizer build status](https://img.shields.io/scrutinizer/build/g/JukeBot-Org/JukeBot/testing)
 
 # JukeBot
 
-**http://squigjess.github.io/JukeBot/**
+**http://JukeBot-Org.github.io/JukeBot/**
 
 A self-hosted audio streaming bot for Discord. Currently supports YouTube, with plans to support other services and local file streaming eventually.
 
