@@ -1,5 +1,7 @@
 # Project-specific ignores
-config.json
+PEP8-report.txt
+pep8-check
+JukeBot.config
 ytdl_example.json
 bin/
 local_audio/
@@ -11,6 +13,10 @@ testing_GUI.py
 __pycache__/
 *.py[cod]
 *$py.class
+
+# VS Code files
+.vscode/
+*.code-workspace
 
 # C extensions
 *.so
