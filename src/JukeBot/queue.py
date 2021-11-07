@@ -4,6 +4,11 @@ import JukeBot.messages as msgs
 
 
 class Queue:
+    """A Queue object is more than a queue of tracks. It stores information
+    for each guild that this instance of JukeBot is running in. The Queue for
+    a guild stores the VoiceClient object for that guild, tracks idle time,
+    and more.
+    """
     def __init__(self, guild: nextcord.Guild):
         # Stores an ordered list of the tracks in the queue.
         # 0th is playing currently, 1st is next, and so on.
@@ -28,7 +33,9 @@ class Queue:
         self.current_idle_time = 0
 
     def clear(self):
-        self.tracks = []
+        # TODO: Document this a bit clearer.
+        if self.tracks != []:
+            self.tracks = [self.tracks[0]]
 
     def remove_track(self, track_index_to_remove):
         self.tracks.pop(track_index_to_remove)

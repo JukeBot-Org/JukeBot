@@ -14,15 +14,19 @@ class Audio(commands.Cog):
     """Handles all of the audio-playing commands and operations."""
     def __init__(self, client):
         self.client = client
+
+        # Stores JukeBot.Queue objects for each guild.
         self.all_queues = {}
+
         self.YDL_OPTIONS = {"format": "bestaudio",
                             "noplaylist": "True"}
         self.FFMPEG_OPTIONS = {"before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
                                "options": "-vn",
                                "executable": JukeBot.config.FFMPEG_PATH}
+        # After idling for this amount of time in seconds, JukeBot will disconnect from the voice channel.
         self.time_to_idle_for = JukeBot.config.MAX_IDLE_TIME
 
-        # Gets the VC of the guild we're currently in. Currently unused.
+        # Gets the VC of the guild we're currently in.
         self.current_guild_vc = lambda g: nextcord.utils.get(self.client.voice_clients, guild=g)
 
         # Initialise guild queues for each guild that this instance of JukeBot is currently in.
@@ -39,8 +43,8 @@ class Audio(commands.Cog):
     async def idle_timer(self):
         """This loop runs for as long as JukeBot is online. It checks every
         second to see if any guild instances of JukeBot are not playing and
-        are still connected to the voice channel. If so, wait an amount of
-        seconds equal to MAX_IDLE_TIME, after which the bot disconnects.
+        are still connected to the voice channel. If so, it waits an amount
+        of seconds equal to MAX_IDLE_TIME, after which the bot disconnects.
         """
         for q in self.all_queues:
             if self.all_queues[q].is_playing is not False:
@@ -56,20 +60,22 @@ class Audio(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         """Fires when JukeBot changes voice channels. If disconnecting from a
-        voice channel, reset the queue and stop the idle timer.
+        voice channel, it clears the guild's queue and stops the guild's idle
+        timer.
         TODO: implement a total play-time tracker.
         """
         if member is not member.guild.me:
             return  # Make sure we only fire the below for JukeBot, not anybody else.
 
         if before.channel is None and after.channel is not None:
-            print(f"Connected to voice channel \"{after.channel}\"")
+            logging.info(f"Connected to voice channel \"{after.channel}\"")
 
         elif before.channel is not None and after.channel is None:
-            print(f"Disconnecting from voice channel \"{before.channel}\"")
-            # If the bot was manually disconnected, we need to clean up the broken voice client connection.
-            # NOTE: I've submitted a bugfix pull request to Nextcord which, in the next main release, will
-            # make the four lines below redundant.
+            logging.info(f"Attempting to disconnect from voice channel \"{before.channel}\"...")
+            # If the bot was manually disconnected, we need to clean up the
+            # broken voice client connection.
+            # NOTE: I've submitted a bugfix pull request to Nextcord which, in
+            # the next main release, will make the four lines below redundant.
             voice_client = self.current_guild_vc(member.guild)
             if voice_client:
                 await voice_client.disconnect()
@@ -101,8 +107,9 @@ class Audio(commands.Cog):
         return track_obj
 
     async def play_audio(self, ctx):
-        """If the bot is not playing at all, this will play the first track in
-        the queue, then immediately invoke play_next() afterwards."""
+        """If the bot is not playing at all when !play is invoked, this will
+        play the first track in the queue, then immediately invoke play_next()
+        afterwards."""
         if len(self.all_queues[ctx.guild.id].tracks) > 0:  # If there are tracks in the queue...
             # ...state that the bot is about to start playing...
             self.all_queues[ctx.guild.id].is_playing = True
@@ -128,10 +135,10 @@ class Audio(commands.Cog):
             self.all_queues[ctx.guild.id].is_playing = False
 
     def play_next(self, ctx):
-        """Plays the next track in the queue. Different to play_audio() in that
-        it does not attempt to join a VC. Doing so would make this async, which
-        won't work with nextcord's ability to invoke a lambda once audio is
-        finished playing audio. It's tricky. Maybe TODO?"""
+        """Plays the next track in the queue. Different to play_audio() in thatNO
+        it does not attempt to join a VC. Doing so would make this
+        asynchronous, which won't work with nextcord's ability to invoke a
+        lambda once audio is finished playing audio. It's tricky. Maybe TODO?"""
         # Remove the previously-played track from the queue to move to the next one.
         if self.all_queues[ctx.guild.id].is_empty() is False:  # This'll throw an exception if we try to pop from an empty list...
             self.all_queues[ctx.guild.id].remove_track(0)      # ...so we do this otherwise-useless check to avoid clogging up logfiles.
@@ -172,7 +179,6 @@ class Audio(commands.Cog):
         **Aliases** — Instead of **<prefix>play**, you can also use:
         `<prefix>p`
         """
-        self.last_text_channel = ctx.channel
         loading_msg = await ctx.send(f"`Loading track \"{search_query}\"...`")
 
         # Search YouTube for the video/query that the user requested.
