@@ -1,3 +1,3 @@
-cd /jukebox/src
+cd /jukebot/src
 
-python3 bot.py
+exec python3 bot.py
