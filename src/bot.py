@@ -14,7 +14,7 @@ import logging
 import JukeBot
 
 client = commands.Bot(command_prefix=JukeBot.config.COMMAND_PREFIX,
-                      help_command=JukeBot.cogs_core.misc_cog.ImprovedHelp())  # TODO: move to own module
+                      help_command=JukeBot.utils.help.ImprovedHelp())  # TODO: move to own module
 
 
 def initialise():
