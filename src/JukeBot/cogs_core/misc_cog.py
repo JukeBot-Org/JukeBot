@@ -3,7 +3,7 @@
 """
 from nextcord.ext import commands
 import JukeBot
-from JukeBot.embed_dialogs import dialogBox
+from JukeBot.utils.embed_dialogs import dialogBox
 import JukeBot.messages as msgs
 
 

@@ -2,7 +2,11 @@ import JukeBot.config
 
 EPHEMERAL_FOOTER = "This message will automatically disappear shortly"
 
-CANNOT_PLAY = "**Possible reasons:**\n- Incorrect video format\n- No results for search query\n- Streaming disabled by YouTube uploader\n- Malformed or invalid link provided."
+CANNOT_PLAY = ("**Possible reasons:**\n"
+               "- Incorrect video format\n"
+               "- No results for search query\n"
+               "- Streaming disabled by YouTube uploader\n"
+               "- Malformed or invalid link provided.")
 
 PRETTY_QUEUE_HEADER = "#  Track title                                            Duration "
 

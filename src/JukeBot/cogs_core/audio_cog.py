@@ -6,7 +6,7 @@ from colorama import Fore, Style
 import arrow
 import logging
 import JukeBot
-from JukeBot.embed_dialogs import dialogBox
+from JukeBot.utils.embed_dialogs import dialogBox
 import JukeBot.messages as msgs
 
 

@@ -1,7 +1,7 @@
 """Additional re-usable checks for JukeBot commands."""
 
 from nextcord.ext import commands
-from JukeBot.embed_dialogs import dialogBox
+from JukeBot.utils.embed_dialogs import dialogBox
 import JukeBot.messages as msgs
 import JukeBot
 

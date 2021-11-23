@@ -1,6 +1,6 @@
 """Defines how track data is stored."""
 import datetime
-from JukeBot.utils import humanize_duration
+from JukeBot.utils.misc import humanize_duration
 
 
 class Track:

@@ -1,4 +1,4 @@
-from JukeBot.utils import trim
+from JukeBot.utils.misc import trim
 import nextcord
 import JukeBot.messages as msgs
 

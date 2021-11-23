@@ -14,7 +14,7 @@ import logging
 import JukeBot
 
 client = commands.Bot(command_prefix=JukeBot.config.COMMAND_PREFIX,
-                      help_command=JukeBot.misc_commands.ImprovedHelp())
+                      help_command=JukeBot.cogs_core.misc_cog.ImprovedHelp())  # TODO: move to own module
 
 
 def initialise():
@@ -23,15 +23,16 @@ def initialise():
     """
     colorama.init()
 
+    # Set up logging
     if not os.path.exists(JukeBot.config.LOG_FILE_DIR):
         print(f"{fg.YELLOW}Logs directory missing. Creating...{st.RESET_ALL}")
         os.mkdir(JukeBot.config.LOG_FILE_DIR)
         print(f"{fg.GREEN}Created.{st.RESET_ALL}\n")
-
     logging.basicConfig(filename=JukeBot.config.LOG_FILE_PATH,
                         level=logging.INFO,
                         format="%(asctime)s %(levelname)s:%(message)s")
 
+    # Load Opus on non-Windows systems
     if sys.platform == "win32":
         print(f"{fg.YELLOW}Manually loading Opus not necessary, skipping.{st.RESET_ALL}")
     else:
@@ -55,8 +56,8 @@ async def on_ready():
     print(f"{fg.GREEN}Logged in{st.RESET_ALL} as {client.user}.")
     await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening,
                                                             name=JukeBot.config.LISTENING_TO))  # Listening to !help
-    client.add_cog(JukeBot.audio_commands.Audio(client))
-    client.add_cog(JukeBot.misc_commands.Other(client))
+    client.add_cog(JukeBot.cogs_core.audio_cog.Audio(client))
+    client.add_cog(JukeBot.cogs_core.misc_cog.Other(client))
     print(f"{fg.GREEN}Bot is ready!{st.RESET_ALL} Command prefix is {fg.GREEN}{JukeBot.config.COMMAND_PREFIX}{st.RESET_ALL}\n")
     print(f"Press {fg.YELLOW}Ctrl+C{st.RESET_ALL} to safely shut down JukeBot.\n")
 
