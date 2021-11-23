@@ -3,6 +3,7 @@ import JukeBot
 import JukeBot.messages as msgs
 from JukeBot.utils.embed_dialogs import dialogBox
 
+
 def docstring_scrubber(original):
     """Takes a docstring and splits out the examples section from the command
     help details. Really only used by ImprovedHelp().
