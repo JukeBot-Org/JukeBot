@@ -1,6 +1,3 @@
-"""Defines any miscellaneous commands (currently only !about) and the improved
-!help command.
-"""
 from nextcord.ext import commands
 import JukeBot
 from JukeBot.utils.embed_dialogs import dialogBox
@@ -8,9 +5,7 @@ import JukeBot.messages as msgs
 
 
 class Other(commands.Cog):
-    """Commands that do not fit into the Audio cog, i.e. those that handle
-    settings, application info, etc.
-    """
+    """Commands that do not fit into any other cog."""
     def __init__(self, client):
         self.client = client
 
@@ -34,16 +29,3 @@ class Other(commands.Cog):
             reply.set_footer(text=f"JukeBot — v.{JukeBot.config.RELEASE_VER}")
 
         await ctx.send(embed=reply)
-
-    @commands.command()
-    @JukeBot.checks.is_developer()
-    async def update(self, ctx):
-        await ctx.message.delete()
-        """**Internal command.**
-        Provides update messages and changelogs to alpha testers' servers.
-        """
-        reply = dialogBox("Version", "JukeBot has been updated!",
-                          msgs.UPDATE_CHANGELOG)
-        reply.set_image(url=msgs.BANNER_IMG)
-        reply.set_footer(text=msgs.UPDATE_FOOTER)
-        await ctx.send(embed=reply, delete_after=86400)  # 24 hrs
