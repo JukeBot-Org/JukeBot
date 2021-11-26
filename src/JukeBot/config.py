@@ -4,18 +4,20 @@ variables.
 import toml
 import os
 from datetime import datetime
+from JukeBot.utils import embed_dialogs
 
 with open("JukeBot.config", "r") as conf_file:
     config_settings = toml.loads(conf_file.read())
     exec_time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 
     # Bot config
-    RELEASE_VER = "0.2.0"
+    RELEASE_VER = "0.3.0 testing"
     DISCORD_BOT_TOKEN = config_settings["DISCORD_BOT_TOKEN"]
     FFMPEG_PATH = config_settings["FFMPEG_PATH"]
     COMMAND_PREFIX = config_settings["COMMAND_PREFIX"]
     LISTENING_TO = "{}help".format(COMMAND_PREFIX)
     MAX_IDLE_TIME = config_settings["MAX_IDLE_TIME"]
+    embed_dialogs.version = RELEASE_VER
 
     # Logging
     LOG_FILE_DIR = os.path.join(os.getcwd(), "logs")
@@ -25,10 +27,8 @@ with open("JukeBot.config", "r") as conf_file:
     # Spotify integration
     SPOTIFY_ENABLED = False
     if(config_settings["SPOTIPY_CLIENT_ID"] != "" and
-       config_settings["SPOTIPY_CLIENT_SECRET"] != "" and
-       config_settings["SPOTIPY_REDIRECT_URI"] != ""):
+       config_settings["SPOTIPY_CLIENT_SECRET"] != ""):
         print("Spotify integration enabled.\n")
         SPOTIFY_ENABLED = True
     SPOTIPY_CLIENT_ID = config_settings["SPOTIPY_CLIENT_ID"]
     SPOTIPY_CLIENT_SECRET = config_settings["SPOTIPY_CLIENT_SECRET"]
-    SPOTIPY_REDIRECT_URI = config_settings["SPOTIPY_REDIRECT_URI"]

@@ -4,6 +4,8 @@ link-less embeds.
 from nextcord import Embed, Colour
 
 JukeBot_Bluegreen = Colour.from_rgb(6, 227, 164)
+avatar_url = None
+version = None
 
 styles = {#Reason    Which emoji to use       The colour of the accent on the left
           "Warn":    [":warning:",            Colour.yellow()],
@@ -11,6 +13,7 @@ styles = {#Reason    Which emoji to use       The colour of the accent on the le
           "Debug":   [":gear:",               Colour.lighter_grey()],
           "Test":    [":red_circle:",         Colour.red()],
           "Success": [":white_check_mark:",   Colour.green()],
+          "Loading": [":hourglass:",          Colour.yellow()],
           # JukeBot-specific styles
           "Help":    [":woman_technologist:", JukeBot_Bluegreen],
           "Playing": [":arrow_forward:",      JukeBot_Bluegreen],
@@ -28,4 +31,4 @@ def dialogBox(theme, message_title, message_content="", url=None):
                     "description": message_content}
     if url:
         embed_kwargs["url"] = url
-    return Embed(**embed_kwargs)
+    return Embed(**embed_kwargs).set_footer(icon_url=avatar_url, text=f"JukeBot v.{version}")

@@ -50,6 +50,7 @@ def initialise_preready():
             logging.info("Opus not loaded! Audio may not work.")
     print(f"{fg.GREEN}Completed{st.RESET_ALL}")
 
+
 async def initialise_onceready():
     """Initialises bot's activity status, cogs, etc. once the bot is logged
     in to Discord.
@@ -63,6 +64,7 @@ async def initialise_onceready():
     client.add_cog(JukeBot.cogs_core.admin_cog.Admin(client))
     for cog in client.cogs:
         print(f"        {cog} cog loaded.")
+    JukeBot.utils.embed_dialogs.avatar_url = client.user.avatar.url
     print(f"{fg.GREEN}Completed{st.RESET_ALL}\n")
 
 
