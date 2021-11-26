@@ -179,10 +179,32 @@ class Audio(commands.Cog):
         **Aliases** — Instead of **<prefix>play**, you can also use:
         `<prefix>p`
         """
-        loading_msg = await ctx.send(f"`Loading track \"{search_query}\"...`")
+        loading_msg = await ctx.send(f"`Loading \"{search_query}\"...`")
 
-        # Search YouTube for the video/query that the user requested.
-        track_data = await self.search_yt(search_query, ctx)
+        # If we've been given a Spotify link, do some magic.
+        if search_query.startswith("https://open.spotify."):
+            if JukeBot.spotify.track_or_playlist(search_query) == "track":
+                track_title = JukeBot.spotify.spotify_to_search(search_query)
+                track_data = await self.search_yt(track_title, ctx)
+
+            elif JukeBot.spotify.track_or_playlist(search_query) == "playlist":
+                patience_msg = await ctx.send("`Playlist detected! This may take a while, please be patient...`")
+                track_data = []
+                playlist_tracks = JukeBot.spotify.spotify_to_search(search_query)
+                for track_title in playlist_tracks:
+                    this_one = await self.search_yt(track_title, ctx)
+                    track_data.append(this_one)
+                playlist_info = JukeBot.spotify.playlist_info(search_query)
+                playlist_info["requestor"] = ctx.author
+
+            else:
+                track_data = False
+
+        else:  # If we just got given a bog-standard YouTube link...
+            track_data = await self.search_yt(search_query, ctx)
+
+        print(track_data)
+        print(type(track_data))
 
         # Comes back False if the video is unable to be played due to uploader
         # permissions, or if we got a malformed link.
@@ -192,24 +214,39 @@ class Audio(commands.Cog):
             reply.set_footer(text=msgs.EPHEMERAL_FOOTER)
             await ctx.send(embed=reply, delete_after=10)
             return
-        track_data.voice_channel = ctx.author.voice.channel
 
-        # Add the track data to JukeBot's queue for this guild.
-        self.all_queues[ctx.guild.id].add_track(track_data)
+        if isinstance(track_data, list):
+            for track in track_data:
+                track.voice_channel = ctx.author.voice.channel
+                self.all_queues[ctx.guild.id].add_track(track)
+                # Start preparing the dialog to be posted.
+                reply = dialogBox("Queued",
+                                  f"Adding tracks from playlist \"{playlist_info['title']}\" to the queue...",
+                                  f"Try `{JukeBot.config.COMMAND_PREFIX}queue` to see what just got added.",
+                                  url=playlist_info['web_url'])
+                reply.set_thumbnail(url=playlist_info['thumb'])
+                reply.add_field(name="Requested by",
+                                value=playlist_info['requestor'],
+                                inline=True)
+            await patience_msg.delete()
+        else:
+            track_data.voice_channel = ctx.author.voice.channel
+            # Add the track data to JukeBot's queue for this guild.
+            self.all_queues[ctx.guild.id].add_track(track_data)
 
-        # Start preparing the dialog to be posted.
+            # Start preparing the dialog to be posted.
+            reply = dialogBox("Queued",
+                              f"Adding to queue: {track_data.title}",
+                              url=track_data.web_url)
+            reply.set_thumbnail(url=track_data.thumb)
+            reply.add_field(name="Duration",
+                            value=track_data.human_duration,
+                            inline=True)
+            reply.add_field(name="Requested by",
+                            value=track_data.requestor,
+                            inline=True)
+
         await loading_msg.delete()
-        reply = dialogBox("Queued",
-                          f"Adding to queue: {track_data.title}",
-                          url=track_data.web_url)
-        reply.set_thumbnail(url=track_data.thumb)
-        reply.add_field(name="Duration",
-                        value=track_data.human_duration,
-                        inline=True)
-        reply.add_field(name="Requested by",
-                        value=track_data.requestor,
-                        inline=True)
-
         await ctx.send(embed=reply)
 
         if self.all_queues[ctx.guild.id].is_playing is False:

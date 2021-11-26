@@ -4,3 +4,4 @@ from . import checks
 from . import config
 from . import utils
 from . import cogs_core
+from . import spotify
