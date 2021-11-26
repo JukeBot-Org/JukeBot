@@ -18,6 +18,7 @@ with open("JukeBot.config", "r") as conf_file:
     LISTENING_TO = "{}help".format(COMMAND_PREFIX)
     MAX_IDLE_TIME = config_settings["MAX_IDLE_TIME"]
     embed_dialogs.version = RELEASE_VER
+    VERSION_INFO_IN_FOOTER = False
 
     # Logging
     LOG_FILE_DIR = os.path.join(os.getcwd(), "logs")

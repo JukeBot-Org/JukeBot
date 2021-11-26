@@ -3,6 +3,8 @@ link-less embeds.
 """
 from nextcord import Embed, Colour
 
+import JukeBot
+
 JukeBot_Bluegreen = Colour.from_rgb(6, 227, 164)
 avatar_url = None
 version = None
@@ -31,4 +33,8 @@ def dialogBox(theme, message_title, message_content="", url=None):
                     "description": message_content}
     if url:
         embed_kwargs["url"] = url
-    return Embed(**embed_kwargs).set_footer(icon_url=avatar_url, text=f"JukeBot v.{version}")
+    
+    if JukeBot.config.VERSION_INFO_IN_FOOTER is True:
+        return Embed(**embed_kwargs).set_footer(icon_url=avatar_url, text=f"JukeBot v.{version}")
+    else:
+        return Embed(**embed_kwargs)
