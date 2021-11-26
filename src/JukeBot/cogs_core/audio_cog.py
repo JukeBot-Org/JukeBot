@@ -183,28 +183,38 @@ class Audio(commands.Cog):
 
         # If we've been given a Spotify link, do some magic.
         if search_query.startswith("https://open.spotify."):
+            if JukeBot.config.SPOTIFY_ENABLED is False:
+                reply = dialogBox("Error", "Spotify integration not configured",
+                                  msgs.NO_SPOTIFY)
+                await ctx.send(embed=reply)
+                await loading_msg.delete()
+                return
             if JukeBot.spotify.track_or_playlist(search_query) == "track":
                 track_title = JukeBot.spotify.spotify_to_search(search_query)
                 track_data = await self.search_yt(track_title, ctx)
 
             elif JukeBot.spotify.track_or_playlist(search_query) == "playlist":
-                patience_msg = await ctx.send("`Playlist detected! This may take a while, please be patient...`")
                 track_data = []
                 playlist_tracks = JukeBot.spotify.spotify_to_search(search_query)
+                count = 0
+                playlist_loading_embed = dialogBox("Loading", "Playlist detected! This may take a while, please be patient...",
+                                                   f"Track {count} out of {len(playlist_tracks)} loaded...")
+                playlist_loading_msg = await ctx.send(embed=playlist_loading_embed)
                 for track_title in playlist_tracks:
                     this_one = await self.search_yt(track_title, ctx)
                     track_data.append(this_one)
+                    count += 1
+                    playlist_loading_embed.description = f"Track {count} out of {len(playlist_tracks)} loaded..."
+                    await playlist_loading_msg.edit(embed=playlist_loading_embed)
                 playlist_info = JukeBot.spotify.playlist_info(search_query)
                 playlist_info["requestor"] = ctx.author
 
             else:
                 track_data = False
 
-        else:  # If we just got given a bog-standard YouTube link...
+        # If we just got given a bog-standard YouTube link...
+        else:
             track_data = await self.search_yt(search_query, ctx)
-
-        print(track_data)
-        print(type(track_data))
 
         # Comes back False if the video is unable to be played due to uploader
         # permissions, or if we got a malformed link.
@@ -213,6 +223,7 @@ class Audio(commands.Cog):
                               msgs.CANNOT_PLAY)
             reply.set_footer(text=msgs.EPHEMERAL_FOOTER)
             await ctx.send(embed=reply, delete_after=10)
+            await loading_msg.delete()
             return
 
         if isinstance(track_data, list):
@@ -222,13 +233,13 @@ class Audio(commands.Cog):
                 # Start preparing the dialog to be posted.
                 reply = dialogBox("Queued",
                                   f"Adding tracks from playlist \"{playlist_info['title']}\" to the queue...",
-                                  f"Try `{JukeBot.config.COMMAND_PREFIX}queue` to see what just got added.",
+                                  f"Type `{JukeBot.config.COMMAND_PREFIX}queue` to see what just got added.",
                                   url=playlist_info['web_url'])
                 reply.set_thumbnail(url=playlist_info['thumb'])
                 reply.add_field(name="Requested by",
                                 value=playlist_info['requestor'],
                                 inline=True)
-            await patience_msg.delete()
+            await playlist_loading_msg.delete()
         else:
             track_data.voice_channel = ctx.author.voice.channel
             # Add the track data to JukeBot's queue for this guild.
