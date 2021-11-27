@@ -60,6 +60,3 @@ def spotify_to_search(spotify_link):
                 track_list.append([get_track_name(track_info), returned_data["images"][1]["url"]])
 
         return track_list
-    # if link_type == "album":
-    #     print(json.dumps(sp.album(link_id), indent=4))
-    #     return False
