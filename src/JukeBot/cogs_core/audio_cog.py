@@ -190,8 +190,9 @@ class Audio(commands.Cog):
                 await loading_msg.delete()
                 return
             if JukeBot.spotify.track_or_playlist(search_query) == "track":
-                track_title = JukeBot.spotify.spotify_to_search(search_query)
+                track_title, album_art = JukeBot.spotify.spotify_to_search(search_query)
                 track_data = await self.search_yt(track_title, ctx)
+                track_data.thumb = album_art
 
             elif JukeBot.spotify.track_or_playlist(search_query) == "playlist":
                 track_data = []
@@ -200,8 +201,9 @@ class Audio(commands.Cog):
                 playlist_loading_embed = dialogBox("Loading", "Playlist detected! This may take a while, please be patient...",
                                                    f"Track {count} out of {len(playlist_tracks)} loaded...")
                 playlist_loading_msg = await ctx.send(embed=playlist_loading_embed)
-                for track_title in playlist_tracks:
-                    this_one = await self.search_yt(track_title, ctx)
+                for track in playlist_tracks:
+                    this_one = await self.search_yt(track[0], ctx)
+                    this_one.thumb = track[1]
                     track_data.append(this_one)
                     count += 1
                     playlist_loading_embed.description = f"Track {count} out of {len(playlist_tracks)} loaded..."

@@ -31,6 +31,7 @@ You can find more information on the project, as well as download the program to
 Please keep in mind that JukeBot is still a work-in-progress! I guess you could say it's \"in alpha\". If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - report them to https://github.com/JukeBot-Org/JukeBot/issues if you see any!"""
 
 UPDATE_CHANGELOG = """**Thank you for helping test out JukeBot while I still work on it!**\n\n
-**Spotify integration is now here! If you're testing JukeBot, it'll be enabled automatically. Just try `!play`ing a link to a track or playlist on Spotify.**
+- **Spotify integration is now here!** If you're testing JukeBot, it'll be enabled automatically. Just try `!play`ing a link to a track or playlist on Spotify.
+- New command `!logs` - Collects JukeBot's recent logs and DMs them to you.
 
 _As you jam out, please keep in mind that JukeBot is still a work-in-progress. If you're currently lucky enough to have JukeBot running in your server, expect there to be some hiccups and bugs - please report them to me on Discord at squig#1312, or via the ticket system at https://github.com/JukeBot-Org/JukeBot/issues if you see any._"""

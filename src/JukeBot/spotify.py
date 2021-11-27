@@ -4,6 +4,7 @@ of Spotify application tokens in order to function."""
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import JukeBot
+import json
 
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=JukeBot.config.SPOTIPY_CLIENT_ID,
                                                            client_secret=JukeBot.config.SPOTIPY_CLIENT_SECRET))
@@ -34,9 +35,12 @@ def spotify_to_search(spotify_link):
     if link_type != "track" and link_type != "playlist":
         return False
     if link_type == "track":
-        return get_track_name(sp.track(link_id))
+        track_info = sp.track(link_id)
+        print(json.dumps(track_info, indent=4))
+        return [get_track_name(track_info), track_info["album"]["images"][1]["url"]]
     if link_type == "playlist":
         track_list = []
-        for track in sp.playlist_items(link_id, fields="items.track.artists, items.track.name")["items"]:
-            track_list.append(get_track_name(track["track"]))
+        for track_info in sp.playlist_items(link_id, fields="items.track.artists, items.track.name, items.track.album")["items"]:
+            print(json.dumps(track_info, indent=4))
+            track_list.append([get_track_name(track_info["track"]), track_info["track"]["album"]["images"][1]["url"]])
         return track_list
