@@ -1,13 +1,10 @@
 # Project-specific ignores
-PEP8-report.txt
-pep8-check
+json_examples/
 JukeBot.config
-ytdl_example.json
 bin/
 local_audio/
 dist/
 logs/
-testing_GUI.py
 *.mp3
 # Byte-compiled / optimized / DLL files
 __pycache__/

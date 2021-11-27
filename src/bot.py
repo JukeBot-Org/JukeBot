@@ -44,11 +44,12 @@ def initialise_preready():
         nextcord.opus.load_opus(opus_loc)
         print("    Checking if Opus is loaded...")
         if nextcord.opus.is_loaded():
-            print(f"    {fg.GREEN}Opus module loaded successfully.{st.RESET_ALL}")
+            print("    Opus module loaded successfully.")
         else:
             print(f"    {fg.RED}Opus not loaded! Audio may not work.{st.RESET_ALL}")
             logging.info("Opus not loaded! Audio may not work.")
     print(f"{fg.GREEN}Completed{st.RESET_ALL}")
+
 
 async def initialise_onceready():
     """Initialises bot's activity status, cogs, etc. once the bot is logged
@@ -62,14 +63,15 @@ async def initialise_onceready():
     client.add_cog(JukeBot.cogs_core.misc_cog.Other(client))
     client.add_cog(JukeBot.cogs_core.admin_cog.Admin(client))
     for cog in client.cogs:
-        print(f"        {cog} cog loaded.")
+        print(f"    {cog} cog loaded.")
+    JukeBot.utils.embed_dialogs.avatar_url = client.user.avatar.url
     print(f"{fg.GREEN}Completed{st.RESET_ALL}\n")
 
 
 # Begin handling Discord bot stuff
 @client.event
 async def on_ready():
-    print(f"    {fg.GREEN}Logged in{st.RESET_ALL} as {client.user}.")
+    print(f"{fg.GREEN}Logged in{st.RESET_ALL} as {client.user}.")
     await initialise_onceready()
     print(f"\n{fg.GREEN}Bot is ready!{st.RESET_ALL} Command prefix is {fg.GREEN}{JukeBot.config.COMMAND_PREFIX}{st.RESET_ALL}")
     print(f"Press {fg.YELLOW}Ctrl+C{st.RESET_ALL} to safely shut down JukeBot.\n")

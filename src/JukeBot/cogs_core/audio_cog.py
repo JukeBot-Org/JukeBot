@@ -1,8 +1,6 @@
 import nextcord
 from nextcord.ext import commands
 from nextcord.ext import tasks
-import youtube_dl
-from colorama import Fore, Style
 import arrow
 import logging
 import JukeBot
@@ -18,8 +16,6 @@ class Audio(commands.Cog):
         # Stores JukeBot.Queue objects for each guild.
         self.all_queues = {}
 
-        self.YDL_OPTIONS = {"format": "bestaudio",
-                            "noplaylist": "True"}
         self.FFMPEG_OPTIONS = {"before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
                                "options": "-vn",
                                "executable": JukeBot.config.FFMPEG_PATH}
@@ -86,25 +82,6 @@ class Audio(commands.Cog):
             self.all_queues[member.guild.id].clear()
             self.all_queues[member.guild.id].is_playing = False
             logging.info(f"Successfully disconnected from voice channel \"{before.channel}\"")
-
-    async def search_yt(self, item, ctx):
-        """Searches YouTube for the requested search term or URL, returns a
-        JukeBot.Track object for the first result only."""
-
-        print(Fore.YELLOW + "======== YouTube Downloader ========")
-        with youtube_dl.YoutubeDL(self.YDL_OPTIONS) as ydl:
-            try:  # If we get a DownloadError while trying to fetch the YouTube data, it's probably a stream.
-                ydl_results = ydl.extract_info(f"ytsearch:{item}", download=False)["entries"]
-            except Exception as e:
-                print(type(e))
-                return False
-            if len(ydl_results) == 0:  # The list above will be empty if there were any issues.
-                return False
-            ytdl_data = ydl_results[0]
-        print("====================================\n" + Style.RESET_ALL)
-
-        track_obj = JukeBot.Track(ytdl_data, ctx)
-        return track_obj
 
     async def play_audio(self, ctx):
         """If the bot is not playing at all when !play is invoked, this will
@@ -179,37 +156,60 @@ class Audio(commands.Cog):
         **Aliases** — Instead of **<prefix>play**, you can also use:
         `<prefix>p`
         """
-        loading_msg = await ctx.send(f"`Loading track \"{search_query}\"...`")
+        # Take in the user's query and try to find the track(s) for them.
+        loading_msg = await ctx.send(f"`Loading \"{search_query}\"...`")
+        requested_tracks, playlist_info = await JukeBot.Searcher.find(search_query, ctx, loading_msg)
 
-        # Search YouTube for the video/query that the user requested.
-        track_data = await self.search_yt(search_query, ctx)
-
-        # Comes back False if the video is unable to be played due to uploader
-        # permissions, or if we got a malformed link.
-        if track_data is False:
+        # No tracks returned. Occurs if there was any kind of exception
+        # when executing JukeBot.Searcher.find()
+        if len(requested_tracks) <= 0:
             reply = dialogBox("Error", "Unable to play track",
                               msgs.CANNOT_PLAY)
             reply.set_footer(text=msgs.EPHEMERAL_FOOTER)
             await ctx.send(embed=reply, delete_after=10)
+            await loading_msg.delete()
             return
-        track_data.voice_channel = ctx.author.voice.channel
 
-        # Add the track data to JukeBot's queue for this guild.
-        self.all_queues[ctx.guild.id].add_track(track_data)
+        # A single track returned. Either a YouTube or Spotify track.
+        elif len(requested_tracks) == 1:
+            track_data = requested_tracks[0]
+            # Add the track data to JukeBot's queue for this guild.
+            self.all_queues[ctx.guild.id].add_track(track_data)
 
-        # Start preparing the dialog to be posted.
-        await loading_msg.delete()
-        reply = dialogBox("Queued",
-                          f"Adding to queue: {track_data.title}",
-                          url=track_data.web_url)
-        reply.set_thumbnail(url=track_data.thumb)
-        reply.add_field(name="Duration",
-                        value=track_data.human_duration,
-                        inline=True)
+            # Start preparing the dialog to be posted.
+            reply = dialogBox("Queued",
+                              f"Adding to queue: {track_data.title}",
+                              url=track_data.web_url)
+            reply.set_thumbnail(url=track_data.thumb)
+            reply.add_field(name="Duration",
+                            value=track_data.human_duration,
+                            inline=True)
+
+        # Multiple tracks returned. Most likely a Spotify album or playlist.
+        elif len(requested_tracks) >= 2:
+            tracks_for_embed = []
+            reply = dialogBox("Queued",
+                              f"Added tracks from the {playlist_info['type']} \"{playlist_info['name']}\" to the queue")
+            reply.set_thumbnail(url=playlist_info["thumb"])
+            for track_data in requested_tracks:
+                tracks_for_embed.append(f"• {track_data.title}")
+                # Add the track data to JukeBot's queue for this guild.
+                self.all_queues[ctx.guild.id].add_track(track_data)
+            if len(tracks_for_embed) > 3:
+                x = tracks_for_embed[:3]
+                x.append(f"...and {len(tracks_for_embed)-len(x)} more.")
+                tracks_for_embed = x
+            reply.add_field(name="Tracks added",
+                            value="```" + "".join(f"{x}\n" for x in tracks_for_embed) + "```",
+                            inline=False)
+
+        # Finish off the reply embed...
         reply.add_field(name="Requested by",
                         value=track_data.requestor,
                         inline=True)
 
+        # Delete the loading message, send the success message.
+        await loading_msg.delete()
         await ctx.send(embed=reply)
 
         if self.all_queues[ctx.guild.id].is_playing is False:

@@ -84,7 +84,6 @@ def is_not_paused():
     paused.
     """
     async def predicate(ctx):
-        print(ctx.cog.all_queues[ctx.guild.id].audio_player.is_paused())
         if ctx.cog.all_queues[ctx.guild.id].audio_player.is_paused() is True:
             reply = dialogBox("Warn", temp_title,
                               f"JukeBot is already paused.\n{msgs.PLS_RESUME}")
@@ -100,7 +99,6 @@ def is_paused():
     paused. Mainly for use with the !resume command.
     """
     async def predicate(ctx):
-        print(ctx.cog.all_queues[ctx.guild.id].audio_player.is_paused())
         if ctx.cog.all_queues[ctx.guild.id].audio_player.is_paused() is False:
             reply = dialogBox("Warn", temp_title,
                               f"JukeBot isn't paused.\nType `{JukeBot.config.COMMAND_PREFIX}pause` to pause the track.")
