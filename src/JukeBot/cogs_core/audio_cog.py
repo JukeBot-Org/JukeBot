@@ -189,15 +189,16 @@ class Audio(commands.Cog):
                 await ctx.send(embed=reply)
                 await loading_msg.delete()
                 return
-            if JukeBot.spotify.track_or_playlist(search_query) == "track":
+            if JukeBot.spotify.link_type(search_query) == "track":
                 track_title, album_art = JukeBot.spotify.spotify_to_search(search_query)
                 track_data = await self.search_yt(track_title, ctx)
                 track_data.thumb = album_art
 
-            elif JukeBot.spotify.track_or_playlist(search_query) == "playlist":
+            elif JukeBot.spotify.link_type(search_query) == "playlist" or JukeBot.spotify.link_type(search_query) == "album":
                 track_data = []
                 playlist_tracks = JukeBot.spotify.spotify_to_search(search_query)
                 count = 0
+
                 playlist_loading_embed = dialogBox("Loading", "Playlist detected! This may take a while, please be patient...",
                                                    f"Track {count} out of {len(playlist_tracks)} loaded...")
                 playlist_loading_msg = await ctx.send(embed=playlist_loading_embed)
@@ -208,7 +209,9 @@ class Audio(commands.Cog):
                     count += 1
                     playlist_loading_embed.description = f"Track {count} out of {len(playlist_tracks)} loaded..."
                     await playlist_loading_msg.edit(embed=playlist_loading_embed)
-                playlist_info = JukeBot.spotify.playlist_info(search_query)
+
+                # Retrieve additional info about the playlist/album
+                playlist_info = JukeBot.spotify.playlist_info(search_query, JukeBot.spotify.link_type(search_query))
                 playlist_info["requestor"] = ctx.author
 
             else:
