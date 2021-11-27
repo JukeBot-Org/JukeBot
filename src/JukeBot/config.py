@@ -29,7 +29,6 @@ with open("JukeBot.config", "r") as conf_file:
     SPOTIFY_ENABLED = False
     if(config_settings["SPOTIPY_CLIENT_ID"] != "" and
        config_settings["SPOTIPY_CLIENT_SECRET"] != ""):
-        print("Spotify integration enabled.\n")
         SPOTIFY_ENABLED = True
     SPOTIPY_CLIENT_ID = config_settings["SPOTIPY_CLIENT_ID"]
     SPOTIPY_CLIENT_SECRET = config_settings["SPOTIPY_CLIENT_SECRET"]
