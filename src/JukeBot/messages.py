@@ -14,7 +14,7 @@ NO_SPOTIFY = ("Please put your Spotify application's Client ID and Client "
               "Please see [this link](http://google.com/) for more "
               "information on setting up Spotify integration for JukeBot.")
 
-PRETTY_QUEUE_HEADER = "#  Track title                                            Duration "
+PRETTY_QUEUE_HEADER = "#  TRACK TITLE                                DURATION"
 
 PLS_RESUME = f"Type `{JukeBot.config.COMMAND_PREFIX}resume` to resume the track."
 
