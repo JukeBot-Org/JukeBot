@@ -13,7 +13,7 @@ def trim(name: str):
     length if need be. Used specifically to fit longer song titles into the
     output of the !queue command.
     """
-    final_length = 53
+    final_length = 53 - 12
     trimmed = ""
 
     if len(name) > final_length - 1:

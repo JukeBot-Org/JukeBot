@@ -62,4 +62,4 @@ class Queue:
                 duration = self.tracks[track].duration
                 tracks.append(f"{queue_pos}  {trimmed_title}{duration}  \n")
 
-            return f"`{header}\n{''.join(tracks)}`"
+            return f"```{header}\n{''.join(tracks)}```"

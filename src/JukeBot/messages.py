@@ -8,7 +8,7 @@ CANNOT_PLAY = ("**Possible reasons:**\n"
                "- Streaming disabled by YouTube uploader\n"
                "- Malformed or invalid link provided.")
 
-PRETTY_QUEUE_HEADER = "#  Track title                                            Duration "
+PRETTY_QUEUE_HEADER = "#  TRACK TITLE                                DURATION"
 
 PLS_RESUME = f"Type `{JukeBot.config.COMMAND_PREFIX}resume` to resume the track."
 
