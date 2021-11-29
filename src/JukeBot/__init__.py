@@ -5,6 +5,3 @@ from . import config
 from . import utils
 from . import cogs_core
 from .search import Searcher
-
-if config.SPOTIFY_ENABLED is True:
-    from . import spotify
