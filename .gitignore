@@ -1,11 +1,12 @@
 # Project-specific ignores
 json_examples/
-JukeBot.Config
+JukeBot.config
 bin/
 local_audio/
 dist/
 logs/
 *.mp3
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
