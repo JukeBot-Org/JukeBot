@@ -11,7 +11,7 @@ from colorama import Fore as fg
 from colorama import Style as st
 import logging
 
-import JukeBot
+from JukeBot import config
 
 client = commands.Bot(command_prefix=JukeBot.config.COMMAND_PREFIX,
                       help_command=JukeBot.utils.help.ImprovedHelp())  # TODO: move to own module
