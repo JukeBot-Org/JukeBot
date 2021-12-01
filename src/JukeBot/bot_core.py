@@ -1,28 +1,25 @@
-#!/usr/bin/env python3
-"""The main entry point for JukeBot. Instantiates the bot (as client),
-initialises libraries, handles error logging.
+"""The main entry point for JukeBot. This module instantiates the bot (as
+client)
 """
 import nextcord
 from nextcord.ext import commands
-import sys
+import JukeBot
+
+from sys import platform
 import os
-import colorama
 from colorama import Fore as fg
 from colorama import Style as st
 import logging
 
-from JukeBot import config
-
 client = commands.Bot(command_prefix=JukeBot.Config.COMMAND_PREFIX,
-                      help_command=JukeBot.utils.help.ImprovedHelp())  # TODO: move to own module
+                      help_command=JukeBot.Utils.help.ImprovedHelp())  # TODO: move to own module
 
 
 def initialise_preready():
-    """Initialises Opus (on non-Windows platforms), Colorama, the log file for
-    this session, etc. before the bot is logged in to Discord.
+    """Initialises a bunch of stuff before JukeBot attempts to log in to
+    Discord.
     """
     print(f"{fg.YELLOW}Pre-login init...{st.RESET_ALL}")
-    colorama.init()
 
     # Set up logging
     if not os.path.exists(JukeBot.Config.LOG_FILE_DIR):
@@ -34,7 +31,7 @@ def initialise_preready():
                         format="%(asctime)s %(levelname)s:%(message)s")
 
     # Load Opus on non-Windows systems
-    if sys.platform != "win32":
+    if platform != "win32":
         print(f"    {fg.YELLOW}Need to manually load Opus...{st.RESET_ALL}")
         import ctypes
         import ctypes.util
@@ -51,20 +48,18 @@ def initialise_preready():
     print(f"{fg.GREEN}Completed{st.RESET_ALL}")
 
 
-async def initialise_onceready():
+def initialise_onceready():
     """Initialises bot's activity status, cogs, etc. once the bot is logged
     in to Discord.
     """
     print(f"\n{fg.YELLOW}Post-login init...{st.RESET_ALL}")
-    await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening,
-                                                            name=JukeBot.Config.LISTENING_TO))  # Listening to !help
     print(f"    {fg.YELLOW}Loading core cogs...{st.RESET_ALL}")
-    client.add_cog(JukeBot.cogs_core.audio_cog.Audio(client))
-    client.add_cog(JukeBot.cogs_core.misc_cog.Other(client))
-    client.add_cog(JukeBot.cogs_core.admin_cog.Admin(client))
+    client.add_cog(JukeBot.Cogs.Audio(client))
+    client.add_cog(JukeBot.Cogs.Misc(client))
+    client.add_cog(JukeBot.Cogs.Admin(client))
     for cog in client.cogs:
         print(f"    {cog} cog loaded.")
-    JukeBot.utils.embed_dialogs.avatar_url = client.user.avatar.url
+    JukeBot.Utils.embed_dialogs.avatar_url = client.user.avatar.url
     print(f"{fg.GREEN}Completed{st.RESET_ALL}\n")
 
 
@@ -72,18 +67,19 @@ async def initialise_onceready():
 @client.event
 async def on_ready():
     print(f"{fg.GREEN}Logged in{st.RESET_ALL} as {client.user}.")
-    await initialise_onceready()
+    initialise_onceready()
+    await client.change_presence(activity=JukeBot.Config.ACTIVITY_STATUS)
     print(f"\n{fg.GREEN}Bot is ready!{st.RESET_ALL} Command prefix is {fg.GREEN}{JukeBot.Config.COMMAND_PREFIX}{st.RESET_ALL}")
     print(f"Press {fg.YELLOW}Ctrl+C{st.RESET_ALL} to safely shut down JukeBot.\n")
 
 
 @client.event  # Handles errors in nextcord commands
 async def on_command_error(ctx, error):
-    if type(error) == commands.MissingRequiredArgument:
+    if type(error) == nextcord.commands.MissingRequiredArgument:
         await JukeBot.checks.argument_is_missing(ctx)
         return
 
-    if type(error) == commands.CheckFailure:
+    if type(error) == nextcord.commands.CheckFailure:
         return  # No need to raise an exception and clog up the user's logfiles.
 
     if type(error) == commands.CommandNotFound:
@@ -96,14 +92,13 @@ async def on_command_error(ctx, error):
     raise error
 
 
-if __name__ == "__main__":
-    try:
-        initialise_preready()
-        print(f"\n{fg.YELLOW}Logging in...{st.RESET_ALL}")
-        client.run(JukeBot.Config.DISCORD_BOT_TOKEN)  # Hello, world!
+def start_bot():
+    initialise_preready()
+    print(f"\n{fg.YELLOW}Logging in...{st.RESET_ALL}")
+    client.run(JukeBot.Config.DISCORD_BOT_TOKEN)  # Hello, world!
 
-    except Exception as error:  # Handles non-command errors
-        logging.error("=====================================================================================")
-        logging.exception("UNHANDLED GENERIC ERROR, PLEASE REPORT TO https://github.com/JukeBot-Org/JukeBot/issues")
-        logging.error("=====================================================================================")
-        raise error
+    # except Exception as error:  # Handles non-command errors
+    #     logging.error("=====================================================================================")
+    #     logging.exception("UNHANDLED GENERIC ERROR, PLEASE REPORT TO https://github.com/JukeBot-Org/JukeBot/issues")
+    #     logging.error("=====================================================================================")
+    #     raise error

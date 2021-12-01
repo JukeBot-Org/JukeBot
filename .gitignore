@@ -1,6 +1,6 @@
 # Project-specific ignores
 json_examples/
-JukeBot.config
+JukeBot.Config
 bin/
 local_audio/
 dist/

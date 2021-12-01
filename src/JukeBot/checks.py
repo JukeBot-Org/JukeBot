@@ -1,8 +1,8 @@
 """Additional re-usable checks for JukeBot commands."""
 
 from nextcord.ext import commands
-from JukeBot.utils.embed_dialogs import dialogBox
-import JukeBot.messages as msgs
+from JukeBot.Utils.embed_dialogs import dialogBox
+import JukeBot.Messages as msgs
 import JukeBot
 
 temp_title = "Hang on!"

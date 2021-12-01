@@ -2,8 +2,8 @@ import nextcord
 from nextcord.ext import commands
 import os
 import JukeBot
-import JukeBot.messages as msgs
-from JukeBot.utils.embed_dialogs import dialogBox
+import JukeBot.Messages as msgs
+from JukeBot.Utils.embed_dialogs import dialogBox
 
 
 class Admin(commands.Cog):
@@ -28,13 +28,13 @@ class Admin(commands.Cog):
         await ctx.message.delete()
         log_file = []
         if all_logs == "all":
-            for log in os.listdir(JukeBot.Config.LOG_FILE_DIR)[-5:]:
-                log_path = os.path.join(JukeBot.Config.LOG_FILE_DIR, log)
+            for log in os.listdir(JukeBot.config.LOG_FILE_DIR)[-5:]:
+                log_path = os.path.join(JukeBot.config.LOG_FILE_DIR, log)
                 log_file.append(nextcord.File(open(log_path, "rb"),
                                               filename=os.fsdecode(log)))
         else:
-            log_file.append(nextcord.File(open(JukeBot.Config.LOG_FILE_PATH, "rb"),
-                            filename=JukeBot.Config.LOG_FILE_NAME))
+            log_file.append(nextcord.File(open(JukeBot.config.LOG_FILE_PATH, "rb"),
+                            filename=JukeBot.config.LOG_FILE_NAME))
         reply = dialogBox("Debug", "Sending logs via DM...").set_footer(text=msgs.EPHEMERAL_FOOTER)
         await ctx.send(embed=reply, delete_after=5)
         await ctx.author.send("`Your JukeBot logs, as requested:`", files=log_file)

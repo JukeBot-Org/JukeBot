@@ -1,10 +1,10 @@
 from nextcord.ext import commands
 import JukeBot
-from JukeBot.utils.embed_dialogs import dialogBox
-import JukeBot.messages as msgs
+from JukeBot.Utils.embed_dialogs import dialogBox
+import JukeBot.Messages as msgs
 
 
-class Other(commands.Cog):
+class Misc(commands.Cog):
     """Commands that do not fit into any other cog."""
     def __init__(self, client):
         self.client = client

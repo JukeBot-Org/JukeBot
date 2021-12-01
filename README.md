@@ -33,7 +33,7 @@ pip install -r requirements.txt
 I'm not gonna go into too much detail on this, but create a bot, add it to your server, then put the bot's token in `DISCORD_BOT_TOKEN` in `config.py`.
 
 ## 4. Set up `config.py`
-* Rename `JukeBot.EXAMPLES.config` to `JukeBot.config`
+* Rename `JukeBot.EXAMPLES.config` to `JukeBot.Config`
 * Update the config file with the FFmpeg path and your Discord bot's token.
 
 -------

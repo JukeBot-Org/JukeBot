@@ -1,12 +1,12 @@
 from nextcord.ext import commands
 import JukeBot
-import JukeBot.messages as msgs
-from JukeBot.utils.embed_dialogs import dialogBox
+import JukeBot.Messages as msgs
+from JukeBot.Utils.embed_dialogs import dialogBox
 
 
 def docstring_scrubber(original):
     """Takes a docstring and splits out the examples section from the command
-    help details. Really only used by ImprovedHelp().
+    help details.
     """
     full = original.replace("<prefix>", JukeBot.Config.COMMAND_PREFIX)
     synopsis = full.split("\n", 1)[0]

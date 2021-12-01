@@ -4,8 +4,8 @@ from nextcord.ext import tasks
 import arrow
 import logging
 import JukeBot
-from JukeBot.utils.embed_dialogs import dialogBox
-import JukeBot.messages as msgs
+from JukeBot.Utils.embed_dialogs import dialogBox
+import JukeBot.Messages as msgs
 
 
 class Audio(commands.Cog):

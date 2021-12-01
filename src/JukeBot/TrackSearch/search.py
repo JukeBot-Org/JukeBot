@@ -2,14 +2,14 @@
 constructing a JukeBot.Track object to add to the queue."""
 
 import JukeBot
-from JukeBot.utils.embed_dialogs import dialogBox
+from JukeBot.Utils.embed_dialogs import dialogBox
 from colorama import Fore, Style
 import youtube_dl
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
-sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=JukeBot.config.SPOTIPY_CLIENT_ID,
-                                                           client_secret=JukeBot.config.SPOTIPY_CLIENT_SECRET))
+sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=JukeBot.Config.SPOTIPY_CLIENT_ID,
+                                                           client_secret=JukeBot.Config.SPOTIPY_CLIENT_SECRET))
 
 
 class _Searcher:

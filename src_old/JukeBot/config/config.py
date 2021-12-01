@@ -1,4 +1,4 @@
-"""Reads JukeBot.config and uses the values within it to define global
+"""Reads JukeBot.Config and uses the values within it to define global
 variables.
 """
 import toml
@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 from JukeBot.utils import embed_dialogs
 
-with open("JukeBot.config", "r") as conf_file:
+with open("JukeBot.Config", "r") as conf_file:
     config_settings = toml.loads(conf_file.read())
     exec_time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 

@@ -2,8 +2,8 @@ import nextcord
 from nextcord.ext import commands
 import os
 import JukeBot
-import JukeBot.messages as msgs
-from JukeBot.utils.embed_dialogs import dialogBox
+# import JukeBot.Messages as msgs
+# from JukeBot.Utils.embed_dialogs import dialogBox
 
 
 class Admin(commands.Cog):
