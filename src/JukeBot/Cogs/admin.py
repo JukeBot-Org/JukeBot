@@ -2,8 +2,8 @@ import nextcord
 from nextcord.ext import commands
 import os
 import JukeBot
-# import JukeBot.Messages as msgs
-# from JukeBot.Utils.embed_dialogs import dialogBox
+import JukeBot.Messages as msgs
+from JukeBot.Utils.embed_dialogs import dialogBox
 
 
 class Admin(commands.Cog):
@@ -51,3 +51,8 @@ class Admin(commands.Cog):
         reply.set_image(url=msgs.BANNER_IMG)
         reply.set_footer(text=msgs.UPDATE_FOOTER)
         await ctx.send(embed=reply, delete_after=86400)  # 24 hrs
+
+    # @commands.command()
+    # @JukeBot.checks.is_developer()
+    # async def eval(self, ctx, *, code):
+    #     eval(code[3:-3])

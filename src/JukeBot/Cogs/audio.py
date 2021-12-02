@@ -106,6 +106,7 @@ class Audio(commands.Cog):
             # ...then play the track in the current VC!
             # Once the track is finished playing, repeat from the start.
             # Loop until the queue is empty, at which point...
+            print(media_url)
             self.all_queues[ctx.guild.id].audio_player.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
         else:
             # ...state that the bot is no longer playing, stopping the play loop.
@@ -126,6 +127,7 @@ class Audio(commands.Cog):
 
             media_url = self.all_queues[ctx.guild.id].tracks[0].source
             self.all_queues[ctx.guild.id].tracks[0].time_started = arrow.utcnow()
+            print(media_url)
             self.all_queues[ctx.guild.id].audio_player.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
 
         # Otherwise, if the queue is exhausted...
@@ -397,9 +399,3 @@ class Audio(commands.Cog):
         self.all_queues[ctx.guild.id].audio_player.resume()
         reply = dialogBox("Playing", f"Resumed track: **{self.all_queues[ctx.guild.id].tracks[0].title}**")
         await ctx.send(embed=reply)
-
-    # @commands.command(name="savequeue", aliases=["np", "playing"])
-    # @JukeBot.checks.jukebot_in_vc()
-    # @JukeBot.checks.is_playing()
-    # @JukeBot.checks.queue_not_empty()
-    # async def _savequeue(self, ctx):

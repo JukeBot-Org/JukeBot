@@ -1,28 +1,30 @@
 """Handles the various processes between the user invoking !play and JukeBot
 constructing a JukeBot.Track object to add to the queue."""
 
+from dataclasses import dataclass
 import JukeBot
 from JukeBot.Utils.embed_dialogs import dialogBox
 from colorama import Fore, Style
 import youtube_dl
-import spotipy
+import spotipy 
 from spotipy.oauth2 import SpotifyClientCredentials
 
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=JukeBot.Config.SPOTIPY_CLIENT_ID,
                                                            client_secret=JukeBot.Config.SPOTIPY_CLIENT_SECRET))
 
 
-class _Searcher:
-    def __init__(self):
-        self.YDL_OPTIONS = {"format": "bestaudio",
-                            "noplaylist": "True"}
-        self.spotify_matches = ["https://open.spotify.", "http://open.spotify."]
-        self.youtube_matches = ["https://youtube.", "https://youtu.be",
-                                "http://youtube.", "http://youtu.be"]
+@dataclass
+class TrackSearch:
+    YDL_OPTIONS = {"format": "bestaudio",
+                   "noplaylist": "True"}
+    spotify_matches = ["https://open.spotify.", "http://open.spotify."]
+    youtube_matches = ["https://youtube.", "https://youtu.be",
+                       "http://youtube.", "http://youtu.be"]
 
-        self.pl_dt = lambda cnt, max: dialogBox("Loading", "Playlist detected! This may take a while, please be patient...",
-                                                f"Track {cnt} out of {max} loaded...")
+    pl_dt = lambda cnt, max: dialogBox("Loading", "Playlist detected! This may take a while, please be patient...",
+                                       f"Track {cnt} out of {max} loaded...")
 
+    @classmethod
     def link_type(self, search_query: str):
         """Takes a web link/search term and lets us know whether its for a
         track on YouTube, a track/playlist/album on Spotify, or a search
@@ -52,6 +54,7 @@ class _Searcher:
 
         return [service, media_type]
 
+    @classmethod
     def translate_youtube(self, item: str):
         """Searches YouTube for the requested search term or URL, returns a
         dict of track info for the first result only. Returns False on an
@@ -59,11 +62,7 @@ class _Searcher:
 
         print(Fore.YELLOW + "======== YouTube Downloader ========")
         with youtube_dl.YoutubeDL(self.YDL_OPTIONS) as ydl:
-            try:  # If we get a DownloadError while trying to fetch the YouTube data, it's probably a stream.
-                ydl_results = ydl.extract_info(f"ytsearch:{item}", download=False)["entries"]
-            except Exception as e:
-                print(type(e))
-                return False
+            ydl_results = ydl.extract_info(f"ytsearch:{item}", download=False)["entries"]
             if len(ydl_results) == 0:  # The list above will be empty if there were any issues.
                 return False
             ytdl_data = ydl_results[0]
@@ -75,6 +74,7 @@ class _Searcher:
         track_info = sp.track(spotify_url)
         return track_info
 
+    @classmethod
     async def find(self, search_query, ctx, loading_msg):
         """The main entrypoint. Takes the user's search query and converts
         it into a list of playable JukeBot.Track objects.
@@ -112,21 +112,14 @@ class _Searcher:
                 all_tracks.append(self.translate_spotify(search_query))
 
             if media_type == "playlist":
-                try:
-                    api_result = sp.playlist(search_query)
-                except spotipy.exceptions.SpotifyException:
-                    return []
+                api_result = sp.playlist(search_query)
                 playlist_info["name"] = api_result["name"]
                 playlist_info["thumb"] = api_result["images"][0]["url"]
                 for track_info in api_result["tracks"]["items"]:
                     all_tracks.append(track_info["track"])
 
             if media_type == "album":
-                all_tracks = []
-                try:
-                    api_result = sp.album(search_query)
-                except spotipy.exceptions.SpotifyException:
-                    return []
+                api_result = sp.album(search_query)
                 playlist_info["name"] = api_result["name"]
                 playlist_info["thumb"] = api_result["images"][1]["url"]
                 for track_info in api_result["tracks"]["items"]:
@@ -150,19 +143,16 @@ class _Searcher:
                 # object, only this time we'll use the Spotify album art
                 # and web URL.
                 youtube_track_info = self.translate_youtube(searchable)
-                if youtube_track_info is False:
-                    return []
-                track_list.append(JukeBot.Track(source=youtube_track_info["formats"][0]["url"],
-                                                title=youtube_track_info["title"],
-                                                thumb=track["album"]["images"][1]["url"],
-                                                web_url=track["external_urls"]["spotify"],
-                                                duration=youtube_track_info["duration"],
-                                                ctx=ctx))
+                if youtube_track_info is not False:
+                    # return []
+                    track_list.append(JukeBot.Track(source=youtube_track_info["formats"][0]["url"],
+                                                    title=youtube_track_info["title"],
+                                                    thumb=track["album"]["images"][1]["url"],
+                                                    web_url=track["external_urls"]["spotify"],
+                                                    duration=youtube_track_info["duration"],
+                                                    ctx=ctx))
                 count += 1
                 if len(all_tracks) >= 2:
                     await loading_msg.edit(embed=self.pl_dt(count, len(all_tracks)))
 
         return [track_list, playlist_info]
-
-
-TrackSearch = _Searcher()

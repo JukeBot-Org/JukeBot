@@ -23,27 +23,27 @@ def initialise_preready():
 
     # Set up logging
     if not os.path.exists(JukeBot.Config.LOG_FILE_DIR):
-        print(f"    {fg.YELLOW}Logs directory missing. Creating...{st.RESET_ALL}")
+        print(f"  {fg.YELLOW}Logs directory missing. Creating...{st.RESET_ALL}")
         os.mkdir(JukeBot.Config.LOG_FILE_DIR)
-        print(f"    {fg.GREEN}Created.{st.RESET_ALL}\n")
+        print(f"  {fg.GREEN}Created.{st.RESET_ALL}\n")
     logging.basicConfig(filename=JukeBot.Config.LOG_FILE_PATH,
                         level=logging.INFO,
                         format="%(asctime)s %(levelname)s:%(message)s")
 
     # Load Opus on non-Windows systems
     if platform != "win32":
-        print(f"    {fg.YELLOW}Need to manually load Opus...{st.RESET_ALL}")
+        print(f"  {fg.YELLOW}Need to manually load Opus...{st.RESET_ALL}")
         import ctypes
         import ctypes.util
-        print("    Finding Opus library...")
+        print("  Finding Opus library...")
         opus_loc = ctypes.util.find_library('opus')
-        print("    Loading Opus...")
+        print("  Loading Opus...")
         nextcord.opus.load_opus(opus_loc)
-        print("    Checking if Opus is loaded...")
+        print("  Checking if Opus is loaded...")
         if nextcord.opus.is_loaded():
-            print("    Opus module loaded successfully.")
+            print("  Opus module loaded successfully.")
         else:
-            print(f"    {fg.RED}Opus not loaded! Audio may not work.{st.RESET_ALL}")
+            print(f"  {fg.RED}Opus not loaded! Audio may not work.{st.RESET_ALL}")
             logging.info("Opus not loaded! Audio may not work.")
     print(f"{fg.GREEN}Completed{st.RESET_ALL}")
 
@@ -53,7 +53,7 @@ def initialise_onceready():
     in to Discord.
     """
     print(f"\n{fg.YELLOW}Post-login init...{st.RESET_ALL}")
-    print(f"    {fg.YELLOW}Loading core cogs...{st.RESET_ALL}")
+    print(f"  {fg.YELLOW}Loading core cogs...{st.RESET_ALL}")
     client.add_cog(JukeBot.Cogs.Audio(client))
     client.add_cog(JukeBot.Cogs.Misc(client))
     client.add_cog(JukeBot.Cogs.Admin(client))
