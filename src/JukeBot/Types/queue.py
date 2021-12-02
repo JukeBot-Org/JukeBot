@@ -63,3 +63,6 @@ class Queue:
                 tracks.append(f"{queue_pos}  {trimmed_title}{duration}  \n")
 
             return f"```{header}\n{''.join(tracks)}```"
+
+    def export(self):
+        export_json = {}

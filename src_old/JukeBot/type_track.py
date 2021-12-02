@@ -33,6 +33,4 @@ class Track:
 
     def time_left(self, time_now):
         diff = (time_now - self.time_started).total_seconds() - self.total_pause_time
-
-        time_left = humanize_duration(self.duration.total_seconds() - diff)
-        return time_left
+        return humanize_duration(self.duration.total_seconds() - diff)

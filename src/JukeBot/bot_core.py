@@ -75,11 +75,11 @@ async def on_ready():
 
 @client.event  # Handles errors in nextcord commands
 async def on_command_error(ctx, error):
-    if type(error) == nextcord.commands.MissingRequiredArgument:
+    if type(error) == commands.MissingRequiredArgument:
         await JukeBot.checks.argument_is_missing(ctx)
         return
 
-    if type(error) == nextcord.commands.CheckFailure:
+    if type(error) == commands.CheckFailure:
         return  # No need to raise an exception and clog up the user's logfiles.
 
     if type(error) == commands.CommandNotFound:

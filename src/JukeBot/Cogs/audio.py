@@ -158,10 +158,10 @@ class Audio(commands.Cog):
         """
         # Take in the user's query and try to find the track(s) for them.
         loading_msg = await ctx.send(f"`Loading \"{search_query}\"...`")
-        requested_tracks, playlist_info = await JukeBot.Searcher.find(search_query, ctx, loading_msg)
-
+        requested_tracks, playlist_info = await JukeBot.TrackSearcher.Searcher.find(search_query, ctx, loading_msg)
+        print[requested_tracks[0].source]
         # No tracks returned. Occurs if there was any kind of exception
-        # when executing JukeBot.Searcher.find()
+        # when executing JukeBot.TrackSearcher.Searcher.find()
         if len(requested_tracks) <= 0:
             reply = dialogBox("Error", "Unable to play track",
                               msgs.CANNOT_PLAY)
@@ -395,3 +395,9 @@ class Audio(commands.Cog):
         self.all_queues[ctx.guild.id].audio_player.resume()
         reply = dialogBox("Playing", f"Resumed track: **{self.all_queues[ctx.guild.id].tracks[0].title}**")
         await ctx.send(embed=reply)
+
+    # @commands.command(name="savequeue", aliases=["np", "playing"])
+    # @JukeBot.checks.jukebot_in_vc()
+    # @JukeBot.checks.is_playing()
+    # @JukeBot.checks.queue_not_empty()
+    # async def _savequeue(self, ctx):

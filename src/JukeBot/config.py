@@ -31,6 +31,8 @@ class Config:
 
     # Spotify integration
     SPOTIFY_ENABLED = False
+    SPOTIPY_CLIENT_ID = ""
+    SPOTIPY_CLIENT_SECRET = ""
     if(conf_file["SPOTIPY_CLIENT_ID"] != "" and conf_file["SPOTIPY_CLIENT_SECRET"] != ""):
         SPOTIFY_ENABLED = True
         SPOTIPY_CLIENT_ID = conf_file["SPOTIPY_CLIENT_ID"]
