@@ -69,7 +69,7 @@ async def on_ready():
     print(f"{fg.GREEN}Logged in{st.RESET_ALL} as {client.user}.")
     initialise_onceready()
     await client.change_presence(activity=JukeBot.Config.ACTIVITY_STATUS)
-    print(f"\n{fg.GREEN}Bot is ready!{st.RESET_ALL} Command prefix is {fg.GREEN}{JukeBot.Config.COMMAND_PREFIX}{st.RESET_ALL}")
+    print(f"{fg.GREEN}Bot is ready!{st.RESET_ALL} Command prefix is {fg.GREEN}{JukeBot.Config.COMMAND_PREFIX}{st.RESET_ALL}")
     print(f"Press {fg.YELLOW}Ctrl+C{st.RESET_ALL} to safely shut down JukeBot.\n")
 
 

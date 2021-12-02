@@ -165,4 +165,4 @@ class _Searcher:
         return [track_list, playlist_info]
 
 
-Searcher = _Searcher()
+TrackSearch = _Searcher()

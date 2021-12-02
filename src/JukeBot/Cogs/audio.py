@@ -158,10 +158,12 @@ class Audio(commands.Cog):
         """
         # Take in the user's query and try to find the track(s) for them.
         loading_msg = await ctx.send(f"`Loading \"{search_query}\"...`")
-        requested_tracks, playlist_info = await JukeBot.TrackSearcher.Searcher.find(search_query, ctx, loading_msg)
-        print[requested_tracks[0].source]
+        requested_tracks, playlist_info = await JukeBot.TrackSearch.find(search_query, ctx, loading_msg)
+        print(f"type(requested_tracks) = {type(requested_tracks)}")
+        print(f"type(playlist_info) = {type(playlist_info)}")
+
         # No tracks returned. Occurs if there was any kind of exception
-        # when executing JukeBot.TrackSearcher.Searcher.find()
+        # when executing JukeBot.TrackSearch.find()
         if len(requested_tracks) <= 0:
             reply = dialogBox("Error", "Unable to play track",
                               msgs.CANNOT_PLAY)

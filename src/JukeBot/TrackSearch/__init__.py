@@ -1,1 +1,1 @@
-from .search import Searcher
+from .search import TrackSearch

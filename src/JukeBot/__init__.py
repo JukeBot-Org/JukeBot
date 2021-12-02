@@ -4,4 +4,4 @@ import JukeBot.checks
 import JukeBot.Cogs
 import JukeBot.Messages
 from JukeBot.Types import Queue, Track
-import JukeBot.TrackSearch
+from JukeBot.TrackSearch import TrackSearch

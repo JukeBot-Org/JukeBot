@@ -34,7 +34,4 @@ def dialogBox(theme, message_title, message_content="", url=None):
     if url:
         embed_kwargs["url"] = url
     
-    if JukeBot.Config.VERSION_INFO_IN_FOOTER is True:
-        return Embed(**embed_kwargs).set_footer(icon_url=avatar_url, text=f"JukeBot v.{version}")
-    else:
-        return Embed(**embed_kwargs)
+    return Embed(**embed_kwargs)
