@@ -1,4 +1,5 @@
 import nextcord
+from nextcord import FFmpegPCMAudio
 from nextcord.ext import commands
 from nextcord.ext import tasks
 import arrow
@@ -6,6 +7,7 @@ import logging
 import JukeBot
 from JukeBot.Utils.embed_dialogs import dialogBox
 import JukeBot.Messages as msgs
+import asyncio
 
 
 class Audio(commands.Cog):
@@ -83,56 +85,41 @@ class Audio(commands.Cog):
             self.all_queues[member.guild.id].is_playing = False
             logging.info(f"Successfully disconnected from voice channel \"{before.channel}\"")
 
-    async def play_audio(self, ctx):
+    async def play_audio(self, ctx, cont=False):
         """If the bot is not playing at all when !play is invoked, this will
         play the first track in the queue, then immediately invoke play_next()
         afterwards."""
-        if len(self.all_queues[ctx.guild.id].tracks) > 0:  # If there are tracks in the queue...
-            # ...state that the bot is about to start playing...
-            self.all_queues[ctx.guild.id].is_playing = True
+        guild_queue = self.all_queues[ctx.guild.id]
 
-            logging.info(f"Playing {self.all_queues[ctx.guild.id].tracks[0]}")
+        # If we just finished playing another track, remove it from the queue.
+        if self.all_queues[ctx.guild.id].is_empty() is False and cont is True:
+            self.all_queues[ctx.guild.id].remove_track(0)
+
+        if len(guild_queue.tracks) > 0:  # If there are tracks in the queue...
+            # ...state that the bot is about to start playing...
+            guild_queue.is_playing = True
+
+            logging.info(f"Playing {guild_queue.tracks[0]}")
 
             # ...get the first URL...
-            media_url = self.all_queues[ctx.guild.id].tracks[0].source
+            media_url = guild_queue.tracks[0].source
 
             # ...join a VC if not already in one...
-            if self.all_queues[ctx.guild.id].audio_player is None:
-                self.all_queues[ctx.guild.id].audio_player = await self.all_queues[ctx.guild.id].tracks[0].voice_channel.connect()
+            if guild_queue.audio_player is None:
+                guild_queue.audio_player = await guild_queue.tracks[0].voice_channel.connect()
 
             # ...record when the track started playing...
-            self.all_queues[ctx.guild.id].tracks[0].time_started = arrow.utcnow()
+            guild_queue.tracks[0].time_started = arrow.utcnow()
 
             # ...then play the track in the current VC!
             # Once the track is finished playing, repeat from the start.
             # Loop until the queue is empty, at which point...
             print(media_url)
-            self.all_queues[ctx.guild.id].audio_player.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
+            guild_queue.audio_player.play(FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS),
+                                          after=lambda e: asyncio.run(self.play_audio(ctx, cont=True)))
         else:
             # ...state that the bot is no longer playing, stopping the play loop.
-            self.all_queues[ctx.guild.id].is_playing = False
-
-    def play_next(self, ctx):
-        """Plays the next track in the queue. Different to play_audio() in thatNO
-        it does not attempt to join a VC. Doing so would make this
-        asynchronous, which won't work with nextcord's ability to invoke a
-        lambda once audio is finished playing audio. It's tricky. Maybe TODO?"""
-        # Remove the previously-played track from the queue to move to the next one.
-        if self.all_queues[ctx.guild.id].is_empty() is False:  # This'll throw an exception if we try to pop from an empty list...
-            self.all_queues[ctx.guild.id].remove_track(0)      # ...so we do this otherwise-useless check to avoid clogging up logfiles.
-
-        # If there are any more tracks waiting in the queue...
-        if len(self.all_queues[ctx.guild.id].tracks) > 0:
-            self.all_queues[ctx.guild.id].is_playing = True
-
-            media_url = self.all_queues[ctx.guild.id].tracks[0].source
-            self.all_queues[ctx.guild.id].tracks[0].time_started = arrow.utcnow()
-            print(media_url)
-            self.all_queues[ctx.guild.id].audio_player.play(nextcord.FFmpegPCMAudio(media_url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next(ctx))
-
-        # Otherwise, if the queue is exhausted...
-        else:
-            self.all_queues[ctx.guild.id].is_playing = False
+            guild_queue.is_playing = False
 
 # ================================ COMMANDS ================================= #
 
